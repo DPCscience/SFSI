@@ -44,3 +44,5 @@ Therefore the optimization problem becomes,
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cleft%5B%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2&plus;%5Clambda%20%5Calpha%5Csum_%7Bj%3D1%7D%5Ep%7C%5Cbeta_%7Bij%7D%7C&plus;%5Cfrac%7B1%7D%7B2%7D%5Clambda%281-%5Calpha%29%5Csum_%7Bj%3D1%7D%5Ep%5Cbeta_%7Bij%7D%5E2%29%5Cright%5D">
 </p>
+
+The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D1) and ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D0), respectively.
