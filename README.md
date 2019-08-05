@@ -11,5 +11,6 @@ All the available observation contribute to the predicted breeding value ![](htt
 where ![](https://latex.codecogs.com/gif.latex?%5Ctextbf%7Bx%7D) can be either some correlated traits measured in the same candidate, ![](https://latex.codecogs.com/gif.latex?%5Ctextbf%7Bx%7D_i%3D%28x_%7Bi1%7D%2C...%2Cx_%7Bip%7D%29%27), or measurements on the same trait collected on related individuals, ![](https://latex.codecogs.com/gif.latex?%5Ctextbf%7By%7D%3D%28y_%7B1%7D%2C...%2Cy_%7Bn%7D%29%27). 
 
 The weights ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cbeta%7D_i%3D%28%5Cbeta_%7Bi1%7D%2C...%2C%5Cbeta_%7Bip%7D%29%27) are derived by minimizing the optimization problem:
+
 ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3Darg%20min%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%20%5Cright%29%5E2)
 
