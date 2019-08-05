@@ -35,7 +35,7 @@ where ![](https://latex.codecogs.com/gif.latex?%5Clambda) is a penalty parameter
 </p>
 
 ### Elastic-Net Penalized Index
-An elastic-net penalized index considered a penalization being a weighted sum of both norms,
+An elastic-net penalized index considers a penalization being a weighted sum of both norms,
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?J%28%5Cboldsymbol%7B%5Cbeta%7D%29%3D%5Calpha%5Csum_%7Bj%3D1%7D%5Ep%7C%5Cbeta_j%7C&plus;%5Cfrac%7B1%7D%7B2%7D%281-%5Calpha%29%5Csum_%7Bj%3D1%7D%5Ep%5Cbeta_j%5E2">
 </p>
