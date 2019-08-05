@@ -1,5 +1,5 @@
 # PFSI
-## Penalized Family and Selection Indices
+## Family and Selection Indices
 
 Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usually done using indirect information:
 1. Correlated traits measured in the same candidates
@@ -13,7 +13,7 @@ where the predictors ***x*** can be either some correlated traits measured in th
 The weights ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cbeta%7D_i%3D%28%5Cbeta_%7Bi1%7D%2C...%2C%5Cbeta_%7Bip%7D%29) are derived by minimizing the optimization problem:
 
 <p align="center">
-<img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3Darg%20min%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%20%5Cright%29%5E2">
+<img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2">
 </p>
 
 Under standard assumptions, the solution to the above problem is 
@@ -22,3 +22,5 @@ Under standard assumptions, the solution to the above problem is
 </p>
 
 where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among ***x*** and ***G***<sub>*xy*</sub> is the genetic covariances between predictors ***x*** and response *y*.
+
+## Penalized Indices
