@@ -29,4 +29,9 @@ The regression coefficients can be derived by impossing a penalization in the ab
 <img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cleft%5B%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2&plus;%5Clambda%20J%28%5Cboldsymbol%7B%5Cbeta%7D_i%29%5Cright%5D">
 </p>
 
-where ![](https://latex.codecogs.com/gif.latex?%5Clambda) is a penalty parameter (![](https://latex.codecogs.com/gif.latex?%5Clambda%3D0) yields the coefficients for the un-penalized index) and ![](https://latex.codecogs.com/gif.latex?J%28%5Cboldsymbol%7B%5Cbeta%7D%29) is a penalty function.
+where ![](https://latex.codecogs.com/gif.latex?%5Clambda) is a penalty parameter (![](https://latex.codecogs.com/gif.latex?%5Clambda%3D0) yields the coefficients for the un-penalized index) and ![](https://latex.codecogs.com/gif.latex?J%28%5Cboldsymbol%7B%5Cbeta%7D%29) is a penalty function. Commonly used penalty functions are based on the L1 and L2 norms, 
+<p align="center">
+<img src="https://latex.codecogs.com/gif.latex?L1%3AJ%28%5Cboldsymbol%7B%5Cbeta%7D%29%3D%5Csum_%7Bj%3D1%7D%5Ep%7C%5Cbeta_j%7C%5Cqquad%20%5Cqquad%20L2%3A%20J%28%5Cboldsymbol%7B%5Cbeta%7D%29%3D%5Cfrac%7B%7D%7B1%7D%7B2%7D%5Csum_%7Bj%3D1%7D%5Ep%5Cbeta_j%5E2">
+</p>
+
+
