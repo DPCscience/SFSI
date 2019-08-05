@@ -64,5 +64,5 @@ The penalized indices can be solved using the package 'PFSI' that implements LAR
   install_git('https://github.com/MarcooLopez/PFSI')                    #3. install PFSI from GitHub
 ```
 
-* **[Penalized Selection Index](https://github.com/MarcooLopez/Genomic-Selection-Demo/blob/master/single_environment.md)**
-* **[Penalized Family Index](https://github.com/MarcooLopez/Genomic-Selection-Demo/blob/master/multi_environment.md)**
+* **[Penalized Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
+* **[Penalized Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
