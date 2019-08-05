@@ -1,7 +1,7 @@
 # PFSI
 ## Penalized Family and Selection Indices
 
-Prediction of **breeding values** for a target trait is usually done using indirect information:
+Prediction of **breeding values** for a target trait (*y*<sub>i</sub>) is usually done using indirect information:
 1. Correlated traits measured in the same candidates
 2. Measurements on the same trait of interest collected on related individuals
 
