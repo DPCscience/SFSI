@@ -28,4 +28,4 @@ The regression coefficients can be derived by impossing a penalization in the ab
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cleft%5B%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2&plus;%5Clambda%20J%28%5Cboldsymbol%7B%5Cbeta%7D_i%29%5Cright%5D">
 </p>
-where ![](https://latex.codecogs.com/gif.latex?%5Clambda) is a penalty parameter (![](https://latex.codecogs.com/gif.latex?%5Clambda%3D0) yields the coefficients for the un-penalized index) and ![](https://latex.codecogs.com/gif.latex?J%28%5Cboldsymbol%7B%5Cbeta%7D_i%29) is a penalty function.
+where <img src="https://latex.codecogs.com/gif.latex?%5Clambda"> is a penalty parameter (![](https://latex.codecogs.com/gif.latex?%5Clambda%3D0) yields the coefficients for the un-penalized index) and ![](https://latex.codecogs.com/gif.latex?J%28%5Cboldsymbol%7B%5Cbeta%7D_i%29) is a penalty function.
