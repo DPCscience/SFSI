@@ -47,7 +47,8 @@ Therefore the optimization problem becomes,
 
 The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D1) and ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D0), respectively. When ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D0), the solution has closed form:
 
-Therefore the optimization problem becomes,
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D_i%3D%5Cleft%28%5Ctextbf%7BP%7D_x&plus;%5Clambda%5Ctextbf%7BI%7D%20%5Cright%20%29%5E%7B-1%7D%5Ctextbf%7BG%7D_%7Bxy%7D">
 </p>
+
+If ![](https://latex.codecogs.com/gif.latex?%5Calpha%3E0), no closed form solution exists; however, a solution can be obtained using iterative algorithms such as Least Angle Regression (LARS) (Efron, 2004) or Coordinate Descent algorithms (Friedman, 2007).
