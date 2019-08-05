@@ -55,7 +55,14 @@ If ![](https://latex.codecogs.com/gif.latex?%5Calpha%3E0), no closed form soluti
 
 ## Penalized Family and Selection Indices
 Depending of the type of information used as predictors ***x*** (either correlated traits measured in the same candidates or measurements on the same trait collected on related individuals), the problem can be seen either as a Selection or a Family Index. 
-The penalized versions can be found using the package 'PFSI' which calculate the indices for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha) different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda).
+The penalized versions can be found using the package 'PFSI' which calculate the indices for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha).
+
+**Package installation from Github**
+```r
+  install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
+  library(devtools)                                                     #2. load the library
+  install_git('https://github.com/MarcooLopez/PFSI')                    #3. install PFSI from GitHub
+```
 
 * **[Penalized Selection Index](https://github.com/MarcooLopez/Genomic-Selection-Demo/blob/master/single_environment.md)**
 * **[Penalized Family Index](https://github.com/MarcooLopez/Genomic-Selection-Demo/blob/master/multi_environment.md)**
