@@ -1,4 +1,8 @@
 ## Penalized Family Index
+In a Family Index the breeding value for each candidate of selection is estimated as a linear combination of the observed value of all the predictors (subjects in a training set). The contribution (regression coefficients) of all training subjects for each individual can be calculated simultaneously using the BLUP (Best Linear Unbiased Predictor) that relies in kinship relationship (either pedigree- or marker-based) between candidates of selection and training data. 
+
+In contrast to the kinship-based BLUP, the penalized Family Index estimate the regression coefficients for each candidate with only a subset of the training subjects contributing to each individual's breeding value prediction.
+
 The kinship-based BLUPcanonical Family Index (i.e., un-penalized),
 
 ### 1. Data
