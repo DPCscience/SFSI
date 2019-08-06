@@ -133,3 +133,18 @@ plot(fm1,fm2)
 # Relative gain over G-BLUP (percentage)
 summary(fm1,fm2)[['PFI']][[1]][['gain']]
 ```
+
+**3. Comparing G-BLUP and PFI for different values of the parameter lambda**
+```r
+
+# 
+library(RSpectra)
+PC <-  eigs_sym(G, 2)$vectors
+K <- kmeans(PC, centers = 2, nstart = 100)
+nTST <- floor(n*0.3)   # 30% of the lines to be part in a testing set
+cluster1 <- which(K$cluster==1)   # Lines in cluster 1
+# Select nTST lines from cluster 1 to predict (if the lines in cluster is >= nTST, otherwise the testing set is the whole cluster 1)
+
+nLambda <- 100
+lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
+lambda[nLambda] <- 0
