@@ -5,10 +5,10 @@ In contrast to the kinship-based BLUP, the penalized Family Index (PFI) estimate
 
 Predictive ability of both kinship-based BLUP and PFI can be then compared using their prediction accuracy given by the correlation between observed and predicted values.
 
-### 1. Data
+### Data
 Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield (each entry corresponds to an average of two plot records) at four different environments; phenotypes (*wheat.Y* object) were centered and standardized to a unit variance within environment. Each of the lines were genotyped for 1279 diversity array technology (DArT) markers. At each marker two homozygous genotypes were possible and these were coded as 0/1. Marker genotypes are given in the object *wheat.X*. Finally a matrix *wheat.A* provides the pedigree relationships between lines computed from the pedigree records. Data is available for download in the R-package 'BGLR'.
 
-**Download data**
+**1. Download and prepare data**
 ```r
 # install.packages("BGLR")  # If not installed
 library(BGLR)
@@ -40,7 +40,7 @@ folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 ```
 
-### 2. Fitting G-BLUP and un-penalized family index
+**2. Fitting G-BLUP and un-penalized family index**
 ```r
 # Calculating G-BLUP using 'rrBLUP' package
 In <- diag(n)
