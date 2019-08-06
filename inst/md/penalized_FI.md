@@ -43,12 +43,14 @@ folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 
 # Calculating G-BLUP
+In <- diag(n)
 for(k in 1:nFolds)
 {
-  trn <- which(folds != k)
+  yNA <- y
   tst <- which(folds == k)
-  fm <- PFI(G,y,h2,trn,tst,verbose=TRUE)
-  fm <- mixed.solve(y=y,Z=In,K=G)
+  yNA[which(folds == k)] <- NA
+  fm <- mixed.solve(y=yNA,Z=In,K=G)
+  cor(fm$u,y[]
 }
 
 
