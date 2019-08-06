@@ -81,10 +81,14 @@ mean(corGBLUP);mean(corPFI1);mean(corPFI2)
 
   **2.1. Cross-validation using 'PFI_CV' function**
   
-Use same seed and same number of folds as before: `seed=123` and `nFolds=4`
+The above cross-validation can be done using the 'PFI_CV' function using the same 'seed' and same number of folds (`seed=123` and `nFolds=4`)
 ```r
 fm <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123)
-fm$correlation
+
+Comparing with previous results (that used heritability calculated using complete data)
+cbind(fm$correlation,corPFI2)
+```
+
 In <- diag(n)
 corGBLUP <- c()
 h2 <- c()
