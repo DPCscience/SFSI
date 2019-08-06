@@ -23,11 +23,8 @@ n <- length(y)
 
 # Calculating the genomic relationship matrix
 G <- tcrossprod(scale(X))/ncol(X)
-```
 
-### 2. Fitting G-BLUP and penalized family index
-```r
-# Calculating heritability using rrBLUP package
+# Calculating heritability using 'rrBLUP' package
 # install.packages("rrBLUP")  # If not installed
 library(rrBLUP)
 In <- diag(n)
@@ -37,28 +34,35 @@ varU <- fm$Vu
 h2 <- varU/(varU + varE)
 
 # Creating folds to perform cross-validation
-nFolds=3
+nFolds=4
 set.seed(123)
 folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
+```
 
-# Calculating G-BLUP
+### 2. Fitting G-BLUP and un-penalized family index
+```r
+# Calculating G-BLUP using 'rrBLUP' package
 In <- diag(n)
+corGBLUP <- c()
 for(k in 1:nFolds)
 {
   yNA <- y
   tst <- which(folds == k)
-  yNA[which(folds == k)] <- NA
+  yNA[tst] <- NA
   fm <- mixed.solve(y=yNA,Z=In,K=G)
-  cor(fm$u,y[]
+  corGBLUP[k] <- cor(fm$u[tst],y[tst])
 }
 
-
+# Calculating G-BLUP as a un-penalized family index (`lambda=0`) using 'PFSI' package
+library(PFSI)
+corPFI <- c()
 for(k in 1:nFolds)
 {
   trn <- which(folds != k)
-  tst <- which(folds == k)
-  fm <- PFI(G,y,h2,trn,tst,verbose=TRUE)
+  tst <- which(folds == k) 
+  fm <- PFI(G,y,h2,trn,tst,lambda=0)
+  corPFI[k] <- cor(predict(fm)$yHat,y[tst])
 }
 
 
