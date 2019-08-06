@@ -80,6 +80,7 @@ mean(corGBLUP);mean(corPFI1);mean(corPFI2)
 ```
 
   **2.1. Cross-validation using 'PFI_CV' function**
+  
 Use same seed and same number of folds as before: `seed=123` and `nFolds=4`
 ```r
 fm <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123)
