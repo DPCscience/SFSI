@@ -134,7 +134,7 @@ plot(fm1,fm2)
 summary(fm1,fm2)[['PFI']][[1]][['gain']]
 ```
 
-**3. Comparing G-BLUP and PFI for different values of the parameter lambda**
+**4. Predicting values for a testing set using penalization obtained from cross-validation in a training set**
 ```r
 
 # Secting a testing set from a cluster analysis
@@ -157,6 +157,11 @@ yNA <- y
 yNA[tst] <- NA
 fm2 <- PFI(G,yNA,h2.0,trn,tst,lambda=lambda)
 
+cor(y[tst],predict(fm2)$yHat)
 plot(fm2,PC=PC)
+
+fm3 <- PFI(G,y,h2.0,trn,tst)
+plot(apply(fm3$lambda,2,mean),cor(y[tst],predict(fm3)$yHat)[1,])
+plot(fm3$df,cor(y[tst],predict(fm3)$yHat)[1,])
 
 
