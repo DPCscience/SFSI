@@ -137,14 +137,26 @@ summary(fm1,fm2)[['PFI']][[1]][['gain']]
 **3. Comparing G-BLUP and PFI for different values of the parameter lambda**
 ```r
 
-# 
+# Secting a testing set from a cluster analysis
 library(RSpectra)
-PC <-  eigs_sym(G, 2)$vectors
-K <- kmeans(PC, centers = 2, nstart = 100)
-nTST <- floor(n*0.3)   # 30% of the lines to be part in a testing set
+nTST <- 150
+PC <-  eigs_sym(G, 2)
+K <- kmeans(PC$vectors[,1:2], centers = 2, nstart = 100)
 cluster1 <- which(K$cluster==1)   # Lines in cluster 1
-# Select nTST lines from cluster 1 to predict (if the lines in cluster is >= nTST, otherwise the testing set is the whole cluster 1)
 
-nLambda <- 100
-lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
-lambda[nLambda] <- 0
+# Select nTST lines from cluster 1 to predict (if the lines in cluster is >= nTST,
+# otherwise the testing set is the whole cluster 1)
+tmp <- ifelse(length(cluster1)>=nTST,nTST,length(cluster1))
+tst <- cluster1[1:tmp]
+trn <- (1:n)[-tst]
+
+fm1 <- PFI_CV(G,y,h2.0,trn,method="CD1")
+lambda <- summary(fm1)[['PFI']][[1]][['peaks']][1,'lambda']
+
+yNA <- y
+yNA[tst] <- NA
+fm2 <- PFI(G,yNA,h2.0,trn,tst,lambda=lambda)
+
+plot(fm2,PC=PC)
+
+
