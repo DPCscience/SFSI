@@ -31,7 +31,7 @@ In <- diag(n)
 fm <- mixed.solve(y=y,Z=In,K=G)
 varE <- fm$Ve
 varU <- fm$Vu
-h2 <- varU/(varU + varE)
+h2.0 <- varU/(varU + varE)
 
 # Creating folds to perform cross-validation
 nFolds=4
@@ -40,11 +40,12 @@ folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 ```
 
-**2. Fitting G-BLUP and un-penalized family index**
+**2. Cross-validation to comparing G-BLUP and un-penalized family index**
 ```r
 # Calculating G-BLUP using 'rrBLUP' package
 In <- diag(n)
 corGBLUP <- c()
+h2 <- c()         # To save within-fold heritability
 for(k in 1:nFolds)
 {
   yNA <- y
@@ -52,18 +53,94 @@ for(k in 1:nFolds)
   yNA[tst] <- NA
   fm <- mixed.solve(y=yNA,Z=In,K=G)
   corGBLUP[k] <- cor(fm$u[tst],y[tst])
+  h2[k] <- fm$Vu/(fm$Vu + fm$Ve)
 }
 
-# Calculating G-BLUP as a un-penalized family index (`lambda=0`) using 'PFSI' package
+# Calculating G-BLUP as a un-penalized family index (lambda=0) using 'PFSI' package
+library(PFSI)
+corPFI1 <- c()
+corPFI2 <- c()
+for(k in 1:nFolds)
+{
+  trn <- which(folds != k)
+  tst <- which(folds == k) 
+  
+  # Using within-fold heritability
+  fm <- PFI(G,y,h2[k],trn,tst,lambda=0)
+  corPFI1[k] <- cor(predict(fm)$yHat,y[tst])
+  
+  # Using heritability calculated using complete data
+  fm <- PFI(G,y,h2.0,trn,tst,lambda=0)
+  corPFI2[k] <- cor(predict(fm)$yHat,y[tst])
+}
+
+# Comparing results
+cbind(corGBLUP,corPFI1,corPFI2)
+mean(corGBLUP);mean(corPFI1);mean(corPFI2)
+```
+
+  **2.1. Cross-validation using 'PFI_CV' function**
+Use same seed and same number of folds as before: `seed=123` and `nFolds=4`
+```r
+fm <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123)
+fm$correlation
+In <- diag(n)
+corGBLUP <- c()
+h2 <- c()
+for(k in 1:nFolds)
+{
+  yNA <- y
+  tst <- which(folds == k)
+  yNA[tst] <- NA
+  fm <- mixed.solve(y=yNA,Z=In,K=G)
+  corGBLUP[k] <- cor(fm$u[tst],y[tst])
+  h2[k] <- fm$Vu/(fm$Vu + fm$Ve)
+}
+
+# Calculating G-BLUP as a un-penalized family index (lambda=0) using 'PFSI' package
 library(PFSI)
 corPFI <- c()
 for(k in 1:nFolds)
 {
   trn <- which(folds != k)
   tst <- which(folds == k) 
-  fm <- PFI(G,y,h2,trn,tst,lambda=0)
+  fm <- PFI(G,y,h2[k],trn,tst,lambda=0)
   corPFI[k] <- cor(predict(fm)$yHat,y[tst])
 }
 
+# Comparing both results
+cbind(corGBLUP,corPFI)
+mean(corGBLUP);mean(corPFI)
+```
 
+**3. Comparing G-BLUP and penalized family index for different values of lambda**
+```r
+# Calculating G-BLUP using 'rrBLUP' package
+In <- diag(n)
+corGBLUP <- c()
+h2 <- c()
+for(k in 1:nFolds)
+{
+  yNA <- y
+  tst <- which(folds == k)
+  yNA[tst] <- NA
+  fm <- mixed.solve(y=yNA,Z=In,K=G)
+  corGBLUP[k] <- cor(fm$u[tst],y[tst])
+  h2[k] <- fm$Vu/(fm$Vu + fm$Ve)
+}
+
+# Calculating G-BLUP as a un-penalized family index (lambda=0) using 'PFSI' package
+library(PFSI)
+corPFI <- c()
+for(k in 1:nFolds)
+{
+  trn <- which(folds != k)
+  tst <- which(folds == k) 
+  fm <- PFI(G,y,h2[k],trn,tst,lambda=0)
+  corPFI[k] <- cor(predict(fm)$yHat,y[tst])
+}
+
+# Comparing both results
+cbind(corGBLUP,corPFI)
+mean(corGBLUP);mean(corPFI)
 ```
