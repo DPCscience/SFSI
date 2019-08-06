@@ -1,4 +1,4 @@
-## Penalized Family Index
+## Penalized Family Index (PFI)
 In a Family Index the breeding value for each candidate of selection is estimated as a linear combination of the observed value of all the predictors (subjects in a training set). The contribution (regression coefficients) of all training subjects for each individual can be calculated simultaneously using the **BLUP (Best Linear Unbiased Predictor)** that relies in kinship relationship (either pedigree- or marker-based) between candidates of selection and training data. 
 
 In contrast to the kinship-based BLUP, the penalized Family Index (PFI) estimate the regression coefficients for each candidate with only a **subset** of the training subjects contributing to each individual's breeding value prediction. The higher the value of the penalization parameter the smaller the number of predictors contributing to the prediction. The kinship-based BLUP appears as the un-penalized case of the PFI. 
@@ -72,10 +72,9 @@ for(k in 1:nFolds)
 out
 apply(out,2,mean)
 ```
-
-**2.1. Cross-validation using 'PFI_CV' function**
   
-The above cross-validation can be done using the 'PFI_CV' function using the same 'seed' and same number of folds (`seed=123` and `nFolds=4`)
+The above cross-validation can be done using the 'PFI_CV' function with the same 'seed' and same number of folds (`seed=123` and `nFolds=4`)
+
 ```r
 fm <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123)
 
@@ -114,9 +113,11 @@ cbind(corGBLUP,corPFI)
 mean(corGBLUP);mean(corPFI)
 ```
 
-**3. Comparing G-BLUP and penalized family index for different values of lambda**
+**3. Comparing G-BLUP and PFI for different values of the parameter lambda**
 ```r
-# Calculating G-BLUP using 'rrBLUP' package
+nLambda <- 100
+lambda <- exp(seq(log(Cmax), log(1e-05), length = nLambda))
+lambda0[nLambda] <- 0
 In <- diag(n)
 corGBLUP <- c()
 h2 <- c()
