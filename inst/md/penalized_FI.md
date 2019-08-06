@@ -82,42 +82,36 @@ fm <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123)
 cbind(fm$correlation,out[,'PFI2'])
 ```
 
-**2. Comparing G-BLUP and un-penalized family index using cross-validation**
-```r
-In <- diag(n)
-corGBLUP <- c()
-h2 <- c()
-for(k in 1:nFolds)
-{
-  yNA <- y
-  tst <- which(folds == k)
-  yNA[tst] <- NA
-  fm <- mixed.solve(y=yNA,Z=In,K=G)
-  corGBLUP[k] <- cor(fm$u[tst],y[tst])
-  h2[k] <- fm$Vu/(fm$Vu + fm$Ve)
-}
-
-# Calculating G-BLUP as a un-penalized family index (lambda=0) using 'PFSI' package
-library(PFSI)
-corPFI <- c()
-for(k in 1:nFolds)
-{
-  trn <- which(folds != k)
-  tst <- which(folds == k) 
-  fm <- PFI(G,y,h2[k],trn,tst,lambda=0)
-  corPFI[k] <- cor(predict(fm)$yHat,y[tst])
-}
-
-# Comparing both results
-cbind(corGBLUP,corPFI)
-mean(corGBLUP);mean(corPFI)
-```
-
 **3. Comparing G-BLUP and PFI for different values of the parameter lambda**
 ```r
+
+# Generating a grid of 100 lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100
-lambda <- exp(seq(log(Cmax), log(1e-05), length = nLambda))
-lambda0[nLambda] <- 0
+lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
+lambda[nLambda] <- 0
+
+# Running the PFI with the generated lambdas
+fm <- PFI_CV(G,y,h2.0,lambda=lambda,nFolds=4,seed=123,name="PFI")
+
+# Running the un-penalized FI
+fm2 <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123,name="G-BLUP")
+
+# Plot of the (average) correlation in testing set vs the penalization parameter lambda
+plot(fm1,fm2,px='lambda')
+
+# Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
+plot(fm1,fm2,px='df')
+
+# Getting the maximum correlation
+avgCor <- apply(fm1$correlation,2,mean)
+max(avgCor,na.rm=TRUE)
+
+# Optimal penalization that gives the highest correlation
+summary(fm1)[['PFI']][[1]][['peaks']]
+
+# Relative gain over G-BLUP
+summary(fm2)[['PFI']][[1]][['peaks']][1,'correlation']
+
 In <- diag(n)
 corGBLUP <- c()
 h2 <- c()
