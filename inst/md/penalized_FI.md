@@ -10,6 +10,7 @@ Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield 
 
 **Download data**
 ```r
+# install.packages("BGLR")  # If not installed
 library(BGLR)
 data(wheat)
 A <- wheat.A
@@ -26,7 +27,8 @@ G <- tcrossprod(scale(X))/ncol(X)
 
 ### 2. Fitting G-BLUP and penalized family index
 ```r
-# Calculating heritability
+# Calculating heritability using rrBLUP package
+# install.packages("rrBLUP")  # If not installed
 library(rrBLUP)
 In <- diag(n)
 fm <- mixed.solve(y=y,Z=In,K=G)
@@ -41,6 +43,13 @@ folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 
 # Calculating G-BLUP
+for(k in 1:nFolds)
+{
+  trn <- which(folds != k)
+  tst <- which(folds == k)
+  fm <- PFI(G,y,h2,trn,tst,verbose=TRUE)
+  fm <- mixed.solve(y=y,Z=In,K=G)
+}
 
 
 for(k in 1:nFolds)
