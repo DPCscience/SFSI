@@ -3,7 +3,7 @@ In a Family Index the breeding value for each candidate of selection is estimate
 
 In contrast to the kinship-based BLUP, the penalized Family Index (PFI) estimate the regression coefficients for each candidate with only a **subset** of the training subjects contributing to each individual's breeding value prediction. The higher the value of the penalization parameter the smaller the number of predictors contributing to the prediction. The kinship-based BLUP appears as the un-penalized case of the PFI. 
 
-Predictive ability of both kinship-based BLUP and PFI can be then compared using their prediction accuracy given by the correlation between observed and predicted values.
+Predictive ability of both kinship-based BLUP and PFI can be then compared using their **prediction accuracy** given by the correlation between observed and predicted values.
 
 ### Data
 Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield (each entry corresponds to an average of two plot records) at four different environments; phenotypes (*wheat.Y* object) were centered and standardized to a unit variance within environment. Each of the lines were genotyped for 1279 diversity array technology (DArT) markers. At each marker two homozygous genotypes were possible and these were coded as 0/1. Marker genotypes are given in the object *wheat.X*. Finally a matrix *wheat.A* provides the pedigree relationships between lines computed from the pedigree records. Data is available for download in the R-package 'BGLR'.
@@ -91,7 +91,7 @@ lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
 lambda[nLambda] <- 0
 
 # Running the PFI with the generated lambdas
-fm <- PFI_CV(G,y,h2.0,lambda=lambda,nFolds=4,seed=123,name="PFI")
+fm1 <- PFI_CV(G,y,h2.0,lambda=lambda,nFolds=4,seed=123,name="PFI")
 
 # Running the un-penalized FI
 fm2 <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123,name="G-BLUP")
@@ -102,41 +102,34 @@ plot(fm1,fm2,px='lambda')
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
 plot(fm1,fm2,px='df')
 
-# Getting the maximum correlation
+# Getting the maximum average correlation
 avgCor <- apply(fm1$correlation,2,mean)
 max(avgCor,na.rm=TRUE)
 
 # Optimal penalization that gives the highest correlation
-summary(fm1)[['PFI']][[1]][['peaks']]
+out1 <- summary(fm1)[['PFI']][[1]][['peaks']][1,]
+out1
 
-# Relative gain over G-BLUP
-summary(fm2)[['PFI']][[1]][['peaks']][1,'correlation']
+# Average correlation for G-BLUP
+out2 <- summary(fm2)[['PFI']][[1]][['peaks']][1,]
+out2
 
-In <- diag(n)
-corGBLUP <- c()
-h2 <- c()
-for(k in 1:nFolds)
-{
-  yNA <- y
-  tst <- which(folds == k)
-  yNA[tst] <- NA
-  fm <- mixed.solve(y=yNA,Z=In,K=G)
-  corGBLUP[k] <- cor(fm$u[tst],y[tst])
-  h2[k] <- fm$Vu/(fm$Vu + fm$Ve)
-}
+# Relative gain over G-BLUP (percentage)
+100*(out1[1]-out2[1])/out1[1]
+```
 
-# Calculating G-BLUP as a un-penalized family index (lambda=0) using 'PFSI' package
-library(PFSI)
-corPFI <- c()
-for(k in 1:nFolds)
-{
-  trn <- which(folds != k)
-  tst <- which(folds == k) 
-  fm <- PFI(G,y,h2[k],trn,tst,lambda=0)
-  corPFI[k] <- cor(predict(fm)$yHat,y[tst])
-}
+The same comparison between G-BLUP and PFI can be done more easily as
 
-# Comparing both results
-cbind(corGBLUP,corPFI)
-mean(corGBLUP);mean(corPFI)
+```r
+# Running the PFI. Lambdas will be generated automatically
+fm1 <- PFI_CV(G,y,h2.0,nFolds=4,seed=123,name="PFI")
+
+# Running the un-penalized FI as G-BLUP
+fm2 <- PFI_CV(G,y,h2.0,method="GBLUP",nFolds=4,seed=123,name="G-BLUP")
+
+# Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
+plot(fm1,fm2)
+
+# Relative gain over G-BLUP (percentage)
+summary(fm1,fm2)[['PFI']][[1]][['gain']]
 ```
