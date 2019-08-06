@@ -137,17 +137,9 @@ summary(fm1,fm2)[['PFI']][[1]][['gain']]
 **4. Predicting values for a testing set using penalization obtained from cross-validation in a training set**
 ```r
 
-# Secting a testing set from a cluster analysis
-library(RSpectra)
-nTST <- 150
-PC <-  eigs_sym(G, 2)
-K <- kmeans(PC$vectors[,1:2], centers = 2, nstart = 100)
-cluster1 <- which(K$cluster==1)   # Lines in cluster 1
-
-# Select nTST lines from cluster 1 to predict (if the lines in cluster is >= nTST,
-# otherwise the testing set is the whole cluster 1)
-tmp <- ifelse(length(cluster1)>=nTST,nTST,length(cluster1))
-tst <- cluster1[1:tmp]
+set.seed(123)
+nTST <- 150   # Number of lines to predict
+tst <- sample(1:n,nTST)   
 trn <- (1:n)[-tst]
 
 fm1 <- PFI_CV(G,y,h2.0,trn,method="CD1")
@@ -161,7 +153,9 @@ cor(y[tst],predict(fm2)$yHat)
 plot(fm2,PC=PC)
 
 fm3 <- PFI(G,y,h2.0,trn,tst)
+GBLUP(G,y,h2.0,trn,tst)$correlation
+summary(fm3)[[1]]
 plot(apply(fm3$lambda,2,mean),cor(y[tst],predict(fm3)$yHat)[1,])
 plot(fm3$df,cor(y[tst],predict(fm3)$yHat)[1,])
-
+```
 
