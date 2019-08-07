@@ -178,7 +178,7 @@ for(j in 1:nRep)
 # Obtain an optimal lambda by averaging the ones obtained by cross-validation
 lambda <- mean(lambda)
 
-fm3 <- PFI(G,y,h2,trn,tst)
-summary(fm3)[[1]][['max']][1,'lambda']
+fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda)
+cor(predict(fm2)$yHat,y[tst])
 ```
 
