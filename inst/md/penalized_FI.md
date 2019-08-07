@@ -151,7 +151,7 @@ lambda <- summary(fm1)[['PFI']][[1]][['max']][1,'lambda']
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
 yNA[tst] <- NA
-fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda0)
+fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda)
 
 # Correlation between predicted and observed values (in testing set)
 plot(predict(fm2)$yHat,y[tst])
@@ -167,14 +167,18 @@ by providing different values of the parameter `seed`
 ```r
 # Repeated cross-validation in training data to get an optimal lambda
 lambda <- c()
-nRep <- 5   # Number of times to run the cross-validation
+nRep <- 3   # Number of times to run the cross-validation
 for(j in 1:nRep)
 {
-   fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*100)
-   lambda[j] <- summary(fm1)[['PFI']][[1]][['max']][1,'lambda']
+   fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*500)
+   lambda[j] <- summary(fm1)[[1]][[1]][['max']][1,'lambda']
+   cat("---- Done repetition=",j,"\n")
 }
 
 # Obtain an optimal lambda by averaging the ones obtained by cross-validation
 lambda <- mean(lambda)
+
+fm3 <- PFI(G,y,h2,trn,tst)
+summary(fm3)[[1]][['max']][1,'lambda']
 ```
 
