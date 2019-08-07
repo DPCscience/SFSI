@@ -120,7 +120,8 @@ out2
 100*(out1[1]-out2[1])/out1[1]
 ```
 
-The same comparison between G-BLUP and PFI can be done witout passing a vector of lambdas since they are generated internally
+The same comparison between G-BLUP and PFI can be done without passing a vector of lambdas since they are generated internally
+by the function
 
 ```r
 # Run the PFI. Lambdas will be generated automatically
@@ -143,19 +144,11 @@ nTST <- 150   # Number of lines to predict
 tst <- sample(1:n,nTST)   # Select lines to predict
 trn <- (1:n)[-tst]
 
-# Repeated cross-validation in training data to get an optimal lambda
-# Different partitions can be obtained by setting different values for parameter 'seed'
-lambda <- c()
-for(j in 1:5)
-{
-   fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*100)
-   lambda[j] <- summary(fm1)[['PFI']][[1]][['max']][1,'lambda']
-}
+# Cross-validation in training data to get a value of lambda
+fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=123)
+lambda <- summary(fm1)[['PFI']][[1]][['max']][1,'lambda']
 
-# Obtain an optimal lambda by averaging the ones obtained by cross-validation
-lambda0 <- mean(lambda)
-
-# Predict testing data using lambda obtainded from CV in training set
+# Predict testing data using lambda obtained from cross-validation
 yNA <- y
 yNA[tst] <- NA
 fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda0)
@@ -166,13 +159,22 @@ cor(predict(fm2)$yHat,y[tst])
 
 # Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
 GBLUP(G,y,h2,trn,tst)$correlation
+```
 
+Obtaining the value of `lambda` from a training data could be optimized by running repeatedly several cross-validations
+by providing different values of the parameter `seed`
 
-fm3 <- PFI(G,y,h2,trn,tst)
-# Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
-GBLUP(G,y,h2,trn,tst)$correlation
-summary(fm3)[[1]]
-plot(apply(fm3$lambda,2,mean),cor(y[tst],predict(fm3)$yHat)[1,])
-plot(fm3$df,cor(y[tst],predict(fm3)$yHat)[1,])
+```r
+# Repeated cross-validation in training data to get an optimal lambda
+lambda <- c()
+nRep <- 5   # Number of times to run the cross-validation
+for(j in 1:nRep)
+{
+   fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*100)
+   lambda[j] <- summary(fm1)[['PFI']][[1]][['max']][1,'lambda']
+}
+
+# Obtain an optimal lambda by averaging the ones obtained by cross-validation
+lambda <- mean(lambda)
 ```
 
