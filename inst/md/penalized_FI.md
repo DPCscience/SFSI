@@ -21,10 +21,10 @@ Y <- wheat.Y
 y <- as.vector(Y[,1])
 n <- length(y)
 
-# Calculating the genomic relationship matrix
+# Calculate the genomic relationship matrix
 G <- tcrossprod(scale(X))/ncol(X)
 
-# Calculating heritability using 'rrBLUP' package
+# Calculate heritability using 'rrBLUP' package
 # install.packages("rrBLUP")  # If not installed
 library(rrBLUP)
 In <- diag(n)
@@ -33,7 +33,7 @@ varE <- fm$Ve
 varU <- fm$Vu
 h2 <- varU/(varU + varE)
 
-# Creating folds to perform cross-validation
+# Create folds to perform cross-validation
 nFolds=4
 set.seed(123)
 folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
@@ -70,7 +70,7 @@ for(k in 1:nFolds)
   cat("Done fold=",k,"\n")
 }
 
-# Comparing results
+# Compare results
 out
 apply(out,2,mean)
 ```
@@ -80,22 +80,22 @@ The above cross-validation can be done using the 'PFI_CV' function with the same
 ```r
 fm <- PFI_CV(G,y,h2,lambda=0,nFolds=4,seed=123)
 
-# Comparing with previous results (that used heritability calculated using complete data)
+# Compare with previous results (that used heritability calculated using complete data)
 cbind(fm$correlation,out[,'PFI2'])
 ```
 
 **3. Comparing G-BLUP and PFI for different values of the parameter lambda**
 ```r
 
-# Generating a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
+# Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100     # Number of lambdas to generate
 lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
 lambda[nLambda] <- 0
 
-# Running the PFI with the generated grid of lambdas
+# Run the PFI with the generated grid of lambdas
 fm1 <- PFI_CV(G,y,h2,lambda=lambda,nFolds=4,seed=123,name="PFI")
 
-# Running the un-penalized FI
+# Run the un-penalized FI
 fm2 <- PFI_CV(G,y,h2,lambda=0,nFolds=4,seed=123,name="G-BLUP")
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
@@ -123,10 +123,10 @@ out2
 The same comparison between G-BLUP and PFI can be done witout passing a vector of lambdas since they are generated internally
 
 ```r
-# Running the PFI. Lambdas will be generated automatically
+# Run the PFI. Lambdas will be generated automatically
 fm1 <- PFI_CV(G,y,h2,nFolds=4,seed=123,name="PFI")
 
-# Running the un-penalized FI as G-BLUP
+# Run the un-penalized FI as G-BLUP
 fm2 <- PFI_CV(G,y,h2,method="GBLUP",nFolds=4,seed=123,name="G-BLUP")
 
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
@@ -136,30 +136,41 @@ plot(fm1,fm2)
 summary(fm1,fm2)[['PFI']][[1]][['gain']]
 ```
 
-**4. Predicting values for a testing set using penalization obtained from cross-validation in a training set**
+**4. Predicting values for a testing set using a training set**
 ```r
-
 set.seed(123)
 nTST <- 150   # Number of lines to predict
-tst <- sample(1:n,nTST)   
+tst <- sample(1:n,nTST)   # Select lines to predict
 trn <- (1:n)[-tst]
 
-# Cross-validation in training data to get an optimal lambda
-fm1 <- PFI_CV(G,y,h2,training=trn)
-lambda <- summary(fm1)[['PFI']][[1]][['max']]['lambda']
+# Repeated cross-validation in training data to get an optimal lambda
+# Different partitions can be obtained by setting different values for parameter 'seed'
+lambda <- c()
+for(j in 1:5)
+{
+   fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*100)
+   lambda[j] <- summary(fm1)[['PFI']][[1]][['max']][1,'lambda']
+}
 
-# Prediction testing data using lambda obtainded from CV in training set
+# Obtain an optimal lambda by averaging the ones obtained by cross-validation
+lambda0 <- mean(lambda)
+
+# Predict testing data using lambda obtainded from CV in training set
 yNA <- y
 yNA[tst] <- NA
-fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda)
+fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda0)
 
-# Prdicted vs observed values
+# Correlation between predicted and observed values (in testing set)
 plot(predict(fm2)$yHat,y[tst])
 cor(predict(fm2)$yHat,y[tst])
-plot(fm2,G=G,PC=TRUE)
 
-fm3 <- PFI(G,y,h2.0,trn,tst)
-GBLUP(G,y,h2.0,trn,tst)$correlation
+# Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
+GBLUP(G,y,h2,trn,tst)$correlation
+
+
+fm3 <- PFI(G,y,h2,trn,tst)
+# Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
+GBLUP(G,y,h2,trn,tst)$correlation
 summary(fm3)[[1]]
 plot(apply(fm3$lambda,2,mean),cor(y[tst],predict(fm3)$yHat)[1,])
 plot(fm3$df,cor(y[tst],predict(fm3)$yHat)[1,])
