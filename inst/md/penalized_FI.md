@@ -31,7 +31,7 @@ In <- diag(n)
 fm <- mixed.solve(y=y,Z=In,K=G)
 varE <- fm$Ve
 varU <- fm$Vu
-h2.0 <- varU/(varU + varE)
+h2 <- varU/(varU + varE)
 
 # Creating folds to perform cross-validation
 nFolds=4
@@ -45,7 +45,7 @@ folds <- sample(folds)
 library(PFSI)
 out <- matrix(NA,ncol=3,nrow=nFolds)    # Object to store results
 colnames(out) <- c("rrBLUP","PFI1","PFI2")
-h2 <- c()         # To save within-fold heritability
+h2i <- c()         # To save within-fold heritability
 for(k in 1:nFolds)
 {
   trn <- which(folds != k)
@@ -56,15 +56,17 @@ for(k in 1:nFolds)
   # G-BLUP using 'rrBLUP' package
   fm <- mixed.solve(y=yNA,Z=In,K=G)
   out[k,'rrBLUP'] <- cor(fm$u[tst],y[tst])
-  h2[k] <- fm$Vu/(fm$Vu + fm$Ve)
+  h2i[k] <- fm$Vu/(fm$Vu + fm$Ve)
   
   # G-BLUP as un-penalized FI using within-fold heritability
-  fm <- PFI(G,y,h2[k],trn,tst,lambda=0)
-  out[k,'PFI1'] <- cor(predict(fm)$yHat,y[tst])
+  fm <- PFI(G,y,h2i[k],trn,tst,lambda=0)
+  yHat <- predict(fm)$yHat             # Predicted values (in testing set)
+  out[k,'PFI1'] <- cor(yHat,y[tst])
   
   # G-BLUP as un-penalized FI using using heritability calculated using complete data
-  fm <- PFI(G,y,h2.0,trn,tst,lambda=0)
-  out[k,'PFI2'] <- cor(predict(fm)$yHat,y[tst])
+  fm <- PFI(G,y,h2,trn,tst,lambda=0)  
+  yHat <- predict(fm)$yHat             # Predicted values (in testing set)
+  out[k,'PFI2'] <- cor(yHat,y[tst])
   cat("Done fold=",k,"\n")
 }
 
@@ -76,7 +78,7 @@ apply(out,2,mean)
 The above cross-validation can be done using the 'PFI_CV' function with the same 'seed' and same number of folds (`seed=123` and `nFolds=4`)
 
 ```r
-fm <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123)
+fm <- PFI_CV(G,y,h2,lambda=0,nFolds=4,seed=123)
 
 # Comparing with previous results (that used heritability calculated using complete data)
 cbind(fm$correlation,out[,'PFI2'])
@@ -85,16 +87,16 @@ cbind(fm$correlation,out[,'PFI2'])
 **3. Comparing G-BLUP and PFI for different values of the parameter lambda**
 ```r
 
-# Generating a grid of 100 lambdas evenly spaced in logarithm scale starting from 1 to 0
-nLambda <- 100
+# Generating a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
+nLambda <- 100     # Number of lambdas to generate
 lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
 lambda[nLambda] <- 0
 
-# Running the PFI with the generated lambdas
-fm1 <- PFI_CV(G,y,h2.0,lambda=lambda,nFolds=4,seed=123,name="PFI")
+# Running the PFI with the generated grid of lambdas
+fm1 <- PFI_CV(G,y,h2,lambda=lambda,nFolds=4,seed=123,name="PFI")
 
 # Running the un-penalized FI
-fm2 <- PFI_CV(G,y,h2.0,lambda=0,nFolds=4,seed=123,name="G-BLUP")
+fm2 <- PFI_CV(G,y,h2,lambda=0,nFolds=4,seed=123,name="G-BLUP")
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
 plot(fm1,fm2,px='lambda')
@@ -102,30 +104,30 @@ plot(fm1,fm2,px='lambda')
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
 plot(fm1,fm2,px='df')
 
-# Getting the maximum average correlation
+# Maximum average correlation
 avgCor <- apply(fm1$correlation,2,mean)
 max(avgCor,na.rm=TRUE)
 
-# Optimal penalization that gives the highest correlation
-out1 <- summary(fm1)[['PFI']][[1]][['peaks']][1,]
+# Maximum average correlation obtained using 'summary' method 
+out1 <- summary(fm1)[['PFI']][[1]][['max']]
 out1
 
-# Average correlation for G-BLUP
-out2 <- summary(fm2)[['PFI']][[1]][['peaks']][1,]
+# Maximum average correlation for G-BLUP
+out2 <- summary(fm2)[['PFI']][[1]][['max']]
 out2
 
 # Relative gain over G-BLUP (percentage)
 100*(out1[1]-out2[1])/out1[1]
 ```
 
-The same comparison between G-BLUP and PFI can be done more easily as
+The same comparison between G-BLUP and PFI can be done witout passing a vector of lambdas since they are generated internally
 
 ```r
 # Running the PFI. Lambdas will be generated automatically
-fm1 <- PFI_CV(G,y,h2.0,nFolds=4,seed=123,name="PFI")
+fm1 <- PFI_CV(G,y,h2,nFolds=4,seed=123,name="PFI")
 
 # Running the un-penalized FI as G-BLUP
-fm2 <- PFI_CV(G,y,h2.0,method="GBLUP",nFolds=4,seed=123,name="G-BLUP")
+fm2 <- PFI_CV(G,y,h2,method="GBLUP",nFolds=4,seed=123,name="G-BLUP")
 
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
 plot(fm1,fm2)
@@ -142,15 +144,19 @@ nTST <- 150   # Number of lines to predict
 tst <- sample(1:n,nTST)   
 trn <- (1:n)[-tst]
 
-fm1 <- PFI_CV(G,y,h2.0,trn,method="CD1")
-lambda <- summary(fm1)[['PFI']][[1]][['peaks']][1,'lambda']
+# Cross-validation in training data to get an optimal lambda
+fm1 <- PFI_CV(G,y,h2,training=trn)
+lambda <- summary(fm1)[['PFI']][[1]][['max']]['lambda']
 
+# Prediction testing data using lambda obtainded from CV in training set
 yNA <- y
 yNA[tst] <- NA
-fm2 <- PFI(G,yNA,h2.0,trn,tst,lambda=lambda)
+fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda)
 
-cor(y[tst],predict(fm2)$yHat)
-plot(fm2,PC=PC)
+# Prdicted vs observed values
+plot(predict(fm2)$yHat,y[tst])
+cor(predict(fm2)$yHat,y[tst])
+plot(fm2,G=G,PC=TRUE)
 
 fm3 <- PFI(G,y,h2.0,trn,tst)
 GBLUP(G,y,h2.0,trn,tst)$correlation
