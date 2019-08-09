@@ -75,7 +75,7 @@ for(k in 1:nFolds)
 
 # Compare results
 out
-apply(out,2,mean)
+colMeans(out)   # Average across folds
 ```
   
 The above cross-validation can be done using the 'PFI_CV' function with the same ``seed`` and ``nFolds`` parameters
@@ -109,7 +109,7 @@ plot(fm1,fm2,py='correlation')
 plot(fm1,fm2,py='MSE')
 
 # Maximum average correlation
-avgCor <- apply(fm1$correlation,2,mean)
+avgCor <- colMeans(fm1$correlation)
 max(avgCor,na.rm=TRUE)
 
 # Maximum average correlation obtained using 'summary' method 
