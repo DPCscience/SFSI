@@ -210,6 +210,7 @@ Results of all chunks can be gathered after completion using function `collect`.
 
 ```r
 fm <- collect(prefix='test',file.rm = TRUE)
+summary(fm)
 ```
 
 
