@@ -34,8 +34,9 @@ varU <- fm$Vu
 h2 <- varU/(varU + varE)
 
 # Create folds to perform cross-validation
-nFolds=4
-set.seed(123)
+nFolds <- 4
+seed <- 123
+set.seed(seed)
 folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 ```
@@ -67,7 +68,7 @@ for(k in 1:nFolds)
   fm <- PFI(G,y,h2,trn,tst,lambda=0)  
   yHat <- predict(fm)$yHat             # Predicted values (in testing set)
   out[k,'PFI2'] <- cor(yHat,y[tst])
-  cat("Done fold=",k,"\n")
+  cat("  -- Done fold=",k,"\n")
 }
 
 # Compare results
@@ -75,10 +76,10 @@ out
 apply(out,2,mean)
 ```
   
-The above cross-validation can be done using the 'PFI_CV' function with the same 'seed' and same number of folds (`seed=123` and `nFolds=4`)
+The above cross-validation can be done using the 'PFI_CV' function with the same ``seed`` and ``nFolds`` parameters
 
 ```r
-fm <- PFI_CV(G,y,h2,lambda=0,nFolds=4,seed=123)
+fm <- PFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed)
 
 # Compare with previous results (that used heritability calculated using complete data)
 cbind(fm$correlation,out[,'PFI2'])
@@ -93,16 +94,16 @@ lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
 lambda[nLambda] <- 0
 
 # Run the PFI with the generated grid of lambdas
-fm1 <- PFI_CV(G,y,h2,lambda=lambda,nFolds=4,seed=123,name="PFI")
+fm1 <- PFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="PFI")
 
 # Run the un-penalized FI
-fm2 <- PFI_CV(G,y,h2,lambda=0,nFolds=4,seed=123,name="G-BLUP")
+fm2 <- PFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,name="G-BLUP")
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
-plot(fm1,fm2,px='lambda')
+plot(fm1,fm2,py='correlation')
 
-# Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
-plot(fm1,fm2,px='df')
+# Plot of the (average) MSE in testing set vs the penalization parameter lambda
+plot(fm1,fm2,py='MSE')
 
 # Maximum average correlation
 avgCor <- apply(fm1$correlation,2,mean)
@@ -121,14 +122,14 @@ out2
 ```
 
 The same comparison between G-BLUP and PFI can be done without passing a vector of lambdas since they are generated internally
-by the function
+by the function when `lambda` is not provided
 
 ```r
 # Run the PFI. Lambdas will be generated automatically
-fm1 <- PFI_CV(G,y,h2,nFolds=4,seed=123,name="PFI")
+fm1 <- PFI_CV(G,y,h2,nFolds=nFolds,seed=seed)
 
 # Run the un-penalized FI as G-BLUP
-fm2 <- PFI_CV(G,y,h2,method="GBLUP",nFolds=4,seed=123,name="G-BLUP")
+fm2 <- PFI_CV(G,y,h2,method="GBLUP",nFolds=nFolds,seed=seed)
 
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
 plot(fm1,fm2)
@@ -167,18 +168,37 @@ by providing different values of the parameter `seed`
 ```r
 # Repeated cross-validation in training data to get an optimal lambda
 lambda <- c()
-nRep <- 3   # Number of times to run the cross-validation
+nRep <- 10   # Number of times to run the cross-validation
 for(j in 1:nRep)
 {
    fm1 <- PFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*500)
    lambda[j] <- summary(fm1)[[1]][[1]][['max']][1,'lambda']
-   cat("---- Done repetition=",j,"\n")
+   cat("  -- Done repetition=",j,"\n")
 }
 
 # Obtain an optimal lambda by averaging the ones obtained by cross-validation
-lambda <- mean(lambda)
+lambda0 <- mean(lambda)    # Aritmethic mean
+lambda0 <- prod(lambda)^(1/length(lambda))  # Geometric mean
 
-fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda)
+fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda0)
 cor(predict(fm2)$yHat,y[tst])
 ```
+
+**5. Predicting values for a large testing set using parallel computing**
+Analysis of a large number of individuals can be done by dividing the testing set into `k` chunks and running each chunk separately.
+Results of all chunks can be gather after completion using function `collect`. 
+```r
+tst <- sample(1:n,150)   # Select lines to predict
+trn <- (1:n)[-tst]
+
+nPart <- 5    # Number of chunks in which the testing set will be divided into
+
+# Run each of the subsets at different 
+fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(1,nPart),'test'),nCores=4)
+fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(2,nPart),'test'),nCores=4)
+fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(3,nPart),'test'),nCores=4)
+fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(4,nPart),'test'),nCores=4)
+fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(5,nPart),'test'),nCores=4)
+
+
 
