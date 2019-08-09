@@ -181,7 +181,7 @@ for(j in 1:nRep)
 }
 
 # Obtain an optimal lambda by averaging the ones obtained by cross-validation
-lambda0 <- mean(lambda)    # Aritmethic mean
+lambda0 <- mean(lambda)                     # Aritmethic mean or
 lambda0 <- prod(lambda)^(1/length(lambda))  # Geometric mean
 
 fm2 <- PFI(G,yNA,h2,trn,tst,lambda=lambda0)
@@ -199,14 +199,14 @@ tst <- sample(1:n,150)   # Select lines to predict
 trn <- (1:n)[-tst]
 
 nChunks <- 5    # Number of chunks in which the testing set will be divided into
-j <- 1        # Subset to run at one node
+j <- 1          # Subset to run at one node
 
 # Run each of the subsets at different nodes
 # for(j in 1:nChunks)
 fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(j,nChunks),'test'),nCores=5)
 ```
 
-Results of all chunks can be gather after completion using function `collect`. The option `file.rm=TRUE` indicates that the collected results will be deleted after collection
+Results of all chunks can be gathered after completion using function `collect`. The option `file.rm=TRUE` indicates that the collected results will be deleted after collection
 
 ```r
 fm <- collect(prefix='test',file.rm = TRUE)
