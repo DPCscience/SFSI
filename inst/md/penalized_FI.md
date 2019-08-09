@@ -203,7 +203,7 @@ j <- 1          # Subset to run at one node
 
 # Run each of the subsets at different nodes
 # for(j in 1:nChunks)
-fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(j,nChunks),'test'),nCores=5)
+fm1 <- PFI(G,y,h2,trn,tst,subset=list(c(j,nChunks),'test'),nCores=5)
 ```
 
 Results of all chunks can be gathered after completion using function `collect`. The option `file.rm=TRUE` indicates that the collected results will be deleted after collection
