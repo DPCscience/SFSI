@@ -9,6 +9,7 @@ Predictive ability of both kinship-based BLUP and PFI can be then compared using
 Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield (each entry corresponds to an average of two plot records) at four different environments; phenotypes (*wheat.Y* object) were centered and standardized to a unit variance within environment. Each of the lines were genotyped for 1279 diversity array technology (DArT) markers. At each marker two homozygous genotypes were possible and these were coded as 0/1. Marker genotypes are given in the object *wheat.X*. Finally a matrix *wheat.A* provides the pedigree relationships between lines computed from the pedigree records. Data is available for download in the R-package 'BGLR'.
 
 **1. Download and prepare data**
+
 ```r
 # install.packages("BGLR")  # If not installed
 library(BGLR)
@@ -42,6 +43,7 @@ folds <- sample(folds)
 ```
 
 **2. Comparing G-BLUP and un-penalized family index using cross-validation**
+
 ```r
 library(PFSI)
 out <- matrix(NA,ncol=3,nrow=nFolds)    # Object to store results
@@ -86,6 +88,7 @@ cbind(fm$correlation,out[,'PFI2'])
 ```
 
 **3. Comparing G-BLUP and PFI for different values of the parameter lambda**
+
 ```r
 
 # Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
@@ -139,6 +142,7 @@ summary(fm1,fm2)[['PFI']][[1]][['gain']]
 ```
 
 **4. Predicting values for a testing set using a training set**
+
 ```r
 set.seed(123)
 nTST <- 150   # Number of lines to predict
@@ -185,20 +189,27 @@ cor(predict(fm2)$yHat,y[tst])
 ```
 
 **5. Predicting values for a large testing set using parallel computing**
-Analysis of a large number of individuals can be done by dividing the testing set into `k` chunks and running each chunk separately.
-Results of all chunks can be gather after completion using function `collect`. 
+
+Analysis of a large number of individuals can be computational demanding. The options `nCores` and `subset` enable both parallel and distributed computing.
+For parallel computing, option `nCores` allows to simultaneously run the program on several cores.
+For distributed computing, `subset=list(c(j,nc))` divides the testing set into 'nc' chunks and run only the chunk 'j' separately. Results are automatically saved in the 'working' directory. All the subsets can be run separatelly in a High Performance Computing (HPC) environment at different nodes. 
+
 ```r
 tst <- sample(1:n,150)   # Select lines to predict
 trn <- (1:n)[-tst]
 
-nPart <- 5    # Number of chunks in which the testing set will be divided into
+nChunks <- 5    # Number of chunks in which the testing set will be divided into
+j <- 1        # Subset to run at one node
 
-# Run each of the subsets at different 
-fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(1,nPart),'test'),nCores=4)
-fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(2,nPart),'test'),nCores=4)
-fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(3,nPart),'test'),nCores=4)
-fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(4,nPart),'test'),nCores=4)
-fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(5,nPart),'test'),nCores=4)
+# Run each of the subsets at different nodes
+# for(j in 1:nChunks)
+fm1 <- PFI(G,yNA,h2,trn,tst,subset=list(c(j,nChunks),'test'),nCores=5)
+```
 
+Results of all chunks can be gather after completion using function `collect`. The option `file.rm=TRUE` indicates that the collected results will be deleted after collection
+
+```r
+fm <- collect(prefix='test',file.rm = TRUE)
+```
 
 
