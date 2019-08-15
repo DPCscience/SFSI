@@ -1,4 +1,4 @@
-## Sparse Family Index (PFI)
+## Sparse Family Index (SFI)
 In a Family Index the breeding value for each candidate of selection is estimated as a linear combination of the observed value of all the predictors (subjects in a training set). The contribution (regression coefficients) of all training subjects for each individual can be calculated simultaneously using the **BLUP (Best Linear Unbiased Predictor)** that relies in kinship relationship (either pedigree- or marker-based) between candidates of selection and training data. 
 
 In contrast to the kinship-based BLUP, a Sparse Family Index (SFI) estimate the regression coefficients for each candidate with only a **subset** of the training subjects contributing to each individual's breeding value prediction. This predictor selection is achieved by imposing a penalization in the optimization function. The higher the value of the penalization parameter the smaller the number of predictors contributing to the prediction. The kinship-based BLUP appears as the un-penalized case of the SFI. 
@@ -206,8 +206,8 @@ j <- 1          # Subset to run at one node
 fm1 <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt="testSFI",nCores=5)
 ```
 
-Providing `saveAt` parameter will generate files `.RData` and `.bin` where outputs are saved.
-Results of all chunks can be gathered after completion using function `collect`. 
+Providing `saveAt` parameter will generate `.RData` files where outputs are saved. Regression coefficients
+are separatelly saved as binary (`*.bin`) files. Results of all chunks can be gathered after completion using function `collect`. 
 
 ```r
 fm <- collect('testSFI')
