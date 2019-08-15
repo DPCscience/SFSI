@@ -1,4 +1,5 @@
-# PFSI
+# SFSI
+
 ## Family and Selection Indices
 
 Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usually done using indirect information:
@@ -53,16 +54,16 @@ The L1-penalized and L2-penalized indices appear as special cases of the Elastic
 
 If ![](https://latex.codecogs.com/gif.latex?%5Calpha%3E0), no closed form solution exists; however, a solution can be obtained using iterative algorithms such as Least Angle Regression (LARS) (Efron, 2004) or Coordinate Descent algorithms (Friedman, 2007).
 
-### Penalized Family and Selection Indices using the 'PFSI' R-package
+### Sparse Family and Selection Indices using the 'SFSI' R-package
 Depending of the type of information used as predictors ***x*** (either correlated traits measured in the same candidates or measurements on the same trait collected on related individuals), the problem can be seen either as a Selection or a Family Index. 
-The penalized indices can be solved using the package 'PFSI' that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
+The penalized indices can be solved using the package 'SFSI' that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
 **Package installation from Github**
 ```r
   install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
   library(devtools)                                                     #2. load the library
-  install_git('https://github.com/MarcooLopez/PFSI')                    #3. install PFSI from GitHub
+  install_git('https://github.com/MarcooLopez/SFSI')                    #3. install SFSI from GitHub
 ```
 
-* **[Penalized Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
-* **[Penalized Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
+* **[Sparse Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
+* **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
