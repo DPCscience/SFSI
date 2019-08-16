@@ -31,12 +31,6 @@ varE <- fm$varE
 varU <- fm$ETA[[1]]$varU
 h2 <- varU/(varU + varE)
 
-# Create folds to perform cross-validation
-nFolds <- 4
-seed <- 123
-set.seed(seed)
-folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
-folds <- sample(folds)
 ```
 
 **2. Comparing G-BLUP and non-sparse family index**
@@ -70,7 +64,13 @@ head(cbind(yHat_GBLUP,yHat_SFI,yHat_GBLUP2))
 **3. Comparing G-BLUP and non-sparse family index using cross-validation**
 
 ```r
-library(SFSI)
+# Create folds to perform cross-validation
+nFolds <- 5
+seed <- 123
+set.seed(seed)
+folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
+folds <- sample(folds)
+
 out <- matrix(NA,ncol=2,nrow=nFolds)    # Object to store results
 colnames(out) <- c("GBLUP","SFI")
 for(k in 1:nFolds)
@@ -79,11 +79,9 @@ for(k in 1:nFolds)
   tst <- which(folds == k)
   yTRN <- y[trn]
   
-  # G-BLUP solving equations
-  G0 <- G[trn,trn]
-  diag(G0) <- diag(G0) + (1-h2)/h2
-  B <- solve(G0)%*%G[trn,tst]
-  yHat <- crossprod(B,yTRN-mean(yTRN))   # Predicted values (in testing set)
+  # G-BLUP 
+  fm <- GBLUP(G,y,h2,trn,tst)  
+  yHat <- predict(fm)$yHat  
   out[k,'GBLUP'] <- cor(yHat,y[tst])
   
   # G-BLUP as un-penalized FI
@@ -104,13 +102,12 @@ The above cross-validation can be done using the 'PFI_CV' function with the same
 fm <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed)
 
 # Compare with previous results (that used heritability calculated using complete data)
-cbind(fm$correlation,out[,'SFI2'])
+cbind(out,fm$correlation)
 ```
 
-**3. Comparing G-BLUP and PFI for different values of the parameter lambda**
+**4. Comparing G-BLUP and PFI for different values of the parameter lambda using cross-validation**
 
 ```r
-
 # Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100     # Number of lambdas to generate
 lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
@@ -119,7 +116,7 @@ lambda[nLambda] <- 0
 # Run the SFI with the generated grid of lambdas
 fm1 <- SFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="SFI")
 
-# Run the un-penalized FI
+# Run the un-penalized FI (G-BLUP model)
 fm2 <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,name="G-BLUP")
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
@@ -145,13 +142,13 @@ out2
 ```
 
 The same comparison between G-BLUP and PFI can be done without passing a vector of lambdas since they are generated internally
-by the function when `lambda` is not provided
+by the program when `lambda` is not provided
 
 ```r
 # Run the PFI. Lambdas will be generated automatically
 fm1 <- SFI_CV(G,y,h2,nFolds=nFolds,seed=seed)
 
-# Run the un-penalized FI as G-BLUP
+# Run the un-penalized FI. Using parameter method='G-BLUP'
 fm2 <- SFI_CV(G,y,h2,method="GBLUP",nFolds=nFolds,seed=seed)
 
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
@@ -165,13 +162,13 @@ summary(fm1,fm2)[['SFI']][[1]][['gain']]
 
 ```r
 set.seed(123)
-nTST <- 150   # Number of lines to predict
+nTST <- 150               # Number of lines to predict
 tst <- sample(1:n,nTST)   # Select lines to predict
 trn <- (1:n)[-tst]
 
 # Cross-validation in training data to get a value of lambda
-fm1 <- SFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=123)
-lambda <- summary(fm1)[['SFI']][[1]][['max']][1,'lambda']
+fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=123)
+lambda <- summary(fm)[['SFI']][[1]][['max']][1,'lambda']
 
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
@@ -241,7 +238,7 @@ yHat <- fitted(fm)
 plot(fm)
 ```
 
-Many output files can overflow disc memory, thus they can be removed after use
+The size and the number of output files can overflow disc memory, thus they can be removed after use
 ```r
 unlink('testSFI*.RData')
 unlink('testSFI*.bin')
