@@ -25,13 +25,10 @@ n <- length(y)
 # Calculate the genomic relationship matrix
 G <- tcrossprod(scale(X))/ncol(X)
 
-# Calculate heritability using 'rrBLUP' package
-# install.packages("rrBLUP")  # If not installed
-library(rrBLUP)
-In <- diag(n)
-fm <- mixed.solve(y=y,Z=In,K=G)
-varE <- fm$Ve
-varU <- fm$Vu
+# Calculate heritability using 'BGLR' package
+fm <- BGLR(y,ETA=list(list(K=G,model="RKHS")),nIter=12000,burnIn=5000)
+varE <- fm$varE
+varU <- fm$ETA[[1]]$varU
 h2 <- varU/(varU + varE)
 
 # Create folds to perform cross-validation
@@ -42,34 +39,57 @@ folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 ```
 
-**2. Comparing G-BLUP and non-sparse family index using cross-validation**
+**2. Comparing G-BLUP and non-sparse family index**
+```r
+library(SFSI)
+
+# G-BLUP  
+G0 <- G
+diag(G0) <- diag(G0) + (1-h2)/h2
+B <- solve(G0)%*%G
+yHat_GBLUP <- crossprod(B,y-mean(y))         # Predicted values (in testing set)
+  
+# G-BLUP as un-penalized FI
+fm <- SFI(G,y,h2,1:n,1:n,lambda=0,nCores=4,verbose=TRUE)  
+yHat_SFI <- predict(fm)$yHat                 # Predicted values (in testing set)
+
+# Compare results
+cor(yHat_GBLUP,yHat_SFI)
+plot(yHat_GBLUP,yHat_SFI)
+cbind(yHat_GBLUP,yHat_SFI)
+```
+
+Kinship-BLUP model can be fitted using function `GBLUP` from the 'SFSI' package
+```r
+fm <- GBLUP(G,y,h2)  
+yHat_GBLUP2 <- predict(fm)$yHat  
+head(cbind(yHat_GBLUP,yHat_SFI,yHat_GBLUP2))
+```
+
+
+**3. Comparing G-BLUP and non-sparse family index using cross-validation**
 
 ```r
 library(SFSI)
-out <- matrix(NA,ncol=3,nrow=nFolds)    # Object to store results
-colnames(out) <- c("rrBLUP","SFI1","SFI2")
-h2i <- c()         # To save within-fold heritability
+out <- matrix(NA,ncol=2,nrow=nFolds)    # Object to store results
+colnames(out) <- c("GBLUP","SFI")
 for(k in 1:nFolds)
 {
   trn <- which(folds != k)
   tst <- which(folds == k)
-  yNA <- y
-  yNA[tst] <- NA
+  yTRN <- y[trn]
   
-  # G-BLUP using 'rrBLUP' package
-  fm <- mixed.solve(y=yNA,Z=In,K=G)
-  out[k,'rrBLUP'] <- cor(fm$u[tst],y[tst])
-  h2i[k] <- fm$Vu/(fm$Vu + fm$Ve)
+  # G-BLUP solving equations
+  G0 <- G[trn,trn]
+  diag(G0) <- diag(G0) + (1-h2)/h2
+  B <- solve(G0)%*%G[trn,tst]
+  yHat <- crossprod(B,yTRN-mean(yTRN))   # Predicted values (in testing set)
+  out[k,'GBLUP'] <- cor(yHat,y[tst])
   
-  # G-BLUP as un-penalized FI using within-fold heritability
-  fm <- SFI(G,y,h2i[k],trn,tst,lambda=0)
-  yHat <- predict(fm)$yHat             # Predicted values (in testing set)
-  out[k,'SFI1'] <- cor(yHat,y[tst])
-  
-  # G-BLUP as un-penalized FI using using heritability calculated using complete data
+  # G-BLUP as un-penalized FI
   fm <- SFI(G,y,h2,trn,tst,lambda=0)  
-  yHat <- predict(fm)$yHat             # Predicted values (in testing set)
-  out[k,'SFI2'] <- cor(yHat,y[tst])
+  yHat <- predict(fm)$yHat               # Predicted values (in testing set)
+  out[k,'SFI'] <- cor(yHat,y[tst])
   cat("  -- Done fold=",k,"\n")
 }
 
