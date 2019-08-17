@@ -34,6 +34,7 @@ h2 <- varU/(varU + varE)
 ```
 
 **2. Comparing G-BLUP and non-sparse family index**
+A value of zero for the penalization parameter (`lambda=0`) yields an index whose regression coefficients are the same as those of the the genomic-BLUP model
 ```r
 library(SFSI)
 
@@ -43,9 +44,12 @@ diag(G0) <- diag(G0) + (1-h2)/h2
 B <- solve(G0)%*%G
 yHat_GBLUP <- crossprod(B,y-mean(y))         # Predicted values (in testing set)
   
-# G-BLUP as un-penalized FI
-fm <- SFI(G,y,h2,1:n,1:n,lambda=0,nCores=4,verbose=TRUE)  
+# Non-sparse FI
+fm <- SFI(G,y,h2,lambda=0,nCores=4,verbose=TRUE)  
 yHat_SFI <- predict(fm)$yHat                 # Predicted values (in testing set)
+
+# Compare regression coefficients
+max(B-coef(fm,df=length(fm$training)))
 
 # Compare results
 cor(yHat_GBLUP,yHat_SFI)
@@ -77,7 +81,6 @@ for(k in 1:nFolds)
 {
   trn <- which(folds != k)
   tst <- which(folds == k)
-  yTRN <- y[trn]
   
   # G-BLUP 
   fm <- GBLUP(G,y,h2,trn,tst)  
@@ -173,11 +176,11 @@ lambda <- summary(fm)[['SFI']][[1]][['max']][1,'lambda']
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
 yNA[tst] <- NA
-fm2 <- SFI(G,yNA,h2,trn,tst,lambda=lambda)
+fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda)
 
 # Correlation between predicted and observed values (in testing set)
-plot(predict(fm2)$yHat,y[tst])
-cor(predict(fm2)$yHat,y[tst])
+plot(predict(fm)$yHat,y[tst])
+cor(predict(fm)$yHat,y[tst])
 
 # Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
 GBLUP(G,y,h2,trn,tst)$correlation
@@ -192,8 +195,8 @@ lambda <- c()
 nRep <- 10   # Number of times to run the cross-validation
 for(j in 1:nRep)
 {
-   fm1 <- SFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*500)
-   lambda[j] <- summary(fm1)[[1]][[1]][['max']][1,'lambda']
+   fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*500)
+   lambda[j] <- summary(fm)[[1]][[1]][['max']][1,'lambda']
    cat("  -- Done repetition=",j,"\n")
 }
 
@@ -201,15 +204,15 @@ for(j in 1:nRep)
 lambda0 <- mean(lambda)                     # Aritmethic mean or
 lambda0 <- prod(lambda)^(1/length(lambda))  # Geometric mean
 
-fm2 <- SFI(G,yNA,h2,trn,tst,lambda=lambda0)
-cor(predict(fm2)$yHat,y[tst])
+fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda0)
+cor(predict(fm)$yHat,y[tst])
 ```
 
 **5. Predicting values for a large testing set using parallel computing**
 
 Analysis of a large number of individuals can be computational demanding. The options `nCores` and `subset` enable both parallel and distributed computing.
 For parallel computing, option `nCores` allows to simultaneously run the program on several cores.
-For distributed computing, `subset=c(j,nc)` divides the testing set into 'nc' chunks and run only the chunk 'j' separately. Results can be automatically saved in the 'working' directory at a provided path and prefix in the `saveAt` parameter. All the subsets can be run separatelly in a High Performance Computing (HPC) environment at different nodes. 
+For distributed computing, `subset=c(j,nc)` divides the testing set into 'nc' chunks and run only the chunk 'j' separately. All the testing subsets can be separatelly run in a High Performance Computing (HPC) environment at different nodes. 
 
 ```r
 tst <- sample(1:n,150)   # Select lines to predict
@@ -218,30 +221,49 @@ trn <- (1:n)[-tst]
 nChunks <- 5    # Number of chunks in which the testing set will be divided into
 j <- 1          # Subset to run at one node
 
+# Run each of the subsets at different nodes and collect predicted values
+yHat <- c()
+for(j in 1:nChunks){
+  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),nCores=5)
+  yHat <- rbind(yHat,fitted(fm))
+}
+
+# Accuracy in testing set
+correlation <- drop(cor(y[tst],yHat))
+plot(correlation)
+```
+
+Results can be automatically saved in the 'working' directory at a provided path and prefix given in the `saveAt` parameter.
+
+```r
+prefix <- "testFolder/testSFI"      # Prefix (and path) that will be added to the output files name
+
 # Run each of the subsets at different nodes
-# for(j in 1:nChunks)
-fm1 <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt="testSFI",nCores=5)
+for(j in 1:nChunks){
+  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt=prefix,nCores=5)
+}
 ```
 
 Providing `saveAt` parameter will generate `.RData` files where outputs are saved. Regression coefficients
 are separatelly saved as binary (`*.bin`) files. Results of all chunks can be gathered after completion using function `collect`. 
 
 ```r
-fm <- collect('testSFI')
+fm <- collect(prefix)
 ```
 
-Object `fm` does not contain regression coefficients but a path where they are storaged. Methods `summary`, `predict`, `fitted`, and `plot` will read these files every time they are called
+Object `fm` does not contain regression coefficients in memory but a path where they are storaged in disc. Methods `coef`, `summary`, `predict`, `fitted`, and `plot` will read these files every time they are called
 
 ```r
 summary(fm)
 yHat <- fitted(fm)
 plot(fm)
+plot(fm,G=G,PC=TRUE,df=10)     
 ```
 
-The size and the number of output files can overflow disc memory, thus they can be removed after use
+The size and the number of output files might overflow disc memory, thus they can be removed after use
 ```r
-unlink('testSFI*.RData')
-unlink('testSFI*.bin')
+unlink(paste0(prefix,"*.RData"))
+unlink(paste0(prefix,"*.bin"))
 ```
 
 
