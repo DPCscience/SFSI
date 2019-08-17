@@ -249,6 +249,12 @@ for(j in 1:nChunks){
 correlation <- drop(cor(out$yTST,out$yHat))
 lambda <- apply(out$lambda,2,mean)
 plot(-log(lambda),correlation,type="l",lwd=2,col=2)
+indexMax <- which.max(correlation)
+abline(h=correlation[indexMax],lty=2,col=3)
+abline(v=-log(lambda[indexMax]),lty=2,col=3)
+
+# Remove files
+unlink("out_subset_*.RData")
 ```
 
 Results can be automatically saved in the 'working' directory at a provided path and prefix given in the `saveAt` parameter.
