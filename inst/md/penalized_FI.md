@@ -34,6 +34,7 @@ h2 <- varU/(varU + varE)
 ```
 
 **2. Comparing G-BLUP and non-sparse family index**
+
 A value of zero for the penalization parameter (`lambda=0`) yields an index whose regression coefficients are the same as those of the the genomic-BLUP model
 ```r
 library(SFSI)
@@ -99,7 +100,7 @@ out
 colMeans(out)   # Average across folds
 ```
   
-The above cross-validation can be done using the 'PFI_CV' function with the same ``seed`` and ``nFolds`` parameters
+The above cross-validation can be done using the 'PFI_CV' function with the same `seed` and `nFolds` parameters
 
 ```r
 fm <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed)
@@ -151,7 +152,7 @@ by the program when `lambda` is not provided
 # Run the PFI. Lambdas will be generated automatically
 fm1 <- SFI_CV(G,y,h2,nFolds=nFolds,seed=seed)
 
-# Run the un-penalized FI. Using parameter method='G-BLUP'
+# Run the un-penalized FI. Using option method='G-BLUP'
 fm2 <- SFI_CV(G,y,h2,method="GBLUP",nFolds=nFolds,seed=seed)
 
 # Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
@@ -222,15 +223,32 @@ nChunks <- 5    # Number of chunks in which the testing set will be divided into
 j <- 1          # Subset to run at one node
 
 # Run each of the subsets at different nodes and collect predicted values
-yHat <- c()
 for(j in 1:nChunks){
   fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),nCores=5)
-  yHat <- rbind(yHat,fitted(fm))
+  yHat <- fitted(fm)
+  df <- fm$df
+  lambda <- fm$lambda
+  yTST <- fm$y[fm$testing] 
+  save(yHat,yTST,df,lambda,file=paste0("out_subset_",j,".RData"))
+}
+```
+
+Results can be collected after completion of all subsets
+```r
+nChunks <- 5 
+out <- vector('list',4)
+for(j in 1:nChunks){
+  load(paste0("out_subset_",j,".RData"))
+  out$yHat <- rbind(out$yHat,yHat)
+  out$yTST <- c(out$yTST,yTST)
+  out$df <- rbind(out$df,df)
+  out$lambda <- rbind(out$lambda,lambda)
 }
 
 # Accuracy in testing set
-correlation <- drop(cor(y[tst],yHat))
-plot(correlation)
+correlation <- drop(cor(out$yTST,out$yHat))
+lambda <- apply(out$lambda,2,mean)
+plot(-log(lambda),correlation,type="l",lwd=2,col=2)
 ```
 
 Results can be automatically saved in the 'working' directory at a provided path and prefix given in the `saveAt` parameter.
