@@ -161,7 +161,7 @@ plot(fm1,fm2)
 summary(fm1,fm2)[['SFI']][[1]][['gain']]
 ```
 
-**4. Predicting values for a testing set using a training set**
+**5. Predicting values for a testing set using a training set**
 
 ```r
 set.seed(123)
@@ -208,7 +208,7 @@ fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda0)
 cor(predict(fm)$yHat,y[tst])
 ```
 
-**5. Predicting values for a large testing set using parallel computing**
+**6. Predicting values for a large testing set using parallel computing**
 
 Analysis of a large number of individuals can be computational demanding. The options `nCores` and `subset` enable both parallel and distributed computing.
 For parallel computing, option `nCores` allows to simultaneously run the program on several cores.
@@ -251,7 +251,7 @@ are separatelly saved as binary (`*.bin`) files. Results of all chunks can be ga
 fm <- collect(prefix)
 ```
 
-Object `fm` does not contain regression coefficients in memory but a path where they are storaged in disc. Methods `coef`, `summary`, `predict`, `fitted`, and `plot` will read these files every time they are called
+Object `fm` does not contain the regression coefficients in memory but a path where they are storaged in disc. Methods `coef`, `summary`, `predict`, `fitted`, and `plot` will read these files every time they are called
 
 ```r
 summary(fm)
@@ -260,7 +260,7 @@ plot(fm)
 plot(fm,G=G,PC=TRUE,df=10)     
 ```
 
-The size and the number of output files might overflow disc memory, thus they can be removed after use
+The size and the number of output files might overflow disc memory, thus removing this files after use is advised
 ```r
 unlink(paste0(prefix,"*.RData"))
 unlink(paste0(prefix,"*.bin"))
