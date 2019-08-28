@@ -65,5 +65,5 @@ The penalized indices can be solved using the package 'SFSI' that implements LAR
   install_git('https://github.com/MarcooLopez/SFSI')                    #3. install SFSI from GitHub
 ```
 
-* **[Sparse Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
-* **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/penalized_FI.md)**
+* **[Sparse Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
+* **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/family_index.md)**
