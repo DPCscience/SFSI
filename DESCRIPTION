@@ -1,0 +1,13 @@
+Package: SFSI
+Type: Package
+Title: Sparse Family and Selection Index
+Version: 1.0
+Date: 2019-06-04
+Author: Marco Lopez-Cruz, Gustavo de los Campos
+Maintainer: Marco Lopez-Cruz <lopezcru@msu.edu>
+Description: Computes regression coefficients for the elastic-net problem in family and selection index
+Depends: R (>= 3.5), stats, MASS, parallel, ggplot2, reshape, scales, viridis  
+License: GPL-3
+RoxygenNote: 6.1.1
+Imports: Rdpack 
+RdMacros: Rdpack
