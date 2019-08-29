@@ -59,6 +59,8 @@ Depending of the type of information used as predictors ***x*** (either correlat
 The penalized indices can be solved using the package 'SFSI' that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
 **Package installation from Github**
+
+Installation of SFSI package requires a R-version greater than 3.5.0
 ```r
   install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
   library(devtools)                                                     #2. load the library
