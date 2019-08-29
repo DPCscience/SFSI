@@ -526,3 +526,144 @@ SEXP delete_col(SEXP R, SEXP p0, SEXP k0, SEXP z, SEXP nz0)
 
     return(list);
 }
+
+// ----------------------------------------------------------
+// ----------------------------------------------------------
+
+SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
+{
+    FILE *f=NULL;
+    int i, j;
+    int nrows, ncols, sizevar ;
+    int inc=1;
+    double *pX;
+    double *linedouble;
+    float valuefloat;
+    SEXP list;
+    
+    nrows=INTEGER_VALUE(n);
+    ncols=INTEGER_VALUE(p);
+    sizevar=INTEGER_VALUE(size);
+    
+    PROTECT(X=AS_NUMERIC(X));
+    pX=NUMERIC_POINTER(X);
+    
+    linedouble=(double *) R_alloc(ncols, sizeof(double));
+    
+    f=fopen(CHAR(STRING_ELT(filename,0)),"wb");
+    fwrite(&nrows,4, 1 , f);
+    fwrite(&ncols,4, 1 , f);
+    fwrite(&sizevar,4, 1 , f);
+    
+    // Write lines
+    for(i=0; i<nrows; i++)
+    {
+        if(sizevar==4)
+        {
+            for(j=0; j<ncols; j++)
+            {
+                valuefloat = pX[nrows*j + i];
+                fwrite(&valuefloat,sizevar, 1 , f); 
+            }
+        }else{
+            F77_NAME(dcopy)(&ncols, pX+i, &nrows,linedouble, &inc);
+            fwrite(linedouble,sizevar, ncols , f); 
+        }
+        
+    }
+    
+    fclose(f);
+
+    PROTECT(list = allocVector(VECSXP, 3));
+    // Attaching outputs to list:
+    SET_VECTOR_ELT(list, 0, ScalarInteger(nrows));
+    SET_VECTOR_ELT(list, 1, ScalarInteger(ncols));
+    SET_VECTOR_ELT(list, 2, ScalarInteger(sizevar));
+    
+    UNPROTECT(2);
+
+    return(list);
+}
+
+// ----------------------------------------------------------
+// ----------------------------------------------------------
+SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP setCol)
+{
+    FILE *f=NULL;
+    int i, j;
+    int *psetRow, *psetCol;
+    int nrows, ncols, sizevar, lsrow, lscol;
+    int n, p;
+    double *pX;
+    double *linedouble;
+    float *linefloat;
+    SEXP list;
+    
+    lsrow=INTEGER_VALUE(nsetRow);
+    lscol=INTEGER_VALUE(nsetCol);
+    
+    PROTECT(setRow=AS_INTEGER(setRow));
+    psetRow=INTEGER_POINTER(setRow);
+    
+    PROTECT(setCol=AS_INTEGER(setCol));
+    psetCol=INTEGER_POINTER(setCol);
+ 
+    f=fopen(CHAR(STRING_ELT(filename,0)),"rb");
+    fread(&nrows, 4, 1, f);
+    fread(&ncols, 4, 1, f);
+    fread(&sizevar, 4, 1, f);
+    
+    linedouble=(double *) R_alloc(ncols, sizeof(double));
+    linefloat=(float *) R_alloc(ncols, sizeof(float));
+    
+    n=lsrow > 0 ? lsrow : nrows;
+    p=lscol > 0 ? lscol : ncols;
+    
+    SEXP X=PROTECT(allocMatrix(REALSXP, n, p));
+    pX=NUMERIC_POINTER(X);
+  
+    // Read lines
+    for(i=0; i<n; i++)
+    {
+        if(lsrow > 0){
+            fseek(f, 12 + ncols*sizevar*(psetRow[i]-1), SEEK_SET);
+        }
+        
+        if(sizevar==4){
+            fread(linefloat,sizevar,ncols,f);
+        }else{
+            fread(linedouble,sizevar,ncols,f);
+        }
+            
+        for(j=0; j<p; j++) 
+        {
+            if(lscol>0)
+            {
+                if(sizevar==4){
+                    linedouble[psetCol[j]-1]=linefloat[psetCol[j]-1];
+                }
+                
+                pX[n*j + i]=linedouble[psetCol[j]-1];
+            }else{
+                if(sizevar==4){
+                    linedouble[j]=linefloat[j];
+                }
+                pX[n*j + i]=linedouble[j];
+            }
+        }
+       
+    }
+    
+    fclose(f);
+    
+    PROTECT(list = allocVector(VECSXP, 4));
+    // Attaching outputs to list:
+    SET_VECTOR_ELT(list, 0, ScalarInteger(nrows));
+    SET_VECTOR_ELT(list, 1, ScalarInteger(ncols));
+    SET_VECTOR_ELT(list, 2, ScalarInteger(sizevar));
+    SET_VECTOR_ELT(list, 3, X);
+
+    UNPROTECT(4);
+    return(list);
+}
+

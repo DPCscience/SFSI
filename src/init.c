@@ -14,12 +14,10 @@ extern SEXP gaussian_kernel(SEXP, SEXP, SEXP);
 extern SEXP getCorrelated(SEXP, SEXP, SEXP);
 extern SEXP laplacian_kernel(SEXP, SEXP, SEXP);
 extern SEXP polynomial_kernel(SEXP, SEXP, SEXP, SEXP);
+extern SEXP readBinFile(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP scaleXtX(SEXP, SEXP);
 extern SEXP updatebeta_lambda(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-
-/* .Fortran calls */
-extern void F77_NAME(readbinfile2)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(writebinfile2)(void *, void *, void *, void *, void *, void *, void *);
+extern SEXP writeBinFile(SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"crossprod2distance", (DL_FUNC) &crossprod2distance, 2},
@@ -28,19 +26,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"getCorrelated",      (DL_FUNC) &getCorrelated,      3},
     {"laplacian_kernel",   (DL_FUNC) &laplacian_kernel,   3},
     {"polynomial_kernel",  (DL_FUNC) &polynomial_kernel,  4},
+    {"readBinFile",        (DL_FUNC) &readBinFile,        5},
     {"scaleXtX",           (DL_FUNC) &scaleXtX,           2},
     {"updatebeta_lambda",  (DL_FUNC) &updatebeta_lambda,  9},
-    {NULL, NULL, 0}
-};
-
-static const R_FortranMethodDef FortranEntries[] = {
-    {"readbinfile2",  (DL_FUNC) &F77_NAME(readbinfile2),  12},
-    {"writebinfile2", (DL_FUNC) &F77_NAME(writebinfile2),  7},
+    {"writeBinFile",       (DL_FUNC) &writeBinFile,       5},
     {NULL, NULL, 0}
 };
 
 void R_init_SFSI(DllInfo *dll)
 {
-    R_registerRoutines(dll, NULL, CallEntries, FortranEntries, NULL);
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
