@@ -103,7 +103,7 @@ kernel2 <- function(XtX,kernel=NULL)
         if(is.null(kernel$h)){
           kernel$h <- -2*log(0.5)
           cat("Hyperparameter 'h' was set to ",kernel$h," for GAUSSIAN kernel \n",sep="")
-        }else if(kernel$h <= 0) stop("Parameter 'h' for gaussian kernel must be greater than zero")
+        }else if(kernel$h <= 0) stop("Parameter 'h' for GAUSSIAN kernel must be greater than zero")
 
         XtX <- .Call('gaussian_kernel',as.integer(p),XtX,as.numeric(kernel$h))[[1]]
 
@@ -111,7 +111,7 @@ kernel2 <- function(XtX,kernel=NULL)
         if(is.null(kernel$h)){
           kernel$h <- -2*log(0.5)
           cat("Hyperparameter 'h' was set to ",kernel$h," for LAPLACIAN kernel \n",sep="")
-        }else if(kernel$h <= 0) stop("Parameter 'h' for laplacian kernel must be greater than zero")
+        }else if(kernel$h <= 0) stop("Parameter 'h' for LAPLACIAN kernel must be greater than zero")
 
         XtX <- .Call("laplacian_kernel",as.integer(p),XtX,as.numeric(kernel$h))[[1]]
 
@@ -122,8 +122,8 @@ kernel2 <- function(XtX,kernel=NULL)
         }
         if(is.null(kernel$b)){
           kernel$b <- 2
-          cat("Hyperparameter 'b' was set to ",kernel$b," for polynomial kernel \n",sep="")
-        }else if(round(kernel$b)!=kernel$b) stop("Parameter 'b' for polynomial kernel must be an integer")
+          cat("Hyperparameter 'b' was set to ",kernel$b," for POLYNOMIAL kernel \n",sep="")
+        }else if(round(kernel$b)!=kernel$b) stop("Parameter 'b' for POLYNOMIAL kernel must be an integer")
 
         XtX <- .Call("polynomial_kernel",as.integer(p),XtX,as.numeric(kernel$a),as.numeric(kernel$b))[[1]]
     }else{
@@ -402,13 +402,9 @@ saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=T
   if(storage.mode(X) != "double") storage.mode(X) <- "double"
 
   unlink(filename)
-  int_filename <- utf8ToInt(filename)
-  if(length(int_filename)>100) stop("'Filename' must be no more than 100 characters long")
-
-  out <- .Fortran('writeBinFile2',int_filename,length(int_filename),nrow(X),ncol(X),
-          as.integer(size),X,integer(1))[[7]]
-
-   if(verbose) cat("Saved file '",filename,"'\n nrows=",nrow(X)," ncols=",nrow(X)," size=",size," bytes\n",sep="")
+  out <- .Call('writeBinFile',filename,nrow(X),ncol(X),
+          as.integer(size),X)
+   if(verbose) cat("Saved file '",filename,"'\n nrows=",nrow(X)," ncols=",nrow(X)," size=",size," bytes\n")
 }
 
 #====================================================================
@@ -459,27 +455,15 @@ readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,inde
 
   nsetRow <- as.integer(length(indexRow))
   nsetCol <- as.integer(length(indexCol))
-  int_filename <- utf8ToInt(filename)
-  if(length(int_filename)>100) stop("'Filename' must be no more than 100 characters long")
-
-  # Read the file info
-  f <- file(filename,open="rb")
-  nrows <- readBin(f,n=1,what=integer())
-  ncols <- readBin(f,n=1,what=integer())
-  sizevar <- readBin(f,n=1,what=integer())
-  close(f)
-  n <- ifelse(nsetRow>0,nsetRow,nrows)
-  p <- ifelse(nsetCol>0,nsetCol,ncols)
 
   # Read lines
-  out <- matrix(0,n,p)
-  storage.mode(out) <- "numeric"
-  out <- .Fortran("readBinFile2",int_filename,length(int_filename),nsetRow,nsetCol,
-      as.integer(indexRow),as.integer(indexCol),integer(1),ncols,sizevar,n,p,out)[[12]]
+  X <- .Call("readBinFile",filename,nsetRow,nsetCol,
+      as.integer(indexRow),as.integer(indexCol))
+  n <- X[[1]]; p <- X[[2]]; sizevar <- X[[3]];
+  X <- X[[4]]
+  if(verbose) cat("Loaded file '",filename,"'\n nrows=",n," ncols=",p," size=",sizevar," bytes\n")
 
-  if(verbose) cat("Loaded file '",filename,"'\n nrows=",n," ncols=",p," size=",sizevar," bytes\n",sep="")
-
-  return(out)
+  return(X)
 }
 
 #====================================================================
