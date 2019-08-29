@@ -10,4 +10,4 @@ PKG_CFLAGS = -I.
 all: $(SHLIB)
 
 clean:
-	@rm -f $(OBJECTS)
+    @rm -f $(OBJECTS)
