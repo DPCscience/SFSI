@@ -9,6 +9,7 @@ Description: Computes regression coefficients for the elastic-net problem in fam
 LazyLoad: true
 Depends: R (>= 3.5), stats, MASS, parallel, ggplot2, reshape, scales, viridis, RSpectra  
 License: GPL-3
+NeedsCompilation: yes
 RoxygenNote: 6.1.1
 Imports: Rdpack 
 RdMacros: Rdpack
