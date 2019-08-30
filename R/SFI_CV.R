@@ -92,7 +92,7 @@
 
 SFI_CV <- function(G,y,h2=0.5,training=1:length(y),nFolds=5,indexG=NULL,kernel=NULL,maxDF=NULL,
     lambda=NULL,nLambda=100,method=c("CD1","CD2","LAR","LAR-LASSO","GBLUP"),alpha=1,
-    nCores=getOption("mc.cores", 2L),tol=2E-5,maxIter=750,seed=123,name=NULL,verbose=TRUE)
+    nCores=getOption("mc.cores", 1L),tol=2E-5,maxIter=800,seed=123,name=NULL,verbose=TRUE)
 {
     nFolds <- match.arg(as.character(nFolds),choices=c(2,3,4,5,10))
     method <- match.arg(method)
