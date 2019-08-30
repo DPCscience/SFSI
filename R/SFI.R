@@ -116,7 +116,7 @@
 
 SFI <- function(G,y,h2=0.5,training=1:length(y),testing=1:length(y),indexG=NULL,subset=NULL,kernel=NULL,
     maxDF=NULL,lambda=NULL,nLambda=100,method=c("CD1","CD2","LAR","LAR-LASSO"),alpha=1,name=NULL,
-    nCores=getOption("mc.cores", 2L),tol=2E-5,maxIter=750,saveAt=NULL,verbose=TRUE)
+    nCores=getOption("mc.cores", 2L),tol=2E-5,maxIter=800,saveAt=NULL,verbose=TRUE)
 {
   method <- match.arg(method)
 
