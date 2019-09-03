@@ -171,7 +171,7 @@ tst <- sample(1:n,nTST)   # Select lines to predict
 trn <- (1:n)[-tst]
 
 # Cross-validation in training data to get a value of lambda
-fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=123)
+fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,mc.cores=4,seed=123)
 lambda <- summary(fm)[['SFI']][[1]][['max']][1,'lambda']
 
 # Predict testing data using lambda obtained from cross-validation
@@ -196,7 +196,7 @@ lambda <- c()
 nRep <- 10   # Number of times to run the cross-validation
 for(j in 1:nRep)
 {
-   fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,nCores=4,seed=j*500)
+   fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,mc.cores=4,seed=j*500)
    lambda[j] <- summary(fm)[[1]][[1]][['max']][1,'lambda']
    cat("  -- Done repetition=",j,"\n")
 }
