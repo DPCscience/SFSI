@@ -1,24 +1,29 @@
-#' Least Angle Regression algorithm to solve the LASSO-type regression
+#' Least Angle Regression to solve the LASSO-type problem
 #'
 #' Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
 #' least squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
-#' a 'variance' matrix among predictors and a 'covariance' vector between response and predictors
+#' a variance matrix among predictors and a covariance vector between response and predictors.
 #' @return  List with the following elements:
 #' \itemize{
-#'   \item beta: vector of regression coefficients.
-#'   \item lambda: penalty of LASSO-type problem for all the sequence of coefficients.
-#'   \item df: degrees of freedom, number of non-zero predictors at each solution.
-#'   \item sdx: vector of standard deviation of predictors.
+#'   \item \code{beta}: vector of regression coefficients.
+#'   \item \code{lambda}: penalty of LASSO-type problem for all the sequence of coefficients.
+#'   \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
+#'   \item \code{sdx}: vector of standard deviation of predictors.
 #' }
 #' @param XtX Variance-covariance matrix among predictors
 #' @param Xty Covariance vector between response variable and predictors
-#' @param method One of 'LAR' and 'LAR-LASSO'. Default is 'LAR'
+#' @param method One of:
+#' \itemize{
+#'  \item \code{'LAR'}: Computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
+#'  \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
+#' }
+#' Default is \code{method='LAR'}
 #' @param eps An effective zero. Default is the machine precision
 #' @param maxDF Maximum number of predictors in the last lars solution.
-#' Default \eqn{maxDF=NULL} will calculate solution for the total number of predictors given by \eqn{length(Xty)}
-#' @param scale TRUE or FALSE to whether scaling each entry of XtX and Xty
-#' by the SD of the corresponding predictor taken from the diagonal of XtX
-#' @param verbose TRUE or FALSE to whether printing each lars step
+#' Default \code{maxDF=NULL} will calculate solution for all the predictors
+#' @param scale \code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
+#' and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}
+#' @param verbose \code{TRUE} or \code{FALSE} to whether printing each lars step
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -26,7 +31,7 @@
 #' n = 500; p=200;  rho=0.65
 #' X = matrix(rnorm(n*p),ncol=p)
 #' eta = scale(X%*%rnorm(p))  # signal
-#' e =  rnorm(n)              # error
+#' e =  rnorm(n)              # noise
 #' y = rho*eta + sqrt(1-rho^2)*e
 #'
 #' # Training and testing sets
@@ -59,7 +64,6 @@
 #' \item \insertRef{Hastie2013}{SFSI}
 #' \item \insertRef{Tibshirani1996}{SFSI}
 #' }
-#' @importFrom Matrix Matrix
 #' @keywords lars2
 
 lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
@@ -190,6 +194,6 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
   if(scale) beta <- scale(beta,FALSE,sdx)
   df <- apply(beta,1,function(x)sum(abs(x)>0))
 
-  out <- list(method=method,beta=Matrix(beta, sparse=TRUE),lambda=lambda,df=df,sdx=sdx)
+  out <- list(method=method,beta=Matrix::Matrix(beta, sparse=TRUE),lambda=lambda,df=df,sdx=sdx)
   return(out)
 }

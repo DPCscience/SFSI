@@ -3,63 +3,67 @@
 #' Computes the entire Elastic-Net solution for the regression coefficients of a Family Index simultaneously for all
 #' values of the penalization parameter via either the Coordinate Descent (CD) or Least Angle Regression (LARS) algorithms.
 #'
-#' The model is fitted for each individual which is predicted using all available observations \eqn{y=(y_1,...,y_n)} of the
-#' response variable. The coefficients are estimated as function of the the 'variance' among predictors and the 'covariance'
-#' between response and predictors which are taken from the genetic relatedness matrix (G).
+#' The model is fitted for each individual in the testing set which are predicted using all available observations of the response variable
+#' from training data \eqn{\textbf{y}=(y_1,...,y_{nTRN})}. The coefficients are estimated as function of the the (genetic) variance among 
+#' training data (\eqn{G_{TRN}}) and the (genetic) covariance between training individuals and each testing individual (\eqn{G_{TRN,TST(i)}}),
+#' all taken from the genetic relatedness matrix (G).
 #'
-#' The \eqn{n} coefficients \eqn{beta_i=(beta_i1,...,beta_in)} for the \eqn{i}th individual are obtained by optimizing the function
-#' \deqn{-G[i,]' beta_i + 0.5 beta_i'(G + ((1-h^2)/h^2)I) beta_i + lambda J(beta_i)}
-#' where \eqn{lambda} is the penalization parameter and \eqn{J(beta)} is a penalty function given by
-#' \deqn{0.5(1-alpha)||beta_i||_2^2 + alpha||beta_i||_1}
-#' The model can be fitted only for a subset of individuals in a testing set using a training set of individuals as predictors.
-#' Each individual solution is found using the 'SSI' function (see help(SSI) or ?SSI)
+#' The \eqn{nTRN} coefficients \eqn{\boldsymbol{\beta}_i=(\beta_{i,1},...,\beta_{i,nTRN})} for the \eqn{i^{th}} individual are obtained by optimizing the function
+#' \deqn{-G_{TRN,TST(i)}' \boldsymbol{\beta}_i + \frac{1}{2} \boldsymbol{\beta}_i'(G_{TRN} + ((1-h^2)/h^2)I) \boldsymbol{\beta}_i + \lambda J(\boldsymbol{\beta}_i)}
+#' where \eqn{\lambda} is the penalization parameter and \eqn{J(\boldsymbol{\beta)}} is a penalty function given by
+#' \deqn{\frac{1}{2}(1-\alpha)||\boldsymbol{\beta}_i||_2^2 + \alpha||\boldsymbol{\beta}_i||_1}
+#' for \eqn{0\leq\alpha\leq 1}. Each individual solution is found using the 'SSI' function (see \code{help(SSI)} or \code{?SSI})
 #' @return  List object containing the elements:
 #' \itemize{
-#'   \item BETA: list object containing, for each individual in testing set, a matrix of regression coefficients.
-#'   \item alpha: value for the elastic-net weights used.
-#'   \item lambda: matrix with the sequence of values of lambda used (for each individual in rows).
-#'   \item df: degrees of freedom (averaged across individuals), number of non-zero predictors at each solution.
-#'   \item kernel: transformation applied to the elements of 'G'.
+#'   \item \code{BETA}: list object containing, for each individual in testing set, a matrix of regression coefficients.
+#'   \item \code{alpha}: value for the elastic-net weights used.
+#'   \item \code{lambda}: matrix with the sequence of values of lambda used (for each individual in rows).
+#'   \item \code{df}: degrees of freedom (averaged across individuals), number of non-zero predictors at each solution.
+#'   \item \code{kernel}: transformation applied to the elements of \code{G}.
 #' }
-#' Elements used as inputs: 'y','h2','training','testing','method','name', are also returned. The returned object is of the class 'SFI' for which methods 'fitted', 'predict', 'plot' and 'summary' exist
-#' @param G Genetic relatedness matrix
+#' Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned. The returned object is of the class 'SFI' for which methods
+#' \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
+#' @param G Genetic relatedness matrix. This can be a name of a binary file where the matrix is storaged 
 #' @param y Response variable
-#' @param h2 Heritability of the response variable. Default is \eqn{h2=0.5}
-#' @param training Index for the individuals in training set. Default is \eqn{training=1:length(y)} will consider all individuals as training
-#' @param testing Index for the individuals in testing set. Default is \eqn{testing=1:length(y)} will consider all individuals as testing
-#' @param subset A two-elements numeric vector \eqn{c(j,J)} to fit the model only for the 'jth' subset out of 'J' subsets that the
-#' testing set will be divided into. Results can be automatically saved when 'saveAt' parameter is provided and can be retrieved later
-#' using function 'collect'. Default is \eqn{subset=NULL} for no subsetting, then the model is fitted using all information
-#' @param kernel Kernel transformation to be applied to 'G'. List consisting on one of:
+#' @param h2 Heritability of the response variable. Default is \code{h2=0.5}
+#' @param training Vector of integers indicating which individuals are in training set. Default is \code{training=1:length(y)} will consider all individuals as training
+#' @param testing Vector of integers indicating which individuals are in testing set. Default is \code{testing=1:length(y)} will consider all individuals as testing
+#' @param indexG Vector of integers indicating which columns and rows will be read when \code{G} is the name of a binary file.
+#' Default \code{indexG=NULL} will read the whole matrix
+#' @param subset A two-elements numeric vector \eqn{c(j,J)} to fit the model only for the \eqn{j^{th}} subset out of \eqn{J} subsets that the
+#' testing set will be divided into. Results can be automatically saved when \code{saveAt} parameter is provided and can be retrieved later
+#' using function \code{collect}. Default is \code{subset=NULL} for no subsetting, then the model is fitted using all information
+#' @param kernel Kernel transformation to be applied to \code{G}. List consisting on one of:
 #' \itemize{
-#'   \item list(kernel='GAUSSIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='LAPLACIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='POLYNOMIAL',a,b). The values of \eqn{a=1} and \eqn{b=2} are used when they are not provided.
+#'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+#'   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+#'   \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 #' }
-#' Default \eqn{kernel=NULL} (no kernel)
+#' Default \code{kernel=NULL} (no kernel)
 #' @param method One of:
 #' \itemize{
-#'  \item 'CD1': Coordinate Descent algorithm that computes the coefficients for a provided grid of lambdas common to all individuals in testing set.
-#'  \item 'CD2': Similar to 'CD1' but using a grid of lambdas specific to each individual in testing set.
-#'  \item 'LAR': Least Angle Regression algorithm that computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
-#'  \item 'LAR-LASSO': Similar to 'LAR' but solutions when a predictor leaves the solution are also returned.
-#'  \item 'GBLUP': Coefficients are derived with no penalization and they correspond to those of the genomic-BLUP
+#'  \item \code{'CD1'}: Coordinate Descent algorithm that computes the coefficients for a provided grid of lambdas common to all individuals in testing set.
+#'  \item \code{'CD2'}: Similar to \code{'CD1'} but using a grid of lambdas specific to each individual in testing set.
+#'  \item \code{'LAR'}: Least Angle Regression algorithm that computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
+#'  \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
+#'  \item \code{'GBLUP'}: Coefficients are derived with no penalization and they correspond to those of the kinship-based BLUP
 #' }
-#' @param maxDF Maximum (average across individuals) number of predictors in the last solution (when method='LAR' or 'LAR-LASSO').
-#' Default \eqn{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
+#' Default is \code{method='CD1'}
+#' @param maxDF Maximum (average across individuals) number of predictors in the last solution (when \code{method='LAR'} or \code{'LAR-LASSO'}).
+#' Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
-#' Default is \eqn{lambda=NULL}, in this case a decreasing grid of
-#' n='nLambda' lambdas will be generated starting from a maximum equal to \eqn{max(abs(G[training,testing])/alpha)} to a minumum equal to zero.
-#' If \eqn{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed for method='CD1' or 'CD2'
-#' @param nLambda Number of lambdas generated when \eqn{lambda=NULL}
+#' Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated 
+#' starting from a maximum equal to \deqn{\code{max(abs(G[training,testing])/alpha)}} to a minimum equal to zero.
+#' If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
+#' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)
-#' @param nCores Number of cores used to run the analysis in parallel. Default is \eqn{nCores=2}
+#' @param mc.cores Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}
 #' @param tol Maximum error between two consecutive solutions of the iterative algorithm to declare convergence
 #' @param maxIter Maximum number of iterations to run at each lambda step before convergence is reached
-#' @param name Name given to the output for tagging purposes. Default \eqn{name=NULL} will give the name of the method used
+#' @param name Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used
 #' @param saveAt Prefix name that will be added to the output files name to be saved, this may include a path. Regression coefficients
-#' are saved as binary file as a single-precision (32 bits, 7 significant digits) variable. Default \eqn{saveAt=NULL} will no save any output
-#' @param verbose TRUE or FALSE to whether printing each step
+#' are saved as binary file as a single-precision (32 bits, 7 significant digits) variable. Default \code{saveAt=NULL} will no save any output
+#' @param verbose \code{TRUE} or \code{FALSE} to whether printing each step
 #' @examples
 #' require(SFSI)
 #' # Read data from BGLR package
@@ -108,15 +112,16 @@
 #' \item \insertRef{VanRaden2008}{SFSI}
 #' \item \insertRef{Zou2005}{SFSI}
 #' }
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
-#' @importFrom Matrix Matrix
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #' @importFrom parallel mclapply
 #' @importFrom Rdpack reprompt
+#' @importFrom Matrix Matrix
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @keywords SFI
 
 SFI <- function(G,y,h2=0.5,training=1:length(y),testing=1:length(y),indexG=NULL,subset=NULL,kernel=NULL,
     maxDF=NULL,lambda=NULL,nLambda=100,method=c("CD1","CD2","LAR","LAR-LASSO"),alpha=1,name=NULL,
-    nCores=getOption("mc.cores", 2L),tol=2E-5,maxIter=800,saveAt=NULL,verbose=TRUE)
+    mc.cores=getOption("mc.cores", 2L),tol=1E-5,maxIter=800,saveAt=NULL,verbose=TRUE)
 {
   method <- match.arg(method)
 
@@ -188,21 +193,21 @@ SFI <- function(G,y,h2=0.5,training=1:length(y),testing=1:length(y),indexG=NULL,
         nLambda=nLambda,alpha=alpha,tol=tol,maxIter=maxIter)
 
     # Returning betas to their original scale by scaling them by their SD
-    B <- Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)
+    B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)
 
     cat(1,file=con,append=TRUE)
     if(verbose){
-       setTxtProgressBar(pb, nchar(scan(con,what="character",quiet=TRUE))/length(testing))
+      utils::setTxtProgressBar(pb, nchar(scan(con,what="character",quiet=TRUE))/length(testing))
     }
     return(list(B=B,lambda=fm$lambda,testing=testing[chunk],df=fm$df))
   }
 
-  pb = txtProgressBar(style=3)
+  pb = utils::txtProgressBar(style=3)
   con <- tempfile()
-  if(nCores == 1L) {
+  if(mc.cores == 1L) {
     out = lapply(X=seq_along(testing),FUN=compApply)
   }else{
-    out = mclapply(X=seq_along(testing),FUN=compApply,mc.cores=nCores)
+    out = parallel::mclapply(X=seq_along(testing),FUN=compApply,mc.cores=mc.cores)
   }
   close(pb); unlink(con)
 

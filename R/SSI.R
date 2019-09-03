@@ -2,52 +2,53 @@
 #'
 #' Computes the entire Elastic-Net solution for the regression coefficients of a penalized regression simultaneously for all
 #' values of the penalization parameter via either the Coordinate Descent (Friedman, 2007) or Least Angle Regression (Efron, 2004) algorithms.
-#' Uses either 'solveEN' or 'lars2' functions
+#' Analysis is performed using either 'solveEN' or 'lars2' functions.
 #'
-#' The regression coefficients \eqn{beta=(beta_1,...,beta_p)} are estimated as function of the 'variance' matrix among
-#' predictors (XtX) and the 'covariance' vector between response and predictors (Xty) by optimizing the function
-#' \deqn{-Xty' beta + 0.5 beta' XtX beta + lambda J(beta)}
-#' where \eqn{lambda} is the penalization parameter and \eqn{J(beta)} is a penalty function given by
-#' \deqn{0.5(1-alpha)||beta||_2^2 + alpha||beta||_1}
+#' The regression coefficients \eqn{\boldsymbol{\beta}=(\beta_1,...,\beta_p)} are estimated as function of the variance matrix among
+#' predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) by optimizing the function
+#' \deqn{-Xty' \boldsymbol{\beta} + \frac{1}{2}\boldsymbol{\beta}'XtX\boldsymbol{\beta} + \lambda J(\boldsymbol{\beta})}
+#' where \eqn{\lambda} is the penalization parameter and \eqn{J(\boldsymbol{\beta})} is a penalty function given by
+#' \deqn{\frac{1}{2}(1-\alpha)||\boldsymbol{\beta}||_2^2 + \alpha||\boldsymbol{\beta}||_1}
+#' for \eqn{0\leq\alpha\leq 1}
 #' @return  List object containing the elements:
 #' \itemize{
-#'   \item beta: vector of regression coefficients.
-#'   \item alpha: value for the elastic-net weights used.
-#'   \item lambda: sequence of values of lambda used.
-#'   \item df: degrees of freedom, number of non-zero predictors at each solution.
-#'   \item sdx: vector of standard deviation of predictors.
-#'   \item kernel: transformation applied to the elements of XtX.
+#'   \item \code{beta}: vector of regression coefficients.
+#'   \item \code{alpha}: value for the elastic-net weights used.
+#'   \item \code{lambda}: sequence of values of lambda used.
+#'   \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
+#'   \item \code{sdx}: vector of standard deviation of predictors.
+#'   \item \code{kernel}: transformation applied to the elements of \code{XtX}.
 #' }
-#' The returned object is of the class 'SSI' for which methods 'predict', 'plot' and 'summary' exist
+#' The returned object is of the class 'SSI' for which methods \code{predict}, \code{plot} and \code{summary} exist
 #' @param XtX Variance-covariance matrix among predictors
 #' @param Xty Covariance vector between response variable and predictors
-#' @param kernel Kernel transformation applied to XtX. List consisting on one of:
+#' @param kernel Kernel transformation to be applied to \code{XtX}. List consisting on one of:
 #' \itemize{
-#'   \item list(kernel='GAUSSIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='LAPLACIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='POLYNOMIAL',a,b). The values of \eqn{a=1} and \eqn{b=2} are used when they are not provided.
+#'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+#'   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+#'   \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 #' }
-#' Default kernel=NULL (no kernel)
+#' Default \code{kernel=NULL} (no kernel)
 #' @param method One of:
 #' \itemize{
-#'  \item 'CD': Coordinate Descent algorithm that computes the coefficients for a provided grid of lambdas.
-#'  \item 'LAR': Least Angle Regression algorithm that computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
-#'  \item 'LAR-LASSO': Similar to 'LAR' but solutions when a predictor leaves the solution are also returned.
+#'  \item \code{'CD'}: Coordinate Descent algorithm that computes the coefficients for a provided grid of lambdas.
+#'  \item \code{'LAR'}: Least Angle Regression algorithm that computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
+#'  \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
 #' }
-#' @param maxDF Maximum (average across individuals) number of predictors in the last solution (when method='LAR' or 'LAR-LASSO').
-#' Default \eqn{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
+#' @param maxDF Maximum (average across individuals) number of predictors in the last solution (when \code{method='LAR'} or \code{'LAR-LASSO'}).
+#' Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
-#' Default is \eqn{lambda=NULL}, in this case a decreasing grid of
-#' n='nLambda' lambdas will be generated starting from a maximum equal to \eqn{max(abs(Xty)/alpha)} to a minumum equal to zero.
-#' If \eqn{alpha=0} the grid is generated starting from a maximum equal to 5
-#' @param nLambda Number of lambdas generated when \eqn{lambda=NULL}
+#' Default is \code{lambda=NULL}, in this case a decreasing grid of
+#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to \deqn{\code{max(abs(Xty)/alpha)}} 
+#' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5
+#' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)
-#' @param scale TRUE or FALSE to whether scaling each entry of XtX and Xty
-#' by the SD of the corresponding predictor taken from the diagonal of XtX
+#' @param scale \code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
+#' and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}
 #' @param tol Maximum error between two consecutive solutions of the iterative algorithm to declare convergence
 #' @param maxIter Maximum number of iterations to run at each lambda step before convergence is reached
 #' @param name Name given to the output for tagging purposes. Default \eqn{name=NULL} will give the name of the method used
-#' @param verbose TRUE or FALSE to whether printing each step
+#' @param verbose \code{TRUE} or \code{FALSE} to whether printing each step
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -55,7 +56,7 @@
 #' n = 500; p=200;  rho=0.65
 #' X = matrix(rnorm(n*p),ncol=p)
 #' eta = scale(X%*%rnorm(p))  # signal
-#' e =  rnorm(n)              # error
+#' e =  rnorm(n)              # noise
 #' y = rho*eta + sqrt(1-rho^2)*e
 #'
 #' # Training and testing sets

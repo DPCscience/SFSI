@@ -1,13 +1,13 @@
 #====================================================================
 #' cov2dist function
 #'
-#' Computes the pairwise squared Euclidean distance \eqn{d(x,y)} from the covariance between variables 'x' and 'y'
-#' given by the cross-product \eqn{x'y}
-#' \deqn{d^2(x,y)=(x-y)'(x-y)=x'x + y'y - 2x'y}
-#' If the vectors 'x' and 'y' are centered then x'y/(n-1)=cov(x,y) is the sample covariance, where \eqn{n} is the length of the vectors. Then
+#' Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise distance \eqn{d(x,y)} between 
+#' variables \eqn{x} and \eqn{y} is obtained from the cross-product of the vectors \eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
+#' \deqn{d^2(x,y)=(\textbf{x}-\textbf{y})'(\textbf{x}-\textbf{y})=\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}}
+#' If the variables are centered then \eqn{\textbf{x}'\textbf{y}/(n-1)=cov(x,y)} is the sample covariance. Then
 #' \deqn{d^2(x,y)/(n-1)=var(x) + var(y) - 2cov(x,y)}
 #' @return  A squared matrix D containing the squared Euclidean distances
-#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{n} observations and \eqn{p} (centered) variables.
+#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.
 #' If a variance-covariance matrix is provided as \eqn{X'X/(n-1)} then the output is \eqn{D/(n-1)}.
 #' @examples
 #' set.seed(1234)
@@ -24,7 +24,7 @@
 #' COV = var(X)   # Variance matrix of X
 #' (n-1)*cov2dist(COV)  # equal to: as.matrix(dist(t(X)))^2
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #====================================================================
 cov2dist <- function(XtX)
 {
@@ -39,25 +39,26 @@ cov2dist <- function(XtX)
 #====================================================================
 #' kernel2 function
 #'
-#' Computes kernel transformation \eqn{K(x,y)} from the covariance between variables 'x' and 'y'
-#' given by the cross-product \eqn{x'y}
+#' Applies a kernel transformation to a \eqn{p\times p} covariance matrix. The pairwise transformation \eqn{K(x,y)} applied 
+#' to variables \eqn{x} and \eqn{y} is calculated from their covariance that is proportional to their cross-product
+#' \eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
 #' \enumerate{
 #'   \item Gaussian kernel. Bandwidth parameter \eqn{h}:
-#' \deqn{K(x,y)=exp{-h d^2(x,y)}=exp{-h [x'x + y'y - 2x'y]}}
+#' \deqn{K(x,y)=exp\{-h \cdot d^2(x,y)\}=exp\{-h [\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]\}}
 #'   \item Laplacian kernel. Bandwidth parameter \eqn{h}:
-#' \deqn{K(x,y)=exp{-h d(x,y)}=exp{-h sqrt[x'x + y'y - 2x'y]}}
+#' \deqn{K(x,y)=exp\{-h \cdot d(x,y)\}=exp\{-h \sqrt{\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]}\}}
 #'   \item Polynomial kernel. Parameters \eqn{a>0} and integer \eqn{b}:
-#' \deqn{K(x,y)=[a(x'y) + 1]^b}
+#' \deqn{K(x,y)=[a(\textbf{x}'\textbf{y}) + 1]^b}
 #' }
 #' @return  A squared matrix K containing the kernel transformation
-#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{n} observations and \eqn{p} (centered) variables.
+#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.
 #' @param kernel List consisting on one of:
 #' \itemize{
-#'   \item list(kernel='GAUSSIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='LAPLACIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='POLYNOMIAL',a,b). The values of \eqn{a=1} and \eqn{b=2} are used when they are not provided.
+#'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+#'   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+#'   \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 #' }
-#' Default kernel=NULL (no kernel)
+#' Default \code{kernel=NULL} (no kernel)
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -88,7 +89,7 @@ cov2dist <- function(XtX)
 #' K2 = (a*COV + 1)^b
 #' K;K2
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #====================================================================
 kernel2 <- function(XtX,kernel=NULL)
 {
@@ -135,15 +136,18 @@ kernel2 <- function(XtX,kernel=NULL)
 #====================================================================
 #' scale_crossprod function
 #'
-#' Scales the cross-product matrix \eqn{X'X} by dividing each element by its corresponding standard deviations.
-#' The entry corresponding to the cross-product \eqn{x'y} of the (centered) variables 'x' and 'y' is divided by the product of the standard deviations
-#' \eqn{sqrt(x'x)} and \eqn{sqrt(y'y)}. The scaled matrix will have all diagonal entries equal to 1.
+#' Recalculate the variance-covariance matrix among \eqn{p} variables with unit variance from a variance-covariance matrix where the 
+#' variables have are no neccesarily variance equal to one. The new matrix will contain as off-diagonal entries the covariance between 
+#' the scaled variables \eqn{x^\star=x/\sigma_x} and \eqn{y^\star=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} 
+#' by their standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
+#' \deqn{cov(x^\star,y^\star)=cov(x,y)/(\sigma_x\sigma_y)}
+#' while in the diagonal the variance will be \eqn{var(x^\star)=var(x)/\sigma^2_x=1}.
 #' @return  A list object containing the elements:
 #' \itemize{
-#'   \item 'XtX': squared matrix containing the scaled cross-product matrix \eqn{X'X}
-#'   \item 'sdX': vector containing the standard deviation.
+#'   \item \code{XtX}: squared matrix with the recalculated variances and covariances
+#'   \item \code{sdX}: vector containing the standard deviations of each variable
 #' }
-#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{n} observations and \eqn{p} (centered) variables.
+#' @param XtX Variance-covariance matrix among \eqn{p} variables.
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -156,7 +160,7 @@ kernel2 <- function(XtX,kernel=NULL)
 #' COV2$XtX   # equal to: var(scale(X))
 #' COV2$sdX   # equal to: apply(X,2,sd)
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #====================================================================
 scale_crossprod <- function(XtX)
 {
@@ -172,7 +176,7 @@ scale_crossprod <- function(XtX)
 #====================================================================
 getIndexCorrelated <- function(X,maxCor=0.8)
 {
-  COV <- cov(X)
+  COV <- stats::cov(X)
   p <- ncol(COV)
   index <- .Call("getCorrelated",as.integer(p),COV,as.numeric(maxCor))
   out <- NULL
@@ -180,63 +184,12 @@ getIndexCorrelated <- function(X,maxCor=0.8)
   out
 }
 
-#====================================================================
-#' getDistantSet function
-#'
-#' Selects a set of \eqn{n} individuals that are maximally distant. The individuals are selected as the closest ones
-#' to the centroid of each cluster that are generated using k-means clustering using the principal components of a relationship matrix.
-#' @return  A vector with the index of the maximally distant individuals
-#' @param G Relationship matrix among individuals
-#' @param PC Principal components from the relationship matrix 'G'. When 'PC' is provided the 'G' is not needed
-#' @param n Number of individuals to select
-#' @param kernel Kernel transformation applied to 'G'. List consisting on one of:
-#' \itemize{
-#'   \item list(kernel='GAUSSIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='LAPLACIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-#'   \item list(kernel='POLYNOMIAL',a,b). The values of \eqn{a=1} and \eqn{b=2} are used when they are not provided.
-#' }
-#' Default kernel=NULL (no kernel)
-#' @export
-#====================================================================
-getDistantSet <- function(G=NULL,PC=NULL,n,kernel=NULL)
-{
-  if(!is.null(kernel) & !is.null(G)){
-    if(is.null(PC)){
-      if(is.list(kernel) & is.null(kernel$kernel)) stop("Parameter 'kernel' must be a 'list' type object")
-      G <- kernel2(G,kernel)
-      kernel <- G$kernel
-      G <- G$K
-    }else{
-      cat("Kernel is only applied when no 'PC' is provided\n")
-    }
-  }
-  if(is.null(PC)){
-    PC <-  eigs_sym(G, 2)$vectors
-  }else{
-      if(!is.matrix(PC)) stop("'PC' must be a matrix")
-  }
-
-  # Get nTST means
-  K <- kmeans(PC, centers = n, nstart = 100)
-
-  # Get the closest point to centroid
-  set <- c()
-  for(j in 1:n)
-  {
-    index <- which(K$cluster==j)
-    tmp <- PC[index,]
-    c0 <- K$centers[rep(j,nrow(tmp)),]
-    d0 <- apply((c0 - tmp)^2,1,sum)
-    set <- c(set,index[which.min(d0)])
-  }
-  set <- sort(set)
-  set
-}
 
 #====================================================================
 #' collect function
 #'
-#' Collects all outputs saved when 'saveAt' parameter was provided to run the SFI when this was splited using 'subset' parameter.
+#' Collects all outputs saved at the provided \code{saveAt} parameter from the SFI analysis when testing data was splited
+#' according to \code{subset} parameter.
 #' @return  An object of the class 'SFI'
 #' @param prefix Prefix that was added to the output files name, this may include a path
 #' @examples
@@ -257,11 +210,11 @@ getDistantSet <- function(G=NULL,PC=NULL,n,kernel=NULL)
 #'
 #' prefix <- "testSFI"
 #' # Run the analysis into 5 subsets and save them at a given prefix
-#' fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,nCores=5)
-#' fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,nCores=5)
-#' fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,nCores=5)
-#' fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,nCores=5)
-#' fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,nCores=5)
+#' fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,mc.cores=5)
+#' fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,mc.cores=5)
+#' fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,mc.cores=5)
+#' fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,mc.cores=5)
+#' fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,mc.cores=5)
 #'
 #' # Collect all results after completion
 #' fm <- collect(prefix)
@@ -273,7 +226,7 @@ getDistantSet <- function(G=NULL,PC=NULL,n,kernel=NULL)
 #' \itemize{
 #' \item \insertRef{Perez2014}{SFSI}
 #' }
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #====================================================================
 collect <- function(prefix="")
 {
@@ -367,11 +320,14 @@ deleteCol <- function(r, z, k = p)
 #====================================================================
 #' saveBinary function
 #'
-#' Save a fortran-formatted binary file which will contain information about the number of rows, number of columns and the type of precision (single or double).
+#' Save a fortran-formatted binary file which will contain information about the number of rows, number of columns and the 
+#' type of precision (single or double).
 #' @return  NULL
-#' @param filename Name of the binary file to read
-#' @param size Size of a real variable in bytes. size=4 (single precision), size=8 (double precision)
-#' @param verbose TRUE or FALSE to whether printing file information
+#' @param X Numeric matrix to save
+#' @param filename Name that will be given to the binary file
+#' @param size Size of a real variable in bytes (\code{size=4} for single precision and \code{size=8} for double precision)
+#' that matrix \code{X} will occupy
+#' @param verbose \code{TRUE} or \code{FALSE} to whether printing file information
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -394,7 +350,7 @@ deleteCol <- function(r, z, k = p)
 #' X2
 #' sum(abs(X-X2))   # No loss of precision
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #====================================================================
 saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=TRUE)
 {
@@ -411,11 +367,11 @@ saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=T
 #' readBinary function
 #'
 #' Read a fortran-formatted binary file which contains information about the number of rows, number of columns and the type of precision (single or double).
-#' @return  A numeric matrix whose dimensions and precision are specified in the file
+#' @return  The read numeric matrix whose dimensions and precision are specified in the file
 #' @param filename Name of the binary file to read
-#' @param indexRow The index of the rows to be read from the file (1,2,...). Default \eqn{indexRow=NULL} will read all the rows
-#' @param indexCol The index of the columns to be read from the file (1,2,...). Default \eqn{indexCol=NULL} will read all the columns
-#' @param verbose TRUE or FALSE to whether printing file information
+#' @param indexRow Vector of integers indicating the rows to be read from the file. Default \code{indexRow=NULL} will read all the rows
+#' @param indexCol Vector of integers indicating the columns to be read from the file. Default \code{indexCol=NULL} will read all the columns
+#' @param verbose \code{TRUE} or \code{FALSE} to whether printing file information
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -445,7 +401,7 @@ saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=T
 #' X2
 #' sum(abs(X[indexRow,indexCol]-X2))
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 #====================================================================
 readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,indexCol=NULL,verbose=TRUE)
 {
