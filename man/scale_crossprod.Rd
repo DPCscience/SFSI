@@ -7,19 +7,22 @@
 scale_crossprod(XtX)
 }
 \arguments{
-\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{n} observations and \eqn{p} (centered) variables.}
+\item{XtX}{Variance-covariance matrix among \eqn{p} variables.}
 }
 \value{
 A list object containing the elements:
 \itemize{
-  \item 'XtX': squared matrix containing the scaled cross-product matrix \eqn{X'X}
-  \item 'sdX': vector containing the standard deviation.
+  \item \code{XtX}: squared matrix with the recalculated variances and covariances
+  \item \code{sdX}: vector containing the standard deviations of each variable
 }
 }
 \description{
-Scales the cross-product matrix \eqn{X'X} by dividing each element by its corresponding standard deviations.
-The entry corresponding to the cross-product \eqn{x'y} of the (centered) variables 'x' and 'y' is divided by the product of the standard deviations
-\eqn{sqrt(x'x)} and \eqn{sqrt(y'y)}. The scaled matrix will have all diagonal entries equal to 1.
+Recalculate the variance-covariance matrix among \eqn{p} variables with unit variance from a variance-covariance matrix where the 
+variables have are no neccesarily variance equal to one. The new matrix will contain as off-diagonal entries the covariance between 
+the scaled variables \eqn{x^\star=x/\sigma_x} and \eqn{y^\star=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} 
+by their standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
+\deqn{cov(x^\star,y^\star)=cov(x,y)/(\sigma_x\sigma_y)}
+while in the diagonal the variance will be \eqn{var(x^\star)=var(x)/\sigma^2_x=1}.
 }
 \examples{
 set.seed(1234)

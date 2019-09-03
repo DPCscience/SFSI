@@ -13,7 +13,8 @@ collect(prefix = "")
 An object of the class 'SFI'
 }
 \description{
-Collects all outputs saved when 'saveAt' parameter was provided to run the SFI when this was splited using 'subset' parameter.
+Collects all outputs saved at the provided \code{saveAt} parameter from the SFI analysis when testing data was splited
+according to \code{subset} parameter.
 }
 \examples{
 require(SFSI)
@@ -33,11 +34,11 @@ trn = (1:n)[-tst]
 
 prefix <- "testSFI"
 # Run the analysis into 5 subsets and save them at a given prefix
-fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,nCores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,nCores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,nCores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,nCores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,nCores=5)
+fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,mc.cores=5)
+fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,mc.cores=5)
+fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,mc.cores=5)
+fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,mc.cores=5)
+fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,mc.cores=5)
 
 # Collect all results after completion
 fm <- collect(prefix)

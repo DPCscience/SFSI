@@ -7,29 +7,30 @@
 kernel2(XtX, kernel = NULL)
 }
 \arguments{
-\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{n} observations and \eqn{p} (centered) variables.}
+\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.}
 
 \item{kernel}{List consisting on one of:
 \itemize{
-  \item list(kernel='GAUSSIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-  \item list(kernel='LAPLACIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-  \item list(kernel='POLYNOMIAL',a,b). The values of \eqn{a=1} and \eqn{b=2} are used when they are not provided.
+  \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+  \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+  \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 }
-Default kernel=NULL (no kernel)}
+Default \code{kernel=NULL} (no kernel)}
 }
 \value{
 A squared matrix K containing the kernel transformation
 }
 \description{
-Computes kernel transformation \eqn{K(x,y)} from the covariance between variables 'x' and 'y'
-given by the cross-product \eqn{x'y}
+Applies a kernel transformation to a \eqn{p\times p} covariance matrix. The pairwise transformation \eqn{K(x,y)} applied 
+to variables \eqn{x} and \eqn{y} is calculated from their covariance that is proportional to their cross-product
+\eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
 \enumerate{
   \item Gaussian kernel. Bandwidth parameter \eqn{h}:
-\deqn{K(x,y)=exp{-h d^2(x,y)}=exp{-h [x'x + y'y - 2x'y]}}
+\deqn{K(x,y)=exp\{-h \cdot d^2(x,y)\}=exp\{-h [\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]\}}
   \item Laplacian kernel. Bandwidth parameter \eqn{h}:
-\deqn{K(x,y)=exp{-h d(x,y)}=exp{-h sqrt[x'x + y'y - 2x'y]}}
+\deqn{K(x,y)=exp\{-h \cdot d(x,y)\}=exp\{-h \sqrt{\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]}\}}
   \item Polynomial kernel. Parameters \eqn{a>0} and integer \eqn{b}:
-\deqn{K(x,y)=[a(x'y) + 1]^b}
+\deqn{K(x,y)=[a(\textbf{x}'\textbf{y}) + 1]^b}
 }
 }
 \examples{

@@ -7,51 +7,54 @@
 SFI_CV(G, y, h2 = 0.5, training = 1:length(y), nFolds = 5,
   indexG = NULL, kernel = NULL, maxDF = NULL, lambda = NULL,
   nLambda = 100, method = c("CD1", "CD2", "LAR", "LAR-LASSO", "GBLUP"),
-  alpha = 1, nCores = getOption("mc.cores", 2L), tol = 2e-05,
-  maxIter = 750, seed = 123, name = NULL, verbose = TRUE)
+  alpha = 1, mc.cores = getOption("mc.cores", 2L), tol = 1e-05,
+  maxIter = 800, seed = 123, name = NULL, verbose = TRUE)
 }
 \arguments{
-\item{G}{Genetic relatedness matrix}
+\item{G}{Genetic relatedness matrix. This can be a name of a binary file where the matrix is storaged}
 
 \item{y}{Response variable}
 
-\item{h2}{Heritability of the response variable}
+\item{h2}{Heritability of the response variable. Default is \code{h2=0.5}}
 
-\item{training}{Index for the individuals for which the cross-validation will be implemented.
-Default is \eqn{training=1:length(y)} will consider all individuals}
+\item{training}{Vector of integers indicating which individuals are in training set.
+Default is \code{training=1:length(y)} will consider all individuals}
 
 \item{nFolds}{Number of non-overlaping folds in which the data is splitted. Options 2,3,5,10}
 
-\item{kernel}{Kernel transformation applied to 'G'. List consisting on one of:
+\item{indexG}{Vector of integers indicating which columns and rows will be read when \code{G} is the name of a binary file.
+Default \code{indexG=NULL} will read the whole matrix}
+
+\item{kernel}{Kernel transformation to be applied to \code{G}. List consisting on one of:
 \itemize{
-  \item list(kernel='GAUSSIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-  \item list(kernel='LAPLACIAN',h). If \eqn{h} is not provided the value of \eqn{h=-2*log(0.5)} is used.
-  \item list(kernel='POLYNOMIAL',a,b). The values of \eqn{a=1} and \eqn{b=2} are used when they are not provided.
+  \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+  \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
+  \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 }
-Default \eqn{kernel=NULL} (no kernel)}
+Default \code{kernel=NULL} (no kernel)}
 
-\item{maxDF}{Maximum (average across individuals) number of predictors in the last solution (when method='LAR' or 'LAR-LASSO').
-Default \eqn{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors}
+\item{maxDF}{Maximum (average across individuals) number of predictors in the last solution (when \code{method='LAR'} or \code{'LAR-LASSO'}).
+Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors}
 
-\item{lambda}{Penalization parameter sequence vector. Default is \eqn{lambda=NULL}, in this case a decreasing grid of
-n='nLambda' lambdas will be generated starting from a maximum equal to \eqn{max(abs(G[training,testing])/alpha)} to a minumum equal to zero.
-If \eqn{alpha=0} the grid is generated starting from a maximum equal to 5.
-Only needed for method='CD1' or 'CD2'}
+\item{lambda}{Penalization parameter sequence vector used for the Coordinate Descent algorithm.
+Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated
+starting from a maximum equal to \deqn{\code{max(abs(G[training,testing])/alpha)}} to a minimum equal to zero.
+If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}}
 
-\item{nLambda}{Number of lambdas generated when \eqn{lambda=NULL}}
+\item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 
 \item{method}{One of:
 \itemize{
- \item 'CD1': Coordinate Descent algorithm that computes the coefficients for a provided grid of lambdas common to all individuals in testing set.
- \item 'CD2': Similar to 'CD1' but using a grid of lambdas specific to each individual in testing set.
- \item 'LAR': Least Angle Regression algorithm that computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
- \item 'LAR-LASSO': Similar to 'LAR' but solutions when a predictor leaves the solution are also returned.
- \item 'GBLUP': Coefficients are derived with no penalization and they correspond to those of the kinship-based-BLUP
+ \item \code{'CD1'}: Coordinate Descent algorithm that computes the coefficients for a provided grid of lambdas common to all individuals in testing set.
+ \item \code{'CD2'}: Similar to \code{'CD1'} but using a grid of lambdas specific to each individual in testing set.
+ \item \code{'LAR'}: Least Angle Regression algorithm that computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
+ \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
+ \item \code{'GBLUP'}: Coefficients are derived with no penalization and they correspond to those of the kinship-based BLUP
 }}
 
 \item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)}
 
-\item{nCores}{Number of cores used to run the analysis in parallel. Default is \eqn{nCores=2}}
+\item{mc.cores}{Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
@@ -59,26 +62,27 @@ Only needed for method='CD1' or 'CD2'}
 
 \item{seed}{Numeric seed to fix randomization when creating folds}
 
-\item{name}{Name given to the output for tagging purposes. Default \eqn{name=NULL} will give the name of the method used}
+\item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
-\item{verbose}{TRUE or FALSE to whether printing each step}
+\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each step}
 }
 \value{
 List object containing the elements:
 \itemize{
-  \item folds: matrix containing the folds used for the cross-validation.
-  \item correlation: matrix with the correlation between observed and predicted values (in testing set) within each fold (in rows).
-  \item accuracy: matrix with the accuracy (in testing set) within each fold (in rows).
-  \item MSE: matrix with the mean squared error of prediction (in testing set) within each fold (in rows).
-  \item lambda: matrix with the sequence of values of lambda used (averaged across individuals) within each fold (in rows).
-  \item df: matrix with the degrees of freedom (averaged across individuals) within each fold (in rows).
-  \item kernel: transformation applied to the elements of 'G'.
+  \item \code{folds}: matrix containing the folds used for the cross-validation.
+  \item \code{correlation}: matrix with the correlation between observed and predicted values (in testing set) within each fold (in rows).
+  \item \code{accuracy}: matrix with the accuracy (in testing set) within each fold (in rows).
+  \item \code{MSE}: matrix with the mean squared error of prediction (in testing set) within each fold (in rows).
+  \item \code{lambda}: matrix with the sequence of values of lambda used (averaged across individuals) within each fold (in rows).
+  \item \code{df}: matrix with the degrees of freedom (averaged across individuals) within each fold (in rows).
+  \item \code{kernel}: transformation applied to the elements of \code{G}.
 }
-Elements used as inputs: 'h2','method','name', are also returned. The returned object is of the class 'SFI_CV' for which methods 'plot' and 'summary' exist
+Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{method}, \code{name}, are also returned. The returned object
+is of the class 'SFI_CV' for which methods \code{plot} and \code{summary} exist
 }
 \description{
 Fit the Sparse Family Index in a cross validation fashion by randomly splitting data into 2,3,4,5, or 10 folds.
-These partitions are equivalent to 50:50, 66:33, 75:25, 80:20, and 90:10 % training-testing
+These partitions are equivalent to 50:50, 66:33, 75:25, 80:20, and 90:10 % training-testing.
 }
 \examples{
 require(SFSI)

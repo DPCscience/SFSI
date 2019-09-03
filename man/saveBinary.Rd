@@ -8,14 +8,18 @@ saveBinary(X, filename = paste0(tempdir(), "/file.bin"), size = 4,
   verbose = TRUE)
 }
 \arguments{
-\item{filename}{Name of the binary file to read}
+\item{X}{Numeric matrix to save}
 
-\item{size}{Size of a real variable in bytes. size=4 (single precision), size=8 (double precision)}
+\item{filename}{Name that will be given to the binary file}
 
-\item{verbose}{TRUE or FALSE to whether printing file information}
+\item{size}{Size of a real variable in bytes (\code{size=4} for single precision and \code{size=8} for double precision)
+that matrix \code{X} will occupy}
+
+\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing file information}
 }
 \description{
-Save a fortran-formatted binary file which will contain information about the number of rows, number of columns and the type of precision (single or double).
+Save a fortran-formatted binary file which will contain information about the number of rows, number of columns and the 
+type of precision (single or double).
 }
 \examples{
 set.seed(1234)

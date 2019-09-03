@@ -10,14 +10,14 @@ readBinary(filename = paste0(tempdir(), "/file.bin"), indexRow = NULL,
 \arguments{
 \item{filename}{Name of the binary file to read}
 
-\item{indexRow}{The index of the rows to be read from the file (1,2,...). Default \eqn{indexRow=NULL} will read all the rows}
+\item{indexRow}{Vector of integers indicating the rows to be read from the file. Default \code{indexRow=NULL} will read all the rows}
 
-\item{indexCol}{The index of the columns to be read from the file (1,2,...). Default \eqn{indexCol=NULL} will read all the columns}
+\item{indexCol}{Vector of integers indicating the columns to be read from the file. Default \code{indexCol=NULL} will read all the columns}
 
-\item{verbose}{TRUE or FALSE to whether printing file information}
+\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing file information}
 }
 \value{
-A numeric matrix whose dimensions and precision are specified in the file
+The read numeric matrix whose dimensions and precision are specified in the file
 }
 \description{
 Read a fortran-formatted binary file which contains information about the number of rows, number of columns and the type of precision (single or double).

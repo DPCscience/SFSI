@@ -2,7 +2,7 @@
 % Please edit documentation in R/solveEN.R
 \name{solveEN}
 \alias{solveEN}
-\title{Coordinate Descent algorithm to solve the Elastic-Net-type regression}
+\title{Coordinate Descent algorithm to solve the Elastic-Net-type problem}
 \usage{
 solveEN(XtX, Xty, lambda = NULL, nLambda = 100, alpha = 1,
   scale = TRUE, tol = 1e-05, maxIter = 1000, verbose = FALSE)
@@ -12,36 +12,36 @@ solveEN(XtX, Xty, lambda = NULL, nLambda = 100, alpha = 1,
 
 \item{Xty}{Covariance vector between response variable and predictors}
 
-\item{lambda}{Penalization parameter sequence vector. Default is \eqn{lambda=NULL}, in this case a decreasing grid of
-n='nLambda' lambdas will be generated starting from a maximum equal to \eqn{max(abs(Xty)/alpha)} to a minumum equal to zero.
-If \eqn{alpha=0} the grid is generated starting from a maximum equal to 5.}
+\item{lambda}{Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of 
+\code{n='nLambda'} lambdas will be generated starting from a maximum equal to \deqn{\code{max(abs(Xty)/alpha)}} 
+to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 
-\item{nLambda}{Number of lambdas generated when \eqn{lambda=NULL}}
+\item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 
 \item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)}
 
-\item{scale}{TRUE or FALSE to whether scaling each entry of XtX and Xty
-by the SD of the corresponding predictor taken from the diagonal of XtX}
+\item{scale}{\code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
+and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
 \item{maxIter}{Maximum number of iterations to run at each lambda step before convergence is reached}
 
-\item{verbose}{TRUE or FALSE to whether printing each CD step}
+\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each CD step}
 }
 \value{
 List object containing the elements:
 \itemize{
-  \item beta: vector of regression coefficients.
-  \item lambda: sequence of values of lambda used
-  \item df: degrees of freedom, number of non-zero predictors at each solution.
-  \item sdx: vector of standard deviation of predictors.
+  \item \code{beta}: vector of regression coefficients.
+  \item \code{lambda}: sequence of values of lambda used
+  \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
+  \item \code{sdx}: vector of standard deviation of predictors.
 }
 }
 \description{
 Computes the entire Elastic-Net solution for the regression coefficients simultaneously for all
-values of the penalization parameter using as inputs a 'variance' matrix among predictors and a 'covariance'
-vector between response and predictors, via the Coordinate Descent (CD) algorithm (Friedman, 2007)
+values of the penalization parameter using as inputs a variance matrix among predictors and a covariance
+vector between response and predictors, via the Coordinate Descent (CD) algorithm (Friedman, 2007).
 }
 \examples{
 set.seed(1234)
@@ -50,7 +50,7 @@ require(SFSI)
 n = 500; p=200;  rho=0.65
 X = matrix(rnorm(n*p),ncol=p)
 eta = scale(X\%*\%rnorm(p))  # signal
-e =  rnorm(n)              # error
+e =  rnorm(n)              # noise
 y = rho*eta + sqrt(1-rho^2)*e
 
 # Training and testing sets

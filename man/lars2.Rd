@@ -2,7 +2,7 @@
 % Please edit documentation in R/lars.R
 \name{lars2}
 \alias{lars2}
-\title{Least Angle Regression algorithm to solve the LASSO-type regression}
+\title{Least Angle Regression to solve the LASSO-type problem}
 \usage{
 lars2(XtX, Xty, method = c("LAR", "LAR-LASSO"), maxDF = NULL,
   eps = .Machine$double.eps, scale = TRUE, verbose = FALSE)
@@ -12,31 +12,36 @@ lars2(XtX, Xty, method = c("LAR", "LAR-LASSO"), maxDF = NULL,
 
 \item{Xty}{Covariance vector between response variable and predictors}
 
-\item{method}{One of 'LAR' and 'LAR-LASSO'. Default is 'LAR'}
+\item{method}{One of:
+\itemize{
+ \item \code{'LAR'}: Computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
+ \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
+}
+Default is \code{method='LAR'}}
 
 \item{maxDF}{Maximum number of predictors in the last lars solution.
-Default \eqn{maxDF=NULL} will calculate solution for the total number of predictors given by \eqn{length(Xty)}}
+Default \code{maxDF=NULL} will calculate solution for all the predictors}
 
 \item{eps}{An effective zero. Default is the machine precision}
 
-\item{scale}{TRUE or FALSE to whether scaling each entry of XtX and Xty
-by the SD of the corresponding predictor taken from the diagonal of XtX}
+\item{scale}{\code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
+and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}}
 
-\item{verbose}{TRUE or FALSE to whether printing each lars step}
+\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each lars step}
 }
 \value{
 List with the following elements:
 \itemize{
-  \item beta: vector of regression coefficients.
-  \item lambda: penalty of LASSO-type problem for all the sequence of coefficients.
-  \item df: degrees of freedom, number of non-zero predictors at each solution.
-  \item sdx: vector of standard deviation of predictors.
+  \item \code{beta}: vector of regression coefficients.
+  \item \code{lambda}: penalty of LASSO-type problem for all the sequence of coefficients.
+  \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
+  \item \code{sdx}: vector of standard deviation of predictors.
 }
 }
 \description{
 Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
 least squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
-a 'variance' matrix among predictors and a 'covariance' vector between response and predictors
+a variance matrix among predictors and a covariance vector between response and predictors.
 }
 \examples{
 set.seed(1234)
@@ -45,7 +50,7 @@ require(SFSI)
 n = 500; p=200;  rho=0.65
 X = matrix(rnorm(n*p),ncol=p)
 eta = scale(X\%*\%rnorm(p))  # signal
-e =  rnorm(n)              # error
+e =  rnorm(n)              # noise
 y = rho*eta + sqrt(1-rho^2)*e
 
 # Training and testing sets
