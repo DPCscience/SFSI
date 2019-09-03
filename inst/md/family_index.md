@@ -46,7 +46,7 @@ B <- solve(G0)%*%G
 yHat_GBLUP <- crossprod(B,y-mean(y))         # Predicted values (in testing set)
   
 # Non-sparse FI
-fm <- SFI(G,y,h2,lambda=0,nCores=4,verbose=TRUE)  
+fm <- SFI(G,y,h2,lambda=0,mc.cores=4,verbose=TRUE)  
 yHat_SFI <- predict(fm)$yHat                 # Predicted values (in testing set)
 
 # Compare regression coefficients
@@ -212,7 +212,7 @@ cor(predict(fm)$yHat,y[tst])
 **6. Predicting values for a large testing set using parallel computing**
 
 Analysis of a large number of individuals can be computational demanding. The options `nCores` and `subset` enable both parallel and distributed computing.
-For parallel computing, option `nCores` allows to simultaneously run the program on several cores.
+For parallel computing, option `mc.cores` allows to simultaneously run the program on several cores.
 For distributed computing, `subset=c(j,nc)` divides the testing set into 'nc' chunks and run only the chunk 'j' separately. All the testing subsets can be separatelly run in a High Performance Computing (HPC) environment at different nodes. 
 
 ```r
@@ -224,7 +224,7 @@ j <- 1          # Subset to run at one node
 
 # Run each of the subsets at different nodes and collect predicted values
 for(j in 1:nChunks){
-  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),nCores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),mc.cores=5)
   yHat <- fitted(fm)
   df <- fm$df
   lambda <- fm$lambda
@@ -264,7 +264,7 @@ prefix <- "testFolder/testSFI"      # Prefix (and path) that will be added to th
 
 # Run each of the subsets at different nodes
 for(j in 1:nChunks){
-  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt=prefix,nCores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt=prefix,mc.cores=5)
 }
 ```
 
