@@ -1,4 +1,3 @@
-
 SOURCES = c_utils.c init.c
 
 OBJECTS = c_utils.o init.o
@@ -10,4 +9,4 @@ PKG_CFLAGS = -I.
 all: $(SHLIB)
 
 clean:
-     @rm -f $(OBJECTS)
+	@rm -f $(OBJECTS)
