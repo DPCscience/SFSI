@@ -29,7 +29,7 @@ Default \code{indexG=NULL} will read the whole matrix}
 testing set will be divided into. Results can be automatically saved when \code{saveAt} parameter is provided and can be retrieved later
 using function \code{collect}. Default is \code{subset=NULL} for no subsetting, then the model is fitted using all information}
 
-\item{kernel}{Kernel transformation to be applied to \code{G}. List consisting on one of:
+\item{kernel}{Kernel transformation to be applied to \code{G[training,training]} . List consisting on one of:
 \itemize{
   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
@@ -42,8 +42,9 @@ Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predic
 
 \item{lambda}{Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated 
-starting from a maximum equal to \deqn{\code{max(abs(G[training,testing])/alpha)}} to a minimum equal to zero.
-If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}}
+starting from a maximum equal to
+\tabular{c}{\code{max(abs(G[training,testing])/alpha)}}
+to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}}
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 

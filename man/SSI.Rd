@@ -30,7 +30,8 @@ Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predic
 
 \item{lambda}{Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 Default is \code{lambda=NULL}, in this case a decreasing grid of
-\code{n='nLambda'} lambdas will be generated starting from a maximum equal to \deqn{\code{max(abs(Xty)/alpha)}} 
+\code{n='nLambda'} lambdas will be generated starting from a maximum equal to 
+\tabular{c}{\code{max(abs(Xty)/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
@@ -44,7 +45,7 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
 
 \item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)}
 
-\item{name}{Name given to the output for tagging purposes. Default \eqn{name=NULL} will give the name of the method used}
+\item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
