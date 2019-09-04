@@ -120,7 +120,7 @@ SFI_CV <- function(G,y,h2=0.5,training=1:length(y),nFolds=5,indexG=NULL,kernel=N
     {
         if(verbose) cat(" Fold ",j," of ",nFolds,"\n",sep="")
         if(method == "GBLUP"){
-            fm <- GBLUP(G,y,h2,training[folds!=j],training[folds==j])
+            fm <- GBLUP(G,y,h2,training[folds!=j],training[folds==j],kernel=kernel)
         }else{
             fm <- SFI(G,y,h2,training[folds!=j],training[folds==j],kernel=kernel,maxDF=maxDF,mc.cores=mc.cores,
                   alpha=alpha,method=method,lambda=lambda,nLambda=nLambda,tol=tol,maxIter=maxIter,verbose=verbose)
