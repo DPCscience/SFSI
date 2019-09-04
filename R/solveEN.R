@@ -13,7 +13,8 @@
 #' @param XtX Variance-covariance matrix among predictors
 #' @param Xty Covariance vector between response variable and predictors
 #' @param lambda Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of 
-#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to \deqn{\code{max(abs(Xty)/alpha)}} 
+#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to 
+#' \tabular{c}{\code{max(abs(Xty)/alpha)}}
 #' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5
 #' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)

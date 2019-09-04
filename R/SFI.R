@@ -33,7 +33,7 @@
 #' @param subset A two-elements numeric vector \eqn{c(j,J)} to fit the model only for the \eqn{j^{th}} subset out of \eqn{J} subsets that the
 #' testing set will be divided into. Results can be automatically saved when \code{saveAt} parameter is provided and can be retrieved later
 #' using function \code{collect}. Default is \code{subset=NULL} for no subsetting, then the model is fitted using all information
-#' @param kernel Kernel transformation to be applied to \code{G}. List consisting on one of:
+#' @param kernel Kernel transformation to be applied to \code{G[training,training]} . List consisting on one of:
 #' \itemize{
 #'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
 #'   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
@@ -53,8 +53,9 @@
 #' Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 #' Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated 
-#' starting from a maximum equal to \deqn{\code{max(abs(G[training,testing])/alpha)}} to a minimum equal to zero.
-#' If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
+#' starting from a maximum equal to
+#' \tabular{c}{\code{max(abs(G[training,testing])/alpha)}}
+#' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
 #' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)
 #' @param mc.cores Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}
@@ -135,23 +136,22 @@ SFI <- function(G,y,h2=0.5,training=1:length(y),testing=1:length(y),indexG=NULL,
 
   if(!is.double(G)) G <- apply(G,2,as.double)
 
+  RHS <- G[training,testing,drop=FALSE]
+  G <- G[training,training]
+
+  for(i in 1:nTRN)  G[i,i] <- G[i,i] + (1-h2)/h2
+
   if(!is.null(kernel)){
     if(is.list(kernel) & is.null(kernel$kernel)) stop("Parameter 'kernel' must be a 'list' type object")
     G <- kernel2(G,kernel)
     kernel <- G$kernel
     G <- G$K
   }
-
-  RHS <- G[training,testing,drop=FALSE]
-  P <- G[training,training]
-  rm("G")
-
-  for(i in 1:nTRN)  P[i,i] <- P[i,i] + (1-h2)/h2
-
+  
   # Standardizing
-  P <- scale_crossprod(P)
-  sdx <- P$sdX
-  P <- P$XtX
+  G <- scale_crossprod(G)
+  sdx <- G$sdX
+  G <- G$XtX
   RHS <- apply(RHS,2,function(x)x/sdx)
 
   if(is.null(lambda)){
@@ -189,7 +189,7 @@ SFI <- function(G,y,h2=0.5,training=1:length(y),testing=1:length(y),indexG=NULL,
     rhs <- drop(RHS[,chunk])
     if(!is.null(lambda)) lambda0 <- lambda[chunk,]
 
-    fm <- SSI(P,rhs,method=method,scale=FALSE,maxDF=maxDF,lambda=lambda0,
+    fm <- SSI(G,rhs,method=method,scale=FALSE,maxDF=maxDF,lambda=lambda0,
         nLambda=nLambda,alpha=alpha,tol=tol,maxIter=maxIter)
 
     # Returning betas to their original scale by scaling them by their SD

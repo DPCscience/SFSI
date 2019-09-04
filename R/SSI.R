@@ -39,7 +39,8 @@
 #' Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 #' Default is \code{lambda=NULL}, in this case a decreasing grid of
-#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to \deqn{\code{max(abs(Xty)/alpha)}} 
+#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to 
+#' \tabular{c}{\code{max(abs(Xty)/alpha)}}
 #' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5
 #' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)
@@ -47,7 +48,7 @@
 #' and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}
 #' @param tol Maximum error between two consecutive solutions of the iterative algorithm to declare convergence
 #' @param maxIter Maximum number of iterations to run at each lambda step before convergence is reached
-#' @param name Name given to the output for tagging purposes. Default \eqn{name=NULL} will give the name of the method used
+#' @param name Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used
 #' @param verbose \code{TRUE} or \code{FALSE} to whether printing each step
 #' @examples
 #' set.seed(1234)

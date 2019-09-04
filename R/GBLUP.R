@@ -7,7 +7,7 @@
 #' @param h2 Heritability of the response variable. Default is \code{h2=0.5}
 #' @param training Vector of integers indicating which individuals are in training set. Default is \code{training=1:length(y)} will consider all individuals as training
 #' @param testing Vector of integers indicating which individuals are in testing set. Default is \code{testing=1:length(y)} will consider all individuals as testing
-#' @param kernel Kernel transformation to be applied to \code{G}. List consisting on one of:
+#' @param kernel Kernel transformation to be applied to \code{G[training,training]}. List consisting on one of:
 #' \itemize{
 #'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
 #'   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
@@ -48,15 +48,6 @@
 
 GBLUP <- function(G,y,h2,training=1:length(y),testing=1:length(y),kernel=NULL)
 {
-  if(!is.null(kernel)){
-      if(is.list(kernel) & is.null(kernel$kernel)){
-        stop("Parameter 'kernel' must be a 'list' type object")
-      }
-      G <- kernel2(G,kernel)
-      kernel <- G$kernel
-      G <- G$K
-  }
-
 	yTRN <- y[training]-mean(y[training])
 
 	## Coeff. matrix
@@ -64,6 +55,13 @@ GBLUP <- function(G,y,h2,training=1:length(y),testing=1:length(y),kernel=NULL)
 	G <- G[training,training]
 
 	for(i in 1:length(training))  G[i,i] <- G[i,i]+(1-h2)/h2
+	
+	if(!is.null(kernel)){
+	  if(is.list(kernel) & is.null(kernel$kernel))  stop("Parameter 'kernel' must be a 'list' type object")
+	  G <- kernel2(G,kernel)
+	  kernel <- G$kernel
+	  G <- G$K
+	}
 
 	Ginv <- chol2inv(chol(G))
   BETA <- crossprod(RHS,Ginv)

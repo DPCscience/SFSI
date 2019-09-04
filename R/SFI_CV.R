@@ -22,7 +22,7 @@
 #' @param nFolds Number of non-overlaping folds in which the data is splitted. Options 2,3,5,10
 #' @param indexG Vector of integers indicating which columns and rows will be read when \code{G} is the name of a binary file.
 #' Default \code{indexG=NULL} will read the whole matrix
-#' @param kernel Kernel transformation to be applied to \code{G}. List consisting on one of:
+#' @param kernel Kernel transformation to be applied to \code{G[training,training]}. List consisting on one of:
 #' \itemize{
 #'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
 #'   \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
@@ -41,8 +41,10 @@
 #' Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 #' Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated
-#' starting from a maximum equal to \deqn{\code{max(abs(G[training,testing])/alpha)}} to a minimum equal to zero.
-#' If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
+#' starting from a maximum equal to 
+#' \tabular{c}{
+#' \code{max(abs(G[training,testing])/alpha)}}
+#' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
 #' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)
 #' @param mc.cores Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}
@@ -104,13 +106,6 @@ SFI_CV <- function(G,y,h2=0.5,training=1:length(y),nFolds=5,indexG=NULL,kernel=N
         G <- readBinary(G,indexRow=indexG,indexCol=indexG)
     }
 
-    if(!is.null(kernel)){
-        if(is.list(kernel) & is.null(kernel$kernel)) stop("Parameter 'kernel' must be a 'list' type object")
-        G <- kernel2(G,kernel)
-        kernel <- G$kernel
-        G <- G$K
-    }
-
     if(is.null(name)) name <- paste(c(method,substr(kernel$kernel,1,2)),collapse="_")
     nFolds <- as.numeric(nFolds)
     nTRN <- length(training)
@@ -127,8 +122,8 @@ SFI_CV <- function(G,y,h2=0.5,training=1:length(y),nFolds=5,indexG=NULL,kernel=N
         if(method == "GBLUP"){
             fm <- GBLUP(G,y,h2,training[folds!=j],training[folds==j])
         }else{
-            fm <- SFI(G,y,h2,training[folds!=j],training[folds==j],maxDF=maxDF,mc.cores=mc.cores,alpha=alpha,
-                method=method,lambda=lambda,nLambda=nLambda,tol=tol,maxIter=maxIter,verbose=verbose)
+            fm <- SFI(G,y,h2,training[folds!=j],training[folds==j],kernel=kernel,maxDF=maxDF,mc.cores=mc.cores,
+                  alpha=alpha,method=method,lambda=lambda,nLambda=nLambda,tol=tol,maxIter=maxIter,verbose=verbose)
         }
         fv <- predict(fm)
         out[[j]] <- list(correlation=fv$correlation, accuracy=fv$accuracy, MSE=fv$MSE,df=fv$df,lambda=fv$lambda)
