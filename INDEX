@@ -12,3 +12,4 @@ saveBinary              saveBinary function
 scale_crossprod         scale_crossprod function
 solveEN                 Coordinate Descent algorithm to solve the
                         Elastic-Net-type problem
+                        
