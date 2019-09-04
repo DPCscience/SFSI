@@ -19,10 +19,11 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 
-\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)}
+\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
-and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}}
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+(see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
+taken from the diagonal of \code{XtX}}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
@@ -43,6 +44,14 @@ List object containing the elements:
 Computes the entire Elastic-Net solution for the regression coefficients simultaneously for all
 values of the penalization parameter using as inputs a variance matrix among predictors and a covariance
 vector between response and predictors, via the Coordinate Descent (CD) algorithm (Friedman, 2007).
+}
+\details{
+The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
+predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) by optimizing the function
+\deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + \lambda J(\beta)}
+where \eqn{\lambda} is the penalization parameter and \eqn{J(\beta)} is a penalty function given by
+\deqn{1/2(1-\alpha)||\beta||_2^2 + \alpha||\beta||_1}
+for \eqn{\alpha} between 0 and 1
 }
 \examples{
 set.seed(1234)

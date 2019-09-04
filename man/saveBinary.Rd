@@ -18,8 +18,7 @@ that matrix \code{X} will occupy}
 \item{verbose}{\code{TRUE} or \code{FALSE} to whether printing file information}
 }
 \description{
-Save a fortran-formatted binary file which will contain information about the number of rows, number of columns and the 
-type of precision (single or double).
+Save a fortran-formatted binary file at a defined precision (single or double).
 }
 \examples{
 set.seed(1234)

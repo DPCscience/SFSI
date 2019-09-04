@@ -7,7 +7,7 @@
 kernel2(XtX, kernel = NULL)
 }
 \arguments{
-\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.}
+\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables.}
 
 \item{kernel}{List consisting on one of:
 \itemize{
@@ -18,19 +18,19 @@ kernel2(XtX, kernel = NULL)
 Default \code{kernel=NULL} (no kernel)}
 }
 \value{
-A squared matrix K containing the kernel transformation
+A squared matrix \eqn{K} containing the kernel transformation
 }
 \description{
-Applies a kernel transformation to a \eqn{p\times p} covariance matrix. The pairwise transformation \eqn{K(x,y)} applied 
-to variables \eqn{x} and \eqn{y} is calculated from their covariance that is proportional to their cross-product
-\eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
+Applies a kernel transformation to a covariance matrix among \eqn{p} predictors. The pairwise transformation
+\eqn{K(x,y)} for vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'} is calculated from their cross-product,
+\eqn{x'y = \sum{x_iy_i}}, as
 \enumerate{
   \item Gaussian kernel. Bandwidth parameter \eqn{h}:
-\deqn{K(x,y)=exp\{-h \cdot d^2(x,y)\}=exp\{-h [\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]\}}
+\deqn{K(x,y)=exp\{-h d^2(x,y)\}=exp\{-h [x'x + y'y - 2x'y]\}}
   \item Laplacian kernel. Bandwidth parameter \eqn{h}:
-\deqn{K(x,y)=exp\{-h \cdot d(x,y)\}=exp\{-h \sqrt{\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]}\}}
+\deqn{K(x,y)=exp\{-h d(x,y)\}=exp\{-h \sqrt{x'x + y'y - 2x'y]}\}}
   \item Polynomial kernel. Parameters \eqn{a>0} and integer \eqn{b}:
-\deqn{K(x,y)=[a(\textbf{x}'\textbf{y}) + 1]^b}
+\deqn{K(x,y)=[a(x'y) + 1]^b}
 }
 }
 \examples{

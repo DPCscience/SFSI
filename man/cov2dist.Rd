@@ -7,18 +7,18 @@
 cov2dist(XtX)
 }
 \arguments{
-\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.
-If a variance-covariance matrix is provided as \eqn{X'X/(n-1)} then the output is \eqn{D/(n-1)}.}
+\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables}
 }
 \value{
-A squared matrix D containing the squared Euclidean distances
+A squared matrix \eqn{D} containing the squared Euclidean distances
 }
 \description{
-Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise distance \eqn{d(x,y)} between 
-variables \eqn{x} and \eqn{y} is obtained from the cross-product of the vectors \eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
-\deqn{d^2(x,y)=(\textbf{x}-\textbf{y})'(\textbf{x}-\textbf{y})=\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}}
-If the variables are centered then \eqn{\textbf{x}'\textbf{y}/(n-1)=cov(x,y)} is the sample covariance. Then
-\deqn{d^2(x,y)/(n-1)=var(x) + var(y) - 2cov(x,y)}
+Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise 
+distance \eqn{d(x,y)} between vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'}
+is obtained from their cross-product, \eqn{x'y = \sum{x_iy_i}}, as
+\deqn{d^2(x,y) = (x-y)'(x-y) = x'x + y'y - 2x'y}
+Note that if the variables are centered then the cross-product is proportional to the covariance, 
+this is \eqn{x'y = cov(x,y)} up-to a constant
 }
 \examples{
 set.seed(1234)

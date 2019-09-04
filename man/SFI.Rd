@@ -58,7 +58,7 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
 }
 Default is \code{method='CD1'}}
 
-\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)}
+\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})}
 
 \item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
@@ -82,24 +82,25 @@ List object containing the elements:
   \item \code{df}: degrees of freedom (averaged across individuals), number of non-zero predictors at each solution.
   \item \code{kernel}: transformation applied to the elements of \code{G}.
 }
-Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned. The returned object is of the class 'SFI' for which methods
-\code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
+Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned. 
+The returned object is of the class 'SFI' for which methods \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
 }
 \description{
 Computes the entire Elastic-Net solution for the regression coefficients of a Family Index simultaneously for all
 values of the penalization parameter via either the Coordinate Descent (CD) or Least Angle Regression (LARS) algorithms.
 }
 \details{
-The model is fitted for each individual in the testing set which are predicted using all available observations of the response variable
-from training data \eqn{\textbf{y}=(y_1,...,y_{nTRN})}. The coefficients are estimated as function of the the (genetic) variance among 
-training data (\eqn{G_{TRN}}) and the (genetic) covariance between training individuals and each testing individual (\eqn{G_{TRN,TST(i)}}),
-all taken from the genetic relatedness matrix (G).
+The model is fitted for each individual which are predicted using all available observations of the response variable
+(as predictors) \eqn{y=(y_1,...,y_n)'} in a linear combination. The coefficients are estimated as function of genetic
+variances and covariances among individuals given by the genetic relatedness matrix (\eqn{G}). Specifically, the \eqn{n} coefficients 
+\eqn{\beta_i=(\beta_{i1},...,\beta_{in})'} for the \eqn{i^{th}} individual are function of the covariance between predictors 
+and that individual (\eqn{G[,i]}, the \eqn{i^{th}} column of \eqn{G}) and the variance among predictors (\eqn{G}).
 
-The \eqn{nTRN} coefficients \eqn{\boldsymbol{\beta}_i=(\beta_{i,1},...,\beta_{i,nTRN})} for the \eqn{i^{th}} individual are obtained by optimizing the function
-\deqn{-G_{TRN,TST(i)}' \boldsymbol{\beta}_i + \frac{1}{2} \boldsymbol{\beta}_i'(G_{TRN} + ((1-h^2)/h^2)I) \boldsymbol{\beta}_i + \lambda J(\boldsymbol{\beta}_i)}
-where \eqn{\lambda} is the penalization parameter and \eqn{J(\boldsymbol{\beta)}} is a penalty function given by
-\deqn{\frac{1}{2}(1-\alpha)||\boldsymbol{\beta}_i||_2^2 + \alpha||\boldsymbol{\beta}_i||_1}
-for \eqn{0\leq\alpha\leq 1}. Each individual solution is found using the 'SSI' function (see \code{help(SSI)} or \code{?SSI})
+These coefficients are obtained by solving the optimization function
+\deqn{-G[,i]' \beta_i + 1/2 \beta_i'(G + ((1-h^2)/h^2)I) \beta_i + \lambda J(\beta_i)}
+where \eqn{h^2} is the heritability of the response, \eqn{\lambda} is the penalization parameter, and \eqn{J(\beta)} is a penalty function given by
+\deqn{1/2(1-\alpha)||\beta_i||_2^2 + \alpha||\beta_i||_1}
+for \eqn{\alpha} between 0 and 1. Each individual solution is found using the 'SSI' function (see \code{help(SSI)} or \code{?SSI})
 }
 \examples{
 require(SFSI)

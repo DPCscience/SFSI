@@ -24,8 +24,9 @@ Default \code{maxDF=NULL} will calculate solution for all the predictors}
 
 \item{eps}{An effective zero. Default is the machine precision}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
-and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}}
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+(see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
+taken from the diagonal of \code{XtX}}
 
 \item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each lars step}
 }
@@ -42,6 +43,13 @@ List with the following elements:
 Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
 least squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
 a variance matrix among predictors and a covariance vector between response and predictors.
+}
+\details{
+The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
+predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) using 'covariance updates'
+to solve the optimization function
+\deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + 1/2\lambda||\beta||_2^2}
+where \eqn{\lambda} is the penalization parameter
 }
 \examples{
 set.seed(1234)
@@ -79,6 +87,7 @@ plot(fm$df,cor(y[tst],yHat_TST)[1,],main="Testing set")
 \references{
 \itemize{
 \item \insertRef{Efron2004}{SFSI}
+\item \insertRef{Friedman2010}{SFSI}
 \item \insertRef{Hastie2013}{SFSI}
 \item \insertRef{Tibshirani1996}{SFSI}
 }

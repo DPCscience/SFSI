@@ -10,7 +10,7 @@ collect(prefix = "")
 \item{prefix}{Prefix that was added to the output files name, this may include a path}
 }
 \value{
-An object of the class 'SFI'
+An object of the class 'SFI' for which methods \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
 }
 \description{
 Collects all outputs saved at the provided \code{saveAt} parameter from the SFI analysis when testing data was splited

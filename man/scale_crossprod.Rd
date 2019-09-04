@@ -17,12 +17,12 @@ A list object containing the elements:
 }
 }
 \description{
-Recalculate the variance-covariance matrix among \eqn{p} variables with unit variance from a variance-covariance matrix where the 
-variables have are no neccesarily variance equal to one. The new matrix will contain as off-diagonal entries the covariance between 
-the scaled variables \eqn{x^\star=x/\sigma_x} and \eqn{y^\star=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} 
-by their standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
-\deqn{cov(x^\star,y^\star)=cov(x,y)/(\sigma_x\sigma_y)}
-while in the diagonal the variance will be \eqn{var(x^\star)=var(x)/\sigma^2_x=1}.
+Recalculate a variance-covariance matrix among \eqn{p} variables to its equivalent for the variables scaled to have unit variance.
+The recalculated matrix will contain as off-diagonal entries the covariance between the scaled variables 
+\eqn{x*=x/\sigma_x} and \eqn{y*=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} by their 
+standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
+\deqn{cov(x*,y*)=cov(x,y)/(\sigma_x\sigma_y)}
+while in the diagonal the variance will be \eqn{var(x*)=var(x)/\sigma^2_x=1}.
 }
 \examples{
 set.seed(1234)

@@ -22,8 +22,9 @@ SSI(XtX, Xty, kernel = NULL, scale = TRUE, maxDF = NULL,
 }
 Default \code{kernel=NULL} (no kernel)}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to whether recalculate \code{XtX} for unit variance (see \code{help(scale_crossprod)})
-and scaling \code{Xty} by the standard deviation of the corresponding predictor taken from the diagonal of \code{XtX}}
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+(see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
+taken from the diagonal of \code{XtX}}
 
 \item{maxDF}{Maximum (average across individuals) number of predictors in the last solution (when \code{method='LAR'} or \code{'LAR-LASSO'}).
 Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors}
@@ -43,7 +44,7 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
  \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
 }}
 
-\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)}
+\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})}
 
 \item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
@@ -71,12 +72,12 @@ values of the penalization parameter via either the Coordinate Descent (Friedman
 Analysis is performed using either 'solveEN' or 'lars2' functions.
 }
 \details{
-The regression coefficients \eqn{\boldsymbol{\beta}=(\beta_1,...,\beta_p)} are estimated as function of the variance matrix among
+The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
 predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) by optimizing the function
-\deqn{-Xty' \boldsymbol{\beta} + \frac{1}{2}\boldsymbol{\beta}'XtX\boldsymbol{\beta} + \lambda J(\boldsymbol{\beta})}
-where \eqn{\lambda} is the penalization parameter and \eqn{J(\boldsymbol{\beta})} is a penalty function given by
-\deqn{\frac{1}{2}(1-\alpha)||\boldsymbol{\beta}||_2^2 + \alpha||\boldsymbol{\beta}||_1}
-for \eqn{0\leq\alpha\leq 1}
+\deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + \lambda J(\beta)}
+where \eqn{\lambda} is the penalization parameter and \eqn{J(\beta)} is a penalty function given by
+\deqn{1/2(1-\alpha)||\beta||_2^2 + \alpha||\beta||_1}
+for \eqn{\alpha} between 0 and 1
 }
 \examples{
 set.seed(1234)

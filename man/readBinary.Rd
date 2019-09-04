@@ -20,7 +20,7 @@ readBinary(filename = paste0(tempdir(), "/file.bin"), indexRow = NULL,
 The read numeric matrix whose dimensions and precision are specified in the file
 }
 \description{
-Read a fortran-formatted binary file which contains information about the number of rows, number of columns and the type of precision (single or double).
+Read a fortran-formatted binary file that was saved at a defined precision (single or double).
 }
 \examples{
 set.seed(1234)
