@@ -42,11 +42,10 @@
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 #' Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated
 #' starting from a maximum equal to 
-#' \tabular{c}{
-#' \code{max(abs(G[training,testing])/alpha)}}
+#' \tabular{c}{\code{max(abs(G[training,testing])/alpha)}}
 #' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
 #' @param nLambda Number of lambdas generated when \code{lambda=NULL}
-#' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (alpha) and Ridge-Regression (1-alpha)
+#' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})
 #' @param mc.cores Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}
 #' @param tol Maximum error between two consecutive solutions of the iterative algorithm to declare convergence
 #' @param maxIter Maximum number of iterations to run at each lambda step before convergence is reached

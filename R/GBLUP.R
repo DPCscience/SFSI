@@ -44,7 +44,7 @@
 #' \item \insertRef{Perez2014}{SFSI}
 #' \item \insertRef{VanRaden2008}{SFSI}
 #' }
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 
 GBLUP <- function(G,y,h2,training=1:length(y),testing=1:length(y),kernel=NULL)
 {

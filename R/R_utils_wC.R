@@ -1,14 +1,14 @@
 #====================================================================
 #' cov2dist function
 #'
-#' Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise distance \eqn{d(x,y)} between 
-#' variables \eqn{x} and \eqn{y} is obtained from the cross-product of the vectors \eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
-#' \deqn{d^2(x,y)=(\textbf{x}-\textbf{y})'(\textbf{x}-\textbf{y})=\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}}
-#' If the variables are centered then \eqn{\textbf{x}'\textbf{y}/(n-1)=cov(x,y)} is the sample covariance. Then
-#' \deqn{d^2(x,y)/(n-1)=var(x) + var(y) - 2cov(x,y)}
-#' @return  A squared matrix D containing the squared Euclidean distances
-#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.
-#' If a variance-covariance matrix is provided as \eqn{X'X/(n-1)} then the output is \eqn{D/(n-1)}.
+#' Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise 
+#' distance \eqn{d(x,y)} between vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'}
+#' is obtained from their cross-product, \eqn{x'y = \sum{x_iy_i}}, as
+#' \deqn{d^2(x,y) = (x-y)'(x-y) = x'x + y'y - 2x'y}
+#' Note that if the variables are centered then the cross-product is proportional to the covariance, 
+#' this is \eqn{x'y = cov(x,y)} up-to a constant
+#' @return  A squared matrix \eqn{D} containing the squared Euclidean distances
+#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -24,7 +24,7 @@
 #' COV = var(X)   # Variance matrix of X
 #' (n-1)*cov2dist(COV)  # equal to: as.matrix(dist(t(X)))^2
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
 cov2dist <- function(XtX)
 {
@@ -39,19 +39,19 @@ cov2dist <- function(XtX)
 #====================================================================
 #' kernel2 function
 #'
-#' Applies a kernel transformation to a \eqn{p\times p} covariance matrix. The pairwise transformation \eqn{K(x,y)} applied 
-#' to variables \eqn{x} and \eqn{y} is calculated from their covariance that is proportional to their cross-product
-#' \eqn{\textbf{x}'\textbf{y}=\sum{x_iy_i}} as
+#' Applies a kernel transformation to a covariance matrix among \eqn{p} predictors. The pairwise transformation
+#' \eqn{K(x,y)} for vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'} is calculated from their cross-product,
+#' \eqn{x'y = \sum{x_iy_i}}, as
 #' \enumerate{
 #'   \item Gaussian kernel. Bandwidth parameter \eqn{h}:
-#' \deqn{K(x,y)=exp\{-h \cdot d^2(x,y)\}=exp\{-h [\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]\}}
+#' \deqn{K(x,y)=exp\{-h d^2(x,y)\}=exp\{-h [x'x + y'y - 2x'y]\}}
 #'   \item Laplacian kernel. Bandwidth parameter \eqn{h}:
-#' \deqn{K(x,y)=exp\{-h \cdot d(x,y)\}=exp\{-h \sqrt{\textbf{x}'\textbf{x} + \textbf{y}'\textbf{y} - 2\textbf{x}'\textbf{y}]}\}}
+#' \deqn{K(x,y)=exp\{-h d(x,y)\}=exp\{-h \sqrt{x'x + y'y - 2x'y]}\}}
 #'   \item Polynomial kernel. Parameters \eqn{a>0} and integer \eqn{b}:
-#' \deqn{K(x,y)=[a(\textbf{x}'\textbf{y}) + 1]^b}
+#' \deqn{K(x,y)=[a(x'y) + 1]^b}
 #' }
-#' @return  A squared matrix K containing the kernel transformation
-#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} containing \eqn{p} (centered) variables.
+#' @return  A squared matrix \eqn{K} containing the kernel transformation
+#' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables.
 #' @param kernel List consisting on one of:
 #' \itemize{
 #'   \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
@@ -89,7 +89,7 @@ cov2dist <- function(XtX)
 #' K2 = (a*COV + 1)^b
 #' K;K2
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
 kernel2 <- function(XtX,kernel=NULL)
 {
@@ -136,12 +136,12 @@ kernel2 <- function(XtX,kernel=NULL)
 #====================================================================
 #' scale_crossprod function
 #'
-#' Recalculate the variance-covariance matrix among \eqn{p} variables with unit variance from a variance-covariance matrix where the 
-#' variables have are no neccesarily variance equal to one. The new matrix will contain as off-diagonal entries the covariance between 
-#' the scaled variables \eqn{x^\star=x/\sigma_x} and \eqn{y^\star=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} 
-#' by their standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
-#' \deqn{cov(x^\star,y^\star)=cov(x,y)/(\sigma_x\sigma_y)}
-#' while in the diagonal the variance will be \eqn{var(x^\star)=var(x)/\sigma^2_x=1}.
+#' Recalculate a variance-covariance matrix among \eqn{p} variables to its equivalent for the variables scaled to have unit variance.
+#' The recalculated matrix will contain as off-diagonal entries the covariance between the scaled variables 
+#' \eqn{x*=x/\sigma_x} and \eqn{y*=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} by their 
+#' standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
+#' \deqn{cov(x*,y*)=cov(x,y)/(\sigma_x\sigma_y)}
+#' while in the diagonal the variance will be \eqn{var(x*)=var(x)/\sigma^2_x=1}.
 #' @return  A list object containing the elements:
 #' \itemize{
 #'   \item \code{XtX}: squared matrix with the recalculated variances and covariances
@@ -160,7 +160,7 @@ kernel2 <- function(XtX,kernel=NULL)
 #' COV2$XtX   # equal to: var(scale(X))
 #' COV2$sdX   # equal to: apply(X,2,sd)
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
 scale_crossprod <- function(XtX)
 {
@@ -190,7 +190,7 @@ getIndexCorrelated <- function(X,maxCor=0.8)
 #'
 #' Collects all outputs saved at the provided \code{saveAt} parameter from the SFI analysis when testing data was splited
 #' according to \code{subset} parameter.
-#' @return  An object of the class 'SFI'
+#' @return  An object of the class 'SFI' for which methods \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
 #' @param prefix Prefix that was added to the output files name, this may include a path
 #' @examples
 #' require(SFSI)
@@ -226,7 +226,7 @@ getIndexCorrelated <- function(X,maxCor=0.8)
 #' \itemize{
 #' \item \insertRef{Perez2014}{SFSI}
 #' }
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
 collect <- function(prefix="")
 {
@@ -320,8 +320,7 @@ deleteCol <- function(r, z, k = p)
 #====================================================================
 #' saveBinary function
 #'
-#' Save a fortran-formatted binary file which will contain information about the number of rows, number of columns and the 
-#' type of precision (single or double).
+#' Save a fortran-formatted binary file at a defined precision (single or double).
 #' @return  NULL
 #' @param X Numeric matrix to save
 #' @param filename Name that will be given to the binary file
@@ -350,7 +349,7 @@ deleteCol <- function(r, z, k = p)
 #' X2
 #' sum(abs(X-X2))   # No loss of precision
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
 saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=TRUE)
 {
@@ -366,7 +365,7 @@ saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=T
 #====================================================================
 #' readBinary function
 #'
-#' Read a fortran-formatted binary file which contains information about the number of rows, number of columns and the type of precision (single or double).
+#' Read a fortran-formatted binary file that was saved at a defined precision (single or double).
 #' @return  The read numeric matrix whose dimensions and precision are specified in the file
 #' @param filename Name of the binary file to read
 #' @param indexRow Vector of integers indicating the rows to be read from the file. Default \code{indexRow=NULL} will read all the rows
@@ -401,7 +400,7 @@ saveBinary <- function(X,filename=paste0(tempdir(),"/file.bin"),size=4,verbose=T
 #' X2
 #' sum(abs(X[indexRow,indexCol]-X2))
 #' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
 readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,indexCol=NULL,verbose=TRUE)
 {
