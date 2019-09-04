@@ -101,7 +101,7 @@ colMeans(out)   # Average across folds
 The above cross-validation can be done using the 'PFI_CV' function with the same `seed` and `nFolds` parameters
 
 ```r
-fm <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed)
+fm <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,mc.cores=4)
 
 # Compare with previous results (that used heritability calculated using complete data)
 cbind(out,fm$correlation)
@@ -116,10 +116,10 @@ lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
 lambda[nLambda] <- 0
 
 # Run the SFI with the generated grid of lambdas
-fm1 <- SFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="SFI")
+fm1 <- SFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="SFI",mc.cores=4)
 
 # Run the un-penalized FI (G-BLUP model)
-fm2 <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,name="G-BLUP")
+fm2 <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,name="G-BLUP",mc.cores=4)
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
 plot(fm1,fm2,py='correlation')
