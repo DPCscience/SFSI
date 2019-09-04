@@ -148,7 +148,7 @@ by the program when `lambda` is not provided
 
 ```r
 # Run the PFI. Lambdas will be generated automatically
-fm1 <- SFI_CV(G,y,h2,nFolds=nFolds,seed=seed)
+fm1 <- SFI_CV(G,y,h2,nFolds=nFolds,seed=seed,mc.cores=4)
 
 # Run the un-penalized FI. Using option method='G-BLUP'
 fm2 <- SFI_CV(G,y,h2,method="GBLUP",nFolds=nFolds,seed=seed)
@@ -175,7 +175,7 @@ lambda <- summary(fm)[['SFI']][[1]][['max']][1,'lambda']
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
 yNA[tst] <- NA
-fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda)
+fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda,mc.cores=4)
 
 # Correlation between predicted and observed values (in testing set)
 plot(predict(fm)$yHat,y[tst])
