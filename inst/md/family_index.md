@@ -246,7 +246,8 @@ for(j in 1:nChunks){
 # Accuracy in testing set
 correlation <- drop(cor(out$yTST,out$yHat))
 lambda <- apply(out$lambda,2,mean)
-plot(-log(lambda),correlation,type="l",lwd=2,col=2)
+dat = data.frame(df=apply(out$df,2,mean),logLambda=-log(lambda),correlation)
+plot(correlation~logLambda,data=dat[dat$df>1,],type="l",lwd=2,col=2)
 indexMax <- which.max(correlation)
 abline(h=correlation[indexMax],lty=2,col=3)
 abline(v=-log(lambda[indexMax]),lty=2,col=3)
