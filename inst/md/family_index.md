@@ -258,7 +258,7 @@ unlink("out_subset_*.RData")
 Results can be automatically saved in the 'working' directory at a provided path and prefix given in the `saveAt` parameter.
 
 ```r
-prefix <- "testFolder/testSFI"      # Prefix (and path) that will be added to the output files name
+prefix <- "testSFI"      # Prefix (and path) that will be added to the output files name
 
 # Run each of the subsets at different nodes
 for(j in 1:nChunks){
