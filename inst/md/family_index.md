@@ -11,9 +11,7 @@ Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield 
 **1. Download and prepare data**
 
 ```r
-# install.packages("BGLR")  # If not installed
-library(BGLR)
-data(wheat)
+data(wheat,package="BGLR")
 A <- wheat.A
 X <- wheat.X
 Y <- wheat.Y
@@ -26,7 +24,7 @@ n <- length(y)
 G <- tcrossprod(scale(X))/ncol(X)
 
 # Calculate heritability using 'BGLR' package
-fm <- BGLR(y,ETA=list(list(K=G,model="RKHS")),nIter=12000,burnIn=5000)
+fm <- BGLR::BGLR(y,ETA=list(list(K=G,model="RKHS")),nIter=12000,burnIn=5000)
 varE <- fm$varE
 varU <- fm$ETA[[1]]$varU
 h2 <- varU/(varU + varE)
