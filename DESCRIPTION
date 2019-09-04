@@ -14,3 +14,5 @@ RoxygenNote: 6.1.1
 Imports: Matrix, reshape, scales, Rdpack, viridis, RSpectra, parallel
 Suggests: BGLR 
 RdMacros: Rdpack
+
+
