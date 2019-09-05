@@ -35,11 +35,11 @@
 #' set.seed(1234)
 #' require(SFSI)
 #' # Simulate variables
-#' n = 500; p=200;  rho=0.65
+#' n=500; p=200;  rho=0.65
 #' X = matrix(rnorm(n*p),ncol=p)
-#' eta = scale(X%*%rnorm(p))  # signal
-#' e =  rnorm(n)              # noise
-#' y = rho*eta + sqrt(1-rho^2)*e
+#' signal = rho*scale(X%*%rnorm(p))
+#' noise =  sqrt(1-rho^2)*rnorm(n)
+#' y = signal + noise
 #'
 #' # Training and testing sets
 #' pTST = 0.3      # percentage to predict
