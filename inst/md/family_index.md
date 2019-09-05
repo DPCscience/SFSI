@@ -199,8 +199,8 @@ An optimal value of the parameter `lambda` can be obtained by cross-validating i
 predict testing individuals.
 ```r
 set.seed(123)
-nTST <- 150               # Number of lines to predict
-tst <- sample(1:n,nTST)   # Select lines to predict
+pTST <- 0.2               # Proportion of lines to predict
+tst <- sample(1:n,floor(n*pTST))   # Select lines to predict
 trn <- (1:n)[-tst]
 
 # Cross-validation in training data to get a value of lambda
@@ -255,8 +255,8 @@ For distributed computing, `subset=c(j,nc)` divides the testing set into 'nc' ch
 
 ```r
 set.seed(123)
-nTST <- 150              # Number of lines to predict
-tst <- sample(1:n,nTST)  # Select lines to predict
+pTST <- 0.2               # Proportion of lines to predict
+tst <- sample(1:n,floor(n*pTST))   # Select lines to predict
 trn <- (1:n)[-tst]
 
 nCores <- 4     # Number of cores in which the analysis will be run into
@@ -375,13 +375,11 @@ and columns can be read using parameter `indexG` which should match to the indiv
 fm <- SFI("G_matrix_32bits.bin",y,h2,trn,tst)
 summary(fm)
 
-set.seed(123)
-tst <- sample(1:n,150)   # Select lines to predict
-trn <- (1:n)[-tst]
-
 # Selecting specific individuals to work with
-y2 <- y[trn]
-fm <- SFI("G_matrix_32bits.bin",y2,h2,indexG=trn)
+y2 <- y[1:500]             # Work only with first 500 individuals
+tst <- sample(1:length(y2),floor(length(y2)*0.2))   # Select 20% of lines to predict
+trn <- (1:length(y2))[-tst]
+fm <- SFI("G_matrix_32bits.bin",y2,h2,trn,tst,indexG=1:500)
 summary(fm)
 ```
 
