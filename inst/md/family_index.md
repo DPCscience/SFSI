@@ -320,8 +320,12 @@ Object `fm` does not contain the regression coefficients in memory but a path wh
 
 ```r
 summary(fm)
+df <- summary(fm)[[1]][['max']][1,'df']  # Optimal value of degrees of freedom
 yHat <- fitted(fm)
+beta <- coef(fm)       # Coefficients for all values of lambda
+beta <- coef(fm,df=df) # Coefficients for the optimum lambda
 plot(fm)
+plot(fm,G=G)     # Coefficients path   
 plot(fm,G=G,PC=TRUE,df=10)     
 ```
 
