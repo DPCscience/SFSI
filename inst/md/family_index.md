@@ -373,14 +373,14 @@ Parameter `G` can be the name of a binary file containing a genomic matrix which
 and columns can be read using parameter `indexG` which should match to the individuals whose scores are passed in `y`.
 ```r
 fm <- SFI("G_matrix_32bits.bin",y,h2,trn,tst)
-summary(fm)
+fm <- SFI_CV("G_matrix_32bits.bin",y,h2)
 
 # Selecting specific individuals to work with
 y2 <- y[1:500]             # Work only with first 500 individuals
 tst <- sample(1:length(y2),floor(length(y2)*0.2))   # Select 20% of lines to predict
 trn <- (1:length(y2))[-tst]
 fm <- SFI("G_matrix_32bits.bin",y2,h2,trn,tst,indexG=1:500)
-summary(fm)
+fm <- SFI_CV("G_matrix_32bits.bin",y2,h2,indexG=1:500)
 ```
 
 [Back to Outline](#Outline)
