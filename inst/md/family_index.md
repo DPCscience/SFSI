@@ -369,7 +369,7 @@ sum(abs(G-G3))  # No loss of precision
 
 **6.1. Passing a binary file name instead of a matrix**
 
-Parameter `G` can be the name of a binary file containing a genomic matrix which will be read internally. In adition, specific rows
+Parameter `G` can be the name of a binary file containing a genomic matrix which will be read internally. In addition, specific rows
 and columns can be read using parameter `indexG` which should match to the individuals whose scores are passed in `y`.
 ```r
 fm <- SFI("G_matrix_32bits.bin",y,h2,trn,tst)
