@@ -626,8 +626,8 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
     
     PROTECT(list = allocVector(VECSXP, 4));
     // Attaching outputs to list:
-    SET_VECTOR_ELT(list, 0, ScalarInteger(nrows));
-    SET_VECTOR_ELT(list, 1, ScalarInteger(ncols));
+    SET_VECTOR_ELT(list, 0, ScalarInteger(n));
+    SET_VECTOR_ELT(list, 1, ScalarInteger(p));
     SET_VECTOR_ELT(list, 2, ScalarInteger(sizevar));
     SET_VECTOR_ELT(list, 3, X);
 
