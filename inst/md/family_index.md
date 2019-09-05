@@ -9,6 +9,7 @@ Predictive ability of both kinship-based BLUP and SFI can be then compared using
 
 ## Outline
   * [Data](#data)    
+  * [Equivalence between G-BLUP and non-sparse Family Index](#GBLUP&FI)
    
 -------------------------------------------------------------------------------------------
 
@@ -42,8 +43,9 @@ h2 <- varU/(varU + varE)
 [Back to Outline](#Outline)
 
 -------------------------------------------------------------------------------------------
+<div id="GBLUP&FI" />
 
-**2. Comparing G-BLUP and non-sparse family index**
+**2. Equivalence between G-BLUP and non-sparse family index**
 
 A value of zero for the penalization parameter (`lambda=0`) yields an index whose regression coefficients are the same as those of the the genomic-BLUP model
 ```r
@@ -65,7 +67,7 @@ max(B-coef(fm,df=length(fm$training)))
 # Compare results
 cor(yHat_GBLUP,yHat_SFI)
 plot(yHat_GBLUP,yHat_SFI)
-cbind(yHat_GBLUP,yHat_SFI)
+head(cbind(yHat_GBLUP,yHat_SFI))
 ```
 
 Kinship-BLUP model can be fitted using function `GBLUP` from the 'SFSI' package
@@ -75,8 +77,7 @@ yHat_GBLUP2 <- predict(fm)$yHat
 head(cbind(yHat_GBLUP,yHat_SFI,yHat_GBLUP2))
 ```
 
-
-**3. Comparing G-BLUP and non-sparse family index using cross-validation**
+**2.1 Comparing G-BLUP and non-sparse family index using cross-validation**
 
 ```r
 # Create folds to perform cross-validation
@@ -118,9 +119,13 @@ fm <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,mc.cores=4)
 # Compare with previous results (that used heritability calculated using complete data)
 cbind(out,fm$correlation)
 ```
+[Back to Outline](#Outline)
 
-**4. Comparing G-BLUP and PFI for different values of the parameter lambda using cross-validation**
+-------------------------------------------------------------------------------------------
 
+**3. Comparing G-BLUP and SFI for different values of the parameter lambda using cross-validation**
+
+Predictive ability of the 
 ```r
 # Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100     # Number of lambdas to generate
