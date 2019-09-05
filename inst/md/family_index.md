@@ -344,7 +344,7 @@ unlink(paste0(prefix,"*.bin"))
 **6. Working with binary files**
 
 Large matrices occupy a big space on disk and hence take long time to be loaded into memory in R. Genomic matrix can be saved as binary 
-file as single-precision *float* type (4 bytes, 32-bits) of space and thus reducing to half the usage space relative to the double-precision *double* type (8 bytes, 64-bits). This can be done using function `saveBinary` specifying either 4 or 8 bytes in parameter `size`.
+file as single-precision *float* type (4 bytes, 32-bits) of space and thus reducing to half the space usage relative to the double-precision *double* type (8 bytes, 64-bits). This can be done using function `saveBinary` specifying either 4 or 8 bytes in parameter `size`.
 ```r
 # Save G matrix as binary file
 saveBinary(G,"G_matrix_32bits.bin",size=4)   # as single-precision
@@ -355,17 +355,18 @@ file.size("G_matrix_32bits.bin")/(1024^2)
 file.size("G_matrix_64bits.bin")/(1024^2)
 ```
 
-Files can be latter read at the specified precision 
+Saving the matrix at 4 bytes occupies less space at the cost of reducing the precision relative to 8 bytes that *numeric* variables occupy in *R*.
 ```r
 # Read G matrix from a previously saved binary file
 G2 <- readBinary("G_matrix_32bits.bin")   
 G3 <- readBinary("G_matrix_64bits.bin") 
 
-# 
-sum(abs(G-G2))
-sum(abs(G-G3))
-file.size("G_matrix_64bits.bin")/(1024^2)
+# Numeric precision 
+sum(abs(G-G2))  # Loss of precision relative to the original matrix
+sum(abs(G-G3))  # No loss of precision
 ```
+
+**6.1 Passing binary file names instead of a matrix**
 
 [Back to Outline](#Outline)
 
