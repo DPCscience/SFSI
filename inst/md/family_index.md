@@ -9,7 +9,8 @@ Predictive ability of both kinship-based BLUP and SFI can be then compared using
 
 ## Outline
   * [Data](#data)    
-  * [Equivalence between G-BLUP and non-sparse Family Index](#GBLUP&FI)
+  * [Equivalence of G-BLUP and non-Sparse Family Index](#GBLUP&FI)
+  * [non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
    
 -------------------------------------------------------------------------------------------
 
@@ -43,9 +44,10 @@ h2 <- varU/(varU + varE)
 [Back to Outline](#Outline)
 
 -------------------------------------------------------------------------------------------
+
 <div id="GBLUP&FI" />
 
-**2. Equivalence between G-BLUP and non-sparse family index**
+**2. Equivalence of G-BLUP and non-Sparse Family Index**
 
 A value of zero for the penalization parameter (`lambda=0`) yields an index whose regression coefficients are the same as those of the the genomic-BLUP model
 ```r
@@ -69,6 +71,8 @@ cor(yHat_GBLUP,yHat_SFI)
 plot(yHat_GBLUP,yHat_SFI)
 head(cbind(yHat_GBLUP,yHat_SFI))
 ```
+Slightly differences are due to the iterative feature of the SFI model. Adjusting parameters `tol` and `maxIter` can yield results
+that perfectly match those of the G-BLUP model but default values provide sufficiently closed estimates. 
 
 Kinship-BLUP model can be fitted using function `GBLUP` from the 'SFSI' package
 ```r
@@ -77,7 +81,7 @@ yHat_GBLUP2 <- predict(fm)$yHat
 head(cbind(yHat_GBLUP,yHat_SFI,yHat_GBLUP2))
 ```
 
-**2.1 Comparing G-BLUP and non-sparse family index using cross-validation**
+**2.1 Equivalence of G-BLUP and non-Sparse Family Index using cross-validation**
 
 ```r
 # Create folds to perform cross-validation
@@ -123,9 +127,12 @@ cbind(out,fm$correlation)
 
 -------------------------------------------------------------------------------------------
 
-**3. Comparing G-BLUP and SFI for different values of the parameter lambda using cross-validation**
+<div id="GBLUPvsSFI" />
 
-Predictive ability of the 
+**3. G-BLUP (non-Sparse) vs Sparse Family Index for different values of the parameter lambda**
+
+Predictive ability of the non-Sparse (or G-BLUP) will be compared with that of the Sparse Family Index using the correlation between
+observed and predicted values in a cross-validation fashion.
 ```r
 # Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100     # Number of lambdas to generate
