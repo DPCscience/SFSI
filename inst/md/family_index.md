@@ -255,7 +255,8 @@ For distributed computing, `subset=c(j,nc)` divides the testing set into 'nc' ch
 
 ```r
 set.seed(123)
-tst <- sample(1:n,150)   # Select lines to predict
+nTST <- 150              # Number of lines to predict
+tst <- sample(1:n,nTST)  # Select lines to predict
 trn <- (1:n)[-tst]
 
 nCores <- 4     # Number of cores in which the analysis will be run into
@@ -367,6 +368,9 @@ sum(abs(G-G3))  # No loss of precision
 ```
 
 **6.1. Passing a binary file name instead of a matrix**
+
+Parameter `G` can be the name of a binary file containing a genomic matrix which will be read internally. In adition, specific rows
+and columns can be read using parameter `indexG` which should match to the individuals whose scores are passed in `y`.
 ```r
 fm <- SFI("G_matrix_32bits.bin",y,h2,trn,tst)
 summary(fm)
@@ -379,7 +383,6 @@ trn <- (1:n)[-tst]
 y2 <- y[trn]
 fm <- SFI("G_matrix_32bits.bin",y2,h2,indexG=trn)
 summary(fm)
-
 ```
 
 [Back to Outline](#Outline)
