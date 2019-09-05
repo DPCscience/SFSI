@@ -343,6 +343,8 @@ unlink(paste0(prefix,"*.bin"))
 
 **6. Working with binary files**
 
+Large matrices occupy a big space on disk and hence take long time to be loaded into memory in R. Genomic matrix can be saved as binary 
+file using 32 bits (single-precision) of space and thus reducing usage space relative to the 64 bits (double-precision)
 ```r
 # Save G matrix as binary file
 saveBinary(G,"G_matrix_32bits.bin",size=4)   # as single-precision
@@ -358,8 +360,9 @@ file.size("G_matrix_64bits.bin")/(1024^2)
 G2 <- readBinary("G_matrix_32bits.bin")   
 G3 <- readBinary("G_matrix_64bits.bin") 
 
-# Size of files (in Megabytes)
-file.size("G_matrix_32bits.bin")/(1024^2)
+# 
+sum(abs(G-G2))
+sum(abs(G-G3))
 file.size("G_matrix_64bits.bin")/(1024^2)
 ```
 
