@@ -1,4 +1,4 @@
-* [Back to main page](https://github.com/MarcooLopez/PFSI)
+* [Back to main page](https://github.com/MarcooLopez/SFSI/blob/master/README.md)
 
 ## Sparse Family Index (SFI)
 In a Family Index the breeding value for each candidate of selection is estimated as a linear combination of the observed value of all the predictors (subjects in a training set). The contribution (regression coefficients) of all training subjects for each individual can be calculated simultaneously using the **BLUP (Best Linear Unbiased Predictor)** that relies in kinship relationship (either pedigree- or marker-based) between candidates of selection and training data. 
