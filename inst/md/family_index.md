@@ -11,6 +11,8 @@ Predictive ability of both kinship-based BLUP and SFI can be then compared using
   * [Data](#data)    
   * [Equivalence of G-BLUP and non-Sparse Family Index](#GBLUP&FI)
   * [non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
+  * [Predicting testing individuals using a trainig set](#predictSFI)
+  * [Parallel computing for large datasets](#parallelizing)
    
 -------------------------------------------------------------------------------------------
 
@@ -129,10 +131,10 @@ cbind(out,fm$correlation)
 
 <div id="GBLUPvsSFI" />
 
-**3. G-BLUP (non-Sparse) vs Sparse Family Index for different values of the parameter lambda**
+**3. Performance of G-BLUP (non-Sparse) and Sparse Family Index**
 
 Predictive ability of the non-Sparse (or G-BLUP) will be compared with that of the Sparse Family Index using the correlation between
-observed and predicted values in a cross-validation fashion.
+observed and predicted values in a cross-validation fashion for different values of the penalization parameter lambda.
 ```r
 # Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100     # Number of lambdas to generate
@@ -183,9 +185,17 @@ plot(fm1,fm2)
 # Relative gain over G-BLUP (percentage)
 summary(fm1,fm2)[['SFI']][[1]][['gain']]
 ```
+[Back to Outline](#Outline)
 
-**5. Predicting values for a testing set using a training set**
+-------------------------------------------------------------------------------------------
 
+<div id="predictSFI" />
+
+**4. Predicting values for a testing set using a training set**
+
+Breeding values can be predicted for individuals in a testing set using information from a training data.
+An optimal value of the parameter `lambda` can be obtained by cross-validating in training dat and then use it to
+predict testing individuals.
 ```r
 set.seed(123)
 nTST <- 150               # Number of lines to predict
@@ -209,13 +219,13 @@ cor(predict(fm)$yHat,y[tst])
 GBLUP(G,y,h2,trn,tst)$correlation
 ```
 
-Obtaining the value of `lambda` from a training data could be optimized by running repeatedly several cross-validations
-by providing different values of the parameter `seed`
+A better estimate of the parameter `lambda` could be obtained by running repeatedly several cross-validations
+by providing different values of the parameter `seed` and then averaging across repetitions.
 
 ```r
 # Repeated cross-validation in training data to get an optimal lambda
-lambda <- c()
-nRep <- 10   # Number of times to run the cross-validation
+nRep <- 10      # Number of times to run the cross-validation
+lambda <- c()   # Vector to store the values of lambda
 for(j in 1:nRep)
 {
    fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,mc.cores=4,seed=j*500)
@@ -230,23 +240,31 @@ lambda0 <- prod(lambda)^(1/length(lambda))  # Geometric mean
 fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda0)
 cor(predict(fm)$yHat,y[tst])
 ```
+[Back to Outline](#Outline)
 
-**6. Predicting values for a large testing set using parallel computing**
+-------------------------------------------------------------------------------------------
 
-Analysis of a large number of individuals can be computational demanding. The options `nCores` and `subset` enable both parallel and distributed computing.
+<div id="parallelizing" />
+
+**5. Parallelizing computation of large number of testing individuals**
+
+Analysis of a large number of individuals can be computationally demanding. The options `mc.cores` and `subset` enable both parallel and distributed computing.
 For parallel computing, option `mc.cores` allows to simultaneously run the program on several cores.
 For distributed computing, `subset=c(j,nc)` divides the testing set into 'nc' chunks and run only the chunk 'j' separately. All the testing subsets can be separatelly run in a High Performance Computing (HPC) environment at different nodes. 
 
 ```r
+set.seed(123)
 tst <- sample(1:n,150)   # Select lines to predict
 trn <- (1:n)[-tst]
 
+nCores <- 4     # Number of cores in which the analysis will be run into
 nChunks <- 5    # Number of chunks in which the testing set will be divided into
 j <- 1          # Subset to run at one node
 
 # Run each of the subsets at different nodes and collect predicted values
+# for demonstration purposes all subsets will be run in a 'for' loop
 for(j in 1:nChunks){
-  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),mc.cores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),mc.cores=nCores)
   yHat <- fitted(fm)
   df <- fm$df
   lambda <- fm$lambda
@@ -287,7 +305,7 @@ prefix <- "testSFI"      # Prefix (and path) that will be added to the output fi
 
 # Run each of the subsets at different nodes
 for(j in 1:nChunks){
-  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt=prefix,mc.cores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(j,nChunks),saveAt=prefix,mc.cores=nCores)
 }
 ```
 
@@ -312,5 +330,11 @@ The size and the number of output files might overflow disc memory, thus removin
 unlink(paste0(prefix,"*.RData"))
 unlink(paste0(prefix,"*.bin"))
 ```
+[Back to Outline](#Outline)
 
+-------------------------------------------------------------------------------------------
+
+<div id="binaryFiles" />
+
+[Back to Outline](#Outline)
 
