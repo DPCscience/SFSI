@@ -84,7 +84,7 @@ yHat_GBLUP2 <- predict(fm)$yHat
 head(cbind(yHat_GBLUP,yHat_SFI,yHat_GBLUP2))
 ```
 
-**2.1 Equivalence of G-BLUP and non-Sparse Family Index using cross-validation**
+**2.1. Equivalence of G-BLUP and non-Sparse Family Index using cross-validation**
 
 ```r
 # Create folds to perform cross-validation
@@ -366,7 +366,21 @@ sum(abs(G-G2))  # Loss of precision relative to the original matrix
 sum(abs(G-G3))  # No loss of precision
 ```
 
-**6.1 Passing binary file names instead of a matrix**
+**6.1. Passing a binary file name instead of a matrix**
+```r
+fm <- SFI("G_matrix_32bits.bin",y,h2,trn,tst)
+summary(fm)
+
+set.seed(123)
+tst <- sample(1:n,150)   # Select lines to predict
+trn <- (1:n)[-tst]
+
+# Selecting specific individuals to work with
+y2 <- y[trn]
+fm <- SFI("G_matrix_32bits.bin",y2,h2,indexG=trn)
+summary(fm)
+
+```
 
 [Back to Outline](#Outline)
 
