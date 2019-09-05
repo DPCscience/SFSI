@@ -13,6 +13,7 @@ Predictive ability of both kinship-based BLUP and SFI can be then compared using
   * [non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
   * [Predicting testing individuals using a trainig set](#predictSFI)
   * [Parallel computing for large datasets](#parallelizing)
+  * [Working with binary files](#binaryFiles)
    
 -------------------------------------------------------------------------------------------
 
@@ -339,6 +340,28 @@ unlink(paste0(prefix,"*.bin"))
 -------------------------------------------------------------------------------------------
 
 <div id="binaryFiles" />
+
+**6. Working with binary files**
+
+```r
+# Save G matrix as binary file
+saveBinary(G,"G_matrix_32bits.bin",size=4)   # as single-precision
+saveBinary(G,"G_matrix_64bits.bin",size=8)   # as double-precision
+
+# Size of files (in Megabytes)
+file.size("G_matrix_32bits.bin")/(1024^2)
+file.size("G_matrix_64bits.bin")/(1024^2)
+```
+
+```r
+# Read G matrix from a previously saved binary file
+G2 <- readBinary("G_matrix_32bits.bin")   
+G3 <- readBinary("G_matrix_64bits.bin") 
+
+# Size of files (in Megabytes)
+file.size("G_matrix_32bits.bin")/(1024^2)
+file.size("G_matrix_64bits.bin")/(1024^2)
+```
 
 [Back to Outline](#Outline)
 
