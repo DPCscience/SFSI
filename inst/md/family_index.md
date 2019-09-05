@@ -40,6 +40,7 @@ h2 <- varU/(varU + varE)
 
 ```
 [Back to Outline](#Outline)
+
 -------------------------------------------------------------------------------------------
 
 **2. Comparing G-BLUP and non-sparse family index**
