@@ -5,8 +5,17 @@ In contrast to the kinship-based BLUP, a Sparse Family Index (SFI) estimate the 
 
 Predictive ability of both kinship-based BLUP and SFI can be then compared using their **prediction accuracy** given by the correlation between observed and predicted values.
 
+<div id="Outline" />
+
+## Outline
+  * [Data](#data)    
+   
+-------------------------------------------------------------------------------------------
+
+<div id="data" />
+
 ### Data
-Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield (each entry corresponds to an average of two plot records) at four different environments; phenotypes (*wheat.Y* object) were centered and standardized to a unit variance within environment. Each of the lines were genotyped for 1279 diversity array technology (DArT) markers. At each marker two homozygous genotypes were possible and these were coded as 0/1. Marker genotypes are given in the object *wheat.X*. Finally a matrix *wheat.A* provides the pedigree relationships between lines computed from the pedigree records. Data is available for download in the R-package 'BGLR'.
+Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield (each entry corresponds to an average of two plot records) at four different environments; phenotypes (*wheat.Y* object) were centered and standardized to a unit variance within environment. Each of the lines were genotyped for 1279 diversity array technology (DArT) markers. At each marker two homozygous genotypes were possible and these were coded as 0/1. Marker genotypes are given in the object *wheat.X*. Finally a matrix *wheat.A* provides the pedigree relationships between lines computed from the pedigree records. Data is available for download in the R-package 'BGLR' (Perez & de los Campos, 2014).
 
 **1. Download and prepare data**
 
@@ -30,6 +39,8 @@ varU <- fm$ETA[[1]]$varU
 h2 <- varU/(varU + varE)
 
 ```
+[Back to Outline](#Outline)
+-------------------------------------------------------------------------------------------
 
 **2. Comparing G-BLUP and non-sparse family index**
 
