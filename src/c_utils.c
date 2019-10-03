@@ -113,11 +113,10 @@ SEXP updatebeta_lambda(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, 
 // ----------------------------------------------------------
 SEXP gaussian_kernel(SEXP n, SEXP XtX, SEXP h)
 {
-    double *pXtX, *pd, *pout;
+    double *pXtX, *pd;
     double bw;
     int np;
     int i,j;
-    SEXP list;
 
     np=INTEGER_VALUE(n);
     bw=NUMERIC_VALUE(h);
@@ -127,43 +126,37 @@ SEXP gaussian_kernel(SEXP n, SEXP XtX, SEXP h)
 
     pd=(double *) R_alloc(np, sizeof(double));
 
-    SEXP out = PROTECT(allocMatrix(REALSXP, np, np));
-    pout=NUMERIC_POINTER(out);
-
     // Diagonal values
     for(j=0; j<np; j++)
     {
         pd[j]=pXtX[np*j + j];
-        pout[np*j + j]=1;
+        pXtX[np*j + j]=1;
     }
 
     for(j=0; j<np-1; j++)
     {
         for(i=j+1; i<np; i++)
         {
-          pout[np*j + i]=exp(-bw*(pd[i] + pd[j] -2*pXtX[np*j + i]));
-          pout[np*i + j]=exp(-bw*(pd[i] + pd[j] -2*pXtX[np*i + j]));
+          pXtX[np*j + i]=exp(-bw*(pd[i] + pd[j] -2*pXtX[np*j + i]));
+          pXtX[np*i + j]=exp(-bw*(pd[i] + pd[j] -2*pXtX[np*i + j]));
         }
     }
 
-    // Creating a list with 1 vector elements:
-    PROTECT(list = allocVector(VECSXP, 1));
-    // Attaching outputs to list:
-    SET_VECTOR_ELT(list, 0, out);
+    // Creating a NULL variable with 1 elements:
+    SEXP out = PROTECT(allocVector(NILSXP, 1));
 
-    UNPROTECT(3);
+    UNPROTECT(2);
 
-    return(list);
+    return(out);
 }
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 SEXP laplacian_kernel(SEXP n, SEXP XtX, SEXP h)
 {
-    double *pXtX, *pd, *pout;
+    double *pXtX, *pd;
     double bw;
     int np;
     int i,j;
-    SEXP list;
 
     np=INTEGER_VALUE(n);
     bw=NUMERIC_VALUE(h);
@@ -173,44 +166,38 @@ SEXP laplacian_kernel(SEXP n, SEXP XtX, SEXP h)
 
     pd=(double *) R_alloc(np, sizeof(double));
 
-    SEXP out = PROTECT(allocMatrix(REALSXP, np, np));
-    pout=NUMERIC_POINTER(out);
-
     // Diagonal values
     for(j=0; j<np; j++)
     {
         pd[j]=pXtX[np*j + j];
-        pout[np*j + j]=1;
+        pXtX[np*j + j]=1;
     }
 
     for(j=0; j<np-1; j++)
     {
         for(i=j+1; i<np; i++)
         {
-          pout[np*j + i]=exp(-bw*sqrt(pd[i] + pd[j] -2*pXtX[np*j + i]));
-          pout[np*i + j]=exp(-bw*sqrt(pd[i] + pd[j] -2*pXtX[np*i + j]));
+          pXtX[np*j + i]=exp(-bw*sqrt(pd[i] + pd[j] -2*pXtX[np*j + i]));
+          pXtX[np*i + j]=exp(-bw*sqrt(pd[i] + pd[j] -2*pXtX[np*i + j]));
         }
     }
 
-    // Creating a list with 1 vector elements:
-    PROTECT(list = allocVector(VECSXP, 1));
-    // Attaching outputs to list:
-    SET_VECTOR_ELT(list, 0, out);
+    // Creating a NULL variable with 1 elements:
+    SEXP out = PROTECT(allocVector(NILSXP, 1));
 
-    UNPROTECT(3);
+    UNPROTECT(2);
 
-    return(list);
+    return(out);
 }
 
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 SEXP polynomial_kernel(SEXP n, SEXP XtX,SEXP a, SEXP b)
 {
-    double *pXtX, *pout;
+    double *pXtX;
     double aa, bb;
     int np;
     int i,j;
-    SEXP list;
 
     np=INTEGER_VALUE(n);
     aa=NUMERIC_VALUE(a);
@@ -219,42 +206,36 @@ SEXP polynomial_kernel(SEXP n, SEXP XtX,SEXP a, SEXP b)
     PROTECT(XtX=AS_NUMERIC(XtX));
     pXtX=NUMERIC_POINTER(XtX);
 
-    SEXP out = PROTECT(allocMatrix(REALSXP, np, np));
-    pout=NUMERIC_POINTER(out);
-
     // Diagonal values
     for(j=0; j<np; j++)
     {
-        pout[np*j + j]=pow(aa*pXtX[np*j + j] + 1, bb);
+        pXtX[np*j + j]=pow(aa*pXtX[np*j + j] + 1, bb);
     }
 
     for(j=0; j<np-1; j++)
     {
         for(i=j+1; i<np; i++)
         {
-          pout[np*j + i]=pow(aa*pXtX[np*j + i] + 1, bb);
-          pout[np*i + j]=pow(aa*pXtX[np*i + j] + 1, bb);
+          pXtX[np*j + i]=pow(aa*pXtX[np*j + i] + 1, bb);
+          pXtX[np*i + j]=pow(aa*pXtX[np*i + j] + 1, bb);
         }
     }
 
-    // Creating a list with 1 vector elements:
-    PROTECT(list = allocVector(VECSXP, 1));
-    // Attaching outputs to list:
-    SET_VECTOR_ELT(list, 0, out);
+    // Creating a NULL variable with 1 elements:
+    SEXP out = PROTECT(allocVector(NILSXP, 1));
 
-    UNPROTECT(3);
+    UNPROTECT(2);
 
-    return(list);
+    return(out);
 }
 
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 SEXP crossprod2distance(SEXP n, SEXP XtX)
 {
-    double *pXtX, *pd, *pout;
+    double *pXtX, *pd;
     int np;
     int i,j;
-    SEXP list;
 
     np=INTEGER_VALUE(n);
 
@@ -263,33 +244,28 @@ SEXP crossprod2distance(SEXP n, SEXP XtX)
 
     pd=(double *) R_alloc(np, sizeof(double));
 
-    SEXP out = PROTECT(allocMatrix(REALSXP, np, np));
-    pout=NUMERIC_POINTER(out);
-
     // Diagonal values
     for(j=0; j<np; j++)
     {
         pd[j]=pXtX[np*j + j];
-        pout[np*j + j]=0;
+        pXtX[np*j + j]=0;
     }
 
     for(j=0; j<np-1; j++)
     {
         for(i=j+1; i<np; i++)
         {
-          pout[np*j + i]=pd[i] + pd[j] -2*pXtX[np*j + i];
-          pout[np*i + j]=pd[i] + pd[j] -2*pXtX[np*i + j];
+          pXtX[np*j + i]=pd[i] + pd[j] -2*pXtX[np*j + i];
+          pXtX[np*i + j]=pd[i] + pd[j] -2*pXtX[np*i + j];
         }
     }
 
-    // Creating a list with 1 vector elements:
-    PROTECT(list = allocVector(VECSXP, 1));
-    // Attaching outputs to list:
-    SET_VECTOR_ELT(list, 0, out);
+    // Creating a NULL variable with 1 elements:
+    SEXP out = PROTECT(allocVector(NILSXP, 1));
 
-    UNPROTECT(3);
+    UNPROTECT(2);
 
-    return(list);
+    return(out);
 }
 
 // ----------------------------------------------------------
@@ -303,47 +279,39 @@ SEXP crossprod2distance(SEXP n, SEXP XtX)
 // ----------------------------------------------------------
 SEXP scaleXtX(SEXP n, SEXP XtX)
 {
-    double *pXtX, *psdx, *pout;
+    double *pXtX, *psdx;
     int np;
     int i,j;
-    SEXP list;
 
     np=INTEGER_VALUE(n);
 
     PROTECT(XtX=AS_NUMERIC(XtX));
     pXtX=NUMERIC_POINTER(XtX);
 
-    SEXP sdx = PROTECT(allocVector(REALSXP, np));
-    psdx=NUMERIC_POINTER(sdx);
-
-    SEXP out = PROTECT(allocMatrix(REALSXP, np, np));
-    pout=NUMERIC_POINTER(out);
+    psdx=(double *) R_alloc(np, sizeof(double));
 
     // Get standard deviations
     for(i=0; i<np; i++)
     {
         psdx[i]=sqrt(pXtX[np*i + i]);
-        pout[np*i + i]=1;
+        pXtX[np*i + i]=1;
     }
 
     for(j=0; j<np-1; j++)
     {
         for(i=j+1; i<np; i++)
         {
-          pout[np*j + i]=pXtX[np*j + i]/(psdx[j]*psdx[i]);
-          pout[np*i + j]=pXtX[np*i + j]/(psdx[j]*psdx[i]);
+          pXtX[np*j + i]=pXtX[np*j + i]/(psdx[j]*psdx[i]);
+          pXtX[np*i + j]=pXtX[np*i + j]/(psdx[j]*psdx[i]);
         }
     }
 
-    // Creating a list with 1 vector elements:
-    PROTECT(list = allocVector(VECSXP, 2));
-    // Attaching outputs to list:
-    SET_VECTOR_ELT(list, 0, out);
-    SET_VECTOR_ELT(list, 1, sdx);
+    // Creating a NULL variable with 1 elements:
+    SEXP out = PROTECT(allocVector(NILSXP, 1));
 
-    UNPROTECT(4);
+    UNPROTECT(2);
 
-    return(list);
+    return(out);
 }
 
 // ----------------------------------------------------------
@@ -508,21 +476,21 @@ SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
     double *linedouble;
     float valuefloat;
     SEXP list;
-    
+
     nrows=INTEGER_VALUE(n);
     ncols=INTEGER_VALUE(p);
     sizevar=INTEGER_VALUE(size);
-    
+
     PROTECT(X=AS_NUMERIC(X));
     pX=NUMERIC_POINTER(X);
-    
+
     linedouble=(double *) R_alloc(ncols, sizeof(double));
-    
+
     f=fopen(CHAR(STRING_ELT(filename,0)),"wb");
     fwrite(&nrows,4, 1 , f);
     fwrite(&ncols,4, 1 , f);
     fwrite(&sizevar,4, 1 , f);
-    
+
     // Write lines
     for(i=0; i<nrows; i++)
     {
@@ -531,15 +499,15 @@ SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
             for(j=0; j<ncols; j++)
             {
                 valuefloat = pX[nrows*j + i];
-                fwrite(&valuefloat,sizevar, 1 , f); 
+                fwrite(&valuefloat,sizevar, 1 , f);
             }
         }else{
             F77_NAME(dcopy)(&ncols, pX+i, &nrows,linedouble, &inc);
-            fwrite(linedouble,sizevar, ncols , f); 
+            fwrite(linedouble,sizevar, ncols , f);
         }
-        
+
     }
-    
+
     fclose(f);
 
     PROTECT(list = allocVector(VECSXP, 3));
@@ -547,7 +515,7 @@ SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
     SET_VECTOR_ELT(list, 0, ScalarInteger(nrows));
     SET_VECTOR_ELT(list, 1, ScalarInteger(ncols));
     SET_VECTOR_ELT(list, 2, ScalarInteger(sizevar));
-    
+
     UNPROTECT(2);
 
     return(list);
@@ -566,51 +534,51 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
     double *linedouble;
     float *linefloat;
     SEXP list;
-    
+
     lsrow=INTEGER_VALUE(nsetRow);
     lscol=INTEGER_VALUE(nsetCol);
-    
+
     PROTECT(setRow=AS_INTEGER(setRow));
     psetRow=INTEGER_POINTER(setRow);
-    
+
     PROTECT(setCol=AS_INTEGER(setCol));
     psetCol=INTEGER_POINTER(setCol);
- 
+
     f=fopen(CHAR(STRING_ELT(filename,0)),"rb");
     fread(&nrows, 4, 1, f);
     fread(&ncols, 4, 1, f);
     fread(&sizevar, 4, 1, f);
-    
+
     linedouble=(double *) R_alloc(ncols, sizeof(double));
     linefloat=(float *) R_alloc(ncols, sizeof(float));
-    
+
     n=lsrow > 0 ? lsrow : nrows;
     p=lscol > 0 ? lscol : ncols;
-    
+
     SEXP X=PROTECT(allocMatrix(REALSXP, n, p));
     pX=NUMERIC_POINTER(X);
-  
+
     // Read lines
     for(i=0; i<n; i++)
     {
         if(lsrow > 0){
             fseek(f, 12 + ncols*sizevar*(psetRow[i]-1), SEEK_SET);
         }
-        
+
         if(sizevar==4){
             fread(linefloat,sizevar,ncols,f);
         }else{
             fread(linedouble,sizevar,ncols,f);
         }
-            
-        for(j=0; j<p; j++) 
+
+        for(j=0; j<p; j++)
         {
             if(lscol>0)
             {
                 if(sizevar==4){
                     linedouble[psetCol[j]-1]=linefloat[psetCol[j]-1];
                 }
-                
+
                 pX[n*j + i]=linedouble[psetCol[j]-1];
             }else{
                 if(sizevar==4){
@@ -619,11 +587,11 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
                 pX[n*j + i]=linedouble[j];
             }
         }
-       
+
     }
-    
+
     fclose(f);
-    
+
     PROTECT(list = allocVector(VECSXP, 4));
     // Attaching outputs to list:
     SET_VECTOR_ELT(list, 0, ScalarInteger(n));
@@ -634,4 +602,3 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
     UNPROTECT(4);
     return(list);
 }
-
