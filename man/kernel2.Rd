@@ -4,7 +4,7 @@
 \alias{kernel2}
 \title{kernel2 function}
 \usage{
-kernel2(XtX, kernel = NULL)
+kernel2(XtX, kernel = NULL, void = FALSE)
 }
 \arguments{
 \item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables.}
@@ -16,6 +16,9 @@ kernel2(XtX, kernel = NULL)
   \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 }
 Default \code{kernel=NULL} (no kernel)}
+
+\item{void}{\code{TRUE} or \code{FALSE} to whether return or not return the output.
+When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}}
 }
 \value{
 A squared matrix \eqn{K} containing the kernel transformation
@@ -39,29 +42,30 @@ require(SFSI)
 # Simulate matrix
 n = 1000; p=10
 X = scale(matrix(rnorm(n*p),ncol=p))
-COV = crossprod(X)/(n-1)   # Cross-product X'X
+COV = cov(X)
 
 # Gaussian kernel (h=0.2)
 h = 0.2
-K = kernel2(COV,kernel=list(kernel="GAUSSIAN",h=h))$K
-# it must equal (but faster) to:
-K2 = exp(-h*as.matrix(dist(t(X)))^2/(n-1))  # or
-K2 = exp(-h*cov2dist(COV))
-K;K2
+kernel2(COV,kernel=list(kernel="GAUSSIAN",h=h))
+# it must be equal (but faster) to:
+exp(-h*as.matrix(dist(t(X)))^2/(n-1))  # or
+exp(-h*cov2dist(COV))
 
 # Laplacian kernel (h=0.2)
-K = kernel2(COV,kernel=list(kernel="LAPLACIAN",h=h))$K
-# it must equal (but faster) to:
-K2 = exp(-h*as.matrix(dist(t(X)))/sqrt(n-1))  # or
-K2 = exp(-h*sqrt(cov2dist(COV)))
-K;K2
+kernel2(COV,kernel=list(kernel="LAPLACIAN",h=h))
+# it must be equal (but faster) to:
+exp(-h*as.matrix(dist(t(X)))/sqrt(n-1))  # or
+exp(-h*sqrt(cov2dist(COV)))
 
 # Polynomial kernel (a=1.5, b=2)
 a = 1.5; b = 2
-K = kernel2(COV,kernel=list(kernel="POLYNOMIAL",a=a,b=b))$K
-# it must equal to:
-K2 = (a*COV + 1)^b
-K;K2
+kernel2(COV,kernel=list(kernel="POLYNOMIAL",a=a,b=b))
+# it must be equal to:
+(a*COV + 1)^b
+
+# Using void=TRUE
+kernel2(COV,kernel=list(kernel="POLYNOMIAL",a=a,b=b),void=TRUE)
+COV   # notice that COV was modified
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos

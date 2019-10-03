@@ -12,8 +12,8 @@ solveEN(XtX, Xty, lambda = NULL, nLambda = 100, alpha = 1,
 
 \item{Xty}{Covariance vector between response variable and predictors}
 
-\item{lambda}{Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of 
-\code{n='nLambda'} lambdas will be generated starting from a maximum equal to 
+\item{lambda}{Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of
+\code{n='nLambda'} lambdas will be generated starting from a maximum equal to
 \tabular{c}{\code{max(abs(Xty)/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 
@@ -21,7 +21,7 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
 
 \item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
 (see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 taken from the diagonal of \code{XtX}}
 

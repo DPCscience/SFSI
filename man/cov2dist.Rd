@@ -4,20 +4,23 @@
 \alias{cov2dist}
 \title{cov2dist function}
 \usage{
-cov2dist(XtX)
+cov2dist(XtX, void = FALSE)
 }
 \arguments{
 \item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables}
+
+\item{void}{\code{TRUE} or \code{FALSE} to whether return or not return the output.
+When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}}
 }
 \value{
 A squared matrix \eqn{D} containing the squared Euclidean distances
 }
 \description{
-Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise 
+Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise
 distance \eqn{d(x,y)} between vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'}
 is obtained from their cross-product, \eqn{x'y = \sum{x_iy_i}}, as
 \deqn{d^2(x,y) = (x-y)'(x-y) = x'x + y'y - 2x'y}
-Note that if the variables are centered then the cross-product is proportional to the covariance, 
+Note that if the variables are centered then the cross-product is proportional to the covariance,
 this is \eqn{x'y = cov(x,y)} up-to a constant
 }
 \examples{
@@ -29,11 +32,19 @@ X = scale(matrix(rnorm(n*p),ncol=p))
 
 # Distance matrix from a cross-product
 COV = crossprod(X)   # Cross-product X'X
-cov2dist(COV)  # equal to: as.matrix(dist(t(X)))^2
+cov2dist(COV)
+# it must equal (but faster) to:
+as.matrix(dist(t(X)))^2
 
 # Distance matrix from a variance-covariance matrix
-COV = var(X)   # Variance matrix of X
-(n-1)*cov2dist(COV)  # equal to: as.matrix(dist(t(X)))^2
+COV = cov(X)   # Variance matrix of X
+(n-1)*cov2dist(COV)
+# it must equal (but faster) to:
+as.matrix(dist(t(X)))^2
+
+# Using void=TRUE
+cov2dist(COV,void=TRUE)
+(n-1)*COV   # notice that COV was modified
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos

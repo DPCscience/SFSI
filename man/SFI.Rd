@@ -41,7 +41,7 @@ Default \code{kernel=NULL} (no kernel)}
 Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors}
 
 \item{lambda}{Penalization parameter sequence vector used for the Coordinate Descent algorithm.
-Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated 
+Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated
 starting from a maximum equal to
 \tabular{c}{\code{max(abs(G[training,testing])/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}}
@@ -82,7 +82,7 @@ List object containing the elements:
   \item \code{df}: degrees of freedom (averaged across individuals), number of non-zero predictors at each solution.
   \item \code{kernel}: transformation applied to the elements of \code{G}.
 }
-Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned. 
+Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned.
 The returned object is of the class 'SFI' for which methods \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
 }
 \description{
@@ -92,8 +92,8 @@ values of the penalization parameter via either the Coordinate Descent (CD) or L
 \details{
 The model is fitted for each individual which are predicted using all available observations of the response variable
 (as predictors) \eqn{y=(y_1,...,y_n)'} in a linear combination. The coefficients are estimated as function of genetic
-variances and covariances among individuals given by the genetic relatedness matrix (\eqn{G}). Specifically, the \eqn{n} coefficients 
-\eqn{\beta_i=(\beta_{i1},...,\beta_{in})'} for the \eqn{i^{th}} individual are function of the covariance between predictors 
+variances and covariances among individuals given by the genetic relatedness matrix (\eqn{G}). Specifically, the \eqn{n} coefficients
+\eqn{\beta_i=(\beta_{i1},...,\beta_{in})'} for the \eqn{i^{th}} individual are function of the covariance between predictors
 and that individual (\eqn{G[,i]}, the \eqn{i^{th}} column of \eqn{G}) and the variance among predictors (\eqn{G}).
 
 These coefficients are obtained by solving the optimization function

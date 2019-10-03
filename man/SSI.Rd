@@ -22,7 +22,7 @@ SSI(XtX, Xty, kernel = NULL, scale = TRUE, maxDF = NULL,
 }
 Default \code{kernel=NULL} (no kernel)}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
 (see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 taken from the diagonal of \code{XtX}}
 
@@ -31,7 +31,7 @@ Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predic
 
 \item{lambda}{Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 Default is \code{lambda=NULL}, in this case a decreasing grid of
-\code{n='nLambda'} lambdas will be generated starting from a maximum equal to 
+\code{n='nLambda'} lambdas will be generated starting from a maximum equal to
 \tabular{c}{\code{max(abs(Xty)/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 

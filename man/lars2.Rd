@@ -24,7 +24,7 @@ Default \code{maxDF=NULL} will calculate solution for all the predictors}
 
 \item{eps}{An effective zero. Default is the machine precision}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
 (see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 taken from the diagonal of \code{XtX}}
 
