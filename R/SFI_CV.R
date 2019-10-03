@@ -91,7 +91,7 @@
 #' \item \insertRef{Perez2014}{SFSI}
 #' \item \insertRef{VanRaden2008}{SFSI}
 #' }
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #' @keywords SFI_CV
 
 SFI_CV <- function(G,y,h2=0.5,training=1:length(y),nFolds=5,indexG=NULL,kernel=NULL,maxDF=NULL,

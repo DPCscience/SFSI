@@ -3,7 +3,7 @@
 #' Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
 #' least squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
 #' a variance matrix among predictors and a covariance vector between response and predictors.
-#' 
+#'
 #' The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
 #' predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) using 'covariance updates'
 #' to solve the optimization function
@@ -27,7 +27,7 @@
 #' @param eps An effective zero. Default is the machine precision
 #' @param maxDF Maximum number of predictors in the last lars solution.
 #' Default \code{maxDF=NULL} will calculate solution for all the predictors
-#' @param scale \code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+#' @param scale \code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
 #' (see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 #' taken from the diagonal of \code{XtX}
 #' @param verbose \code{TRUE} or \code{FALSE} to whether printing each lars step
@@ -93,9 +93,8 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
   textPrint <- c(" Step","\tSec/Step","\tVariable")
 
   if(scale){
+    sdx <- sqrt(diag(XtX))
     XtX <- scale_crossprod(XtX)
-    sdx <- XtX$sdX
-    XtX <- XtX$XtX
     Xty <- Xty/sdx
   }else{
     sdx <- rep(1,p)

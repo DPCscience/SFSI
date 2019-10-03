@@ -3,7 +3,7 @@
 #' Computes the entire Elastic-Net solution for the regression coefficients simultaneously for all
 #' values of the penalization parameter using as inputs a variance matrix among predictors and a covariance
 #' vector between response and predictors, via the Coordinate Descent (CD) algorithm (Friedman, 2007).
-#' 
+#'
 #' The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
 #' predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) by optimizing the function
 #' \deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + \lambda J(\beta)}
@@ -19,13 +19,13 @@
 #' }
 #' @param XtX Variance-covariance matrix among predictors
 #' @param Xty Covariance vector between response variable and predictors
-#' @param lambda Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of 
-#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to 
+#' @param lambda Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of
+#' \code{n='nLambda'} lambdas will be generated starting from a maximum equal to
 #' \tabular{c}{\code{max(abs(Xty)/alpha)}}
 #' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5
 #' @param nLambda Number of lambdas generated when \code{lambda=NULL}
 #' @param alpha Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})
-#' @param scale \code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance 
+#' @param scale \code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
 #' (see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 #' taken from the diagonal of \code{XtX}
 #' @param tol Maximum error between two consecutive solutions of the iterative algorithm to declare convergence
@@ -90,9 +90,8 @@ solveEN <- function(XtX,Xty,lambda=NULL,nLambda=100,alpha=1,scale=TRUE,
 
     if(scale)
     {
+      sdx <- sqrt(diag(XtX))
       XtX <- scale_crossprod(XtX)
-      sdx <- XtX$sdX
-      XtX <- XtX$XtX
       Xty <- Xty/sdx
     }else{
       sdx <- rep(1,p)

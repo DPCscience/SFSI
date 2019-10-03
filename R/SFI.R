@@ -5,10 +5,10 @@
 #'
 #' The model is fitted for each individual which are predicted using all available observations of the response variable
 #' (as predictors) \eqn{y=(y_1,...,y_n)'} in a linear combination. The coefficients are estimated as function of genetic
-#' variances and covariances among individuals given by the genetic relatedness matrix (\eqn{G}). Specifically, the \eqn{n} coefficients 
-#' \eqn{\beta_i=(\beta_{i1},...,\beta_{in})'} for the \eqn{i^{th}} individual are function of the covariance between predictors 
+#' variances and covariances among individuals given by the genetic relatedness matrix (\eqn{G}). Specifically, the \eqn{n} coefficients
+#' \eqn{\beta_i=(\beta_{i1},...,\beta_{in})'} for the \eqn{i^{th}} individual are function of the covariance between predictors
 #' and that individual (\eqn{G[,i]}, the \eqn{i^{th}} column of \eqn{G}) and the variance among predictors (\eqn{G}).
-#' 
+#'
 #' These coefficients are obtained by solving the optimization function
 #' \deqn{-G[,i]' \beta_i + 1/2 \beta_i'(G + ((1-h^2)/h^2)I) \beta_i + \lambda J(\beta_i)}
 #' where \eqn{h^2} is the heritability of the response, \eqn{\lambda} is the penalization parameter, and \eqn{J(\beta)} is a penalty function given by
@@ -22,9 +22,9 @@
 #'   \item \code{df}: degrees of freedom (averaged across individuals), number of non-zero predictors at each solution.
 #'   \item \code{kernel}: transformation applied to the elements of \code{G}.
 #' }
-#' Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned. 
+#' Elements used as inputs: \code{y}, \code{h2}, \code{training}, \code{testing}, \code{method}, \code{name}, are also returned.
 #' The returned object is of the class 'SFI' for which methods \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
-#' @param G Genetic relatedness matrix. This can be a name of a binary file where the matrix is storaged 
+#' @param G Genetic relatedness matrix. This can be a name of a binary file where the matrix is storaged
 #' @param y Response variable
 #' @param h2 Heritability of the response variable. Default is \code{h2=0.5}
 #' @param training Vector of integers indicating which individuals are in training set. Default is \code{training=1:length(y)} will consider all individuals as training
@@ -53,7 +53,7 @@
 #' @param maxDF Maximum (average across individuals) number of predictors in the last solution (when \code{method='LAR'} or \code{'LAR-LASSO'}).
 #' Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors
 #' @param lambda Penalization parameter sequence vector used for the Coordinate Descent algorithm.
-#' Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated 
+#' Default is \code{lambda=NULL}, in this case a decreasing grid of \code{n='nLambda'} lambdas will be generated
 #' starting from a maximum equal to
 #' \tabular{c}{\code{max(abs(G[training,testing])/alpha)}}
 #' to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5. Only needed when \code{method='CD1'} or \code{'CD2'}
@@ -114,7 +114,7 @@
 #' \item \insertRef{VanRaden2008}{SFSI}
 #' \item \insertRef{Zou2005}{SFSI}
 #' }
-#' @author Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
+#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #' @importFrom parallel mclapply
 #' @importFrom Rdpack reprompt
 #' @importFrom Matrix Matrix
@@ -144,15 +144,12 @@ SFI <- function(G,y,h2=0.5,training=1:length(y),testing=1:length(y),indexG=NULL,
 
   if(!is.null(kernel)){
     if(is.list(kernel) & is.null(kernel$kernel)) stop("Parameter 'kernel' must be a 'list' type object")
-    G <- kernel2(G,kernel)
-    kernel <- G$kernel
-    G <- G$K
+    kernel2(G,kernel,void=TRUE)
   }
-  
+
   # Standardizing
-  G <- scale_crossprod(G)
-  sdx <- G$sdX
-  G <- G$XtX
+  sdx <- sqrt(diag(G))
+  scale_crossprod(G,void=TRUE)
   RHS <- apply(RHS,2,function(x)x/sdx)
 
   if(is.null(lambda)){

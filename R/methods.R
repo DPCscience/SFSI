@@ -118,7 +118,7 @@ fitted.SFI <- function(object)
 #' @importFrom grDevices rainbow
 #' @importFrom stats predict smooth.spline
 #====================================================================
-plot.SFI <- function(...,df=NULL,G=NULL,PC=FALSE,title=NULL,maxCor=0.85,
+plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
   py=c("correlation","accuracy","MSE"))
 {
     py <- match.arg(py)
@@ -147,36 +147,21 @@ plot.SFI <- function(...,df=NULL,G=NULL,PC=FALSE,title=NULL,maxCor=0.85,
     nTST <- length(testing)
     nTRN <- length(training)
 
-    isEigen <- ifelse(is.list(PC),sum(c("values","vectors")%in%names(PC))==2,FALSE)
-    flagPC <- ifelse(is.logical(PC),PC,isEigen)
-    flagPath <- ifelse(!is.null(G),ifelse(!flagPC,TRUE,FALSE),FALSE)
-    flagCor <- ifelse(is.null(G),ifelse(!flagPC,TRUE,FALSE),FALSE)
+    flagPC <- ifelse(!is.null(G),!path,FALSE)
+    flagPath <- ifelse(!is.null(G),path,FALSE)
+    flagCor <- is.null(G)
 
     if(flagPC | flagPath){
       if(length(object)>1) cat("Only the fist 'SFI' object is considered\n")
       object <- object[[1]]
-      if(!is.null(G) & !is.null(object$kernel)) G <- kernel2(G,kernel=object$kernel)$K
+      if(!is.null(G) & !is.null(object$kernel)) G <- kernel2(G,kernel=object$kernel)
     }
 
     if(flagPC){
-        if(isEigen){
-          if(length(PC$values)==nrow(PC$vectors)){
-            expvarPC <- 100*(PC$values^2)/sum(PC$values^2)
-          }else{
-            if(!is.null(G)){
-              expvarPC <- 100*(PC$values^2)/sum(G^2)
-            }else expvarPC <- NULL
-          }
-        }else{
-          if(!is.null(G)){
-            PC <-  RSpectra::eigs_sym(G, 2)
-            expvarPC <- 100*(PC$values^2)/sum(G^2)
-          }else stop("Either a 'eigen' class object or a 'G' matrix must be provided")
-        }
+        PC <-  RSpectra::eigs_sym(G, 2)
+        expvarPC <- 100*(PC$values^2)/sum(G^2)
 
-        tmp <- ""
-        if(!is.null(expvarPC)) tmp <- paste0(" (",sprintf('%.1f',expvarPC[1:2]),"%)")
-        labelsPC <- paste0("PC",1:2,tmp)
+        labelsPC <- paste0("PC",1:2,paste0(" (",sprintf('%.1f',expvarPC[1:2]),"%)"))
     }
 
     theme0 <- theme(
@@ -328,10 +313,11 @@ plot.SFI <- function(...,df=NULL,G=NULL,PC=FALSE,title=NULL,maxCor=0.85,
         }
 
         # Labels and breaks for the DF axis
-        breaks0 <- seq(min(-log(lambda)),max(-log(lambda)),length=6)
-        labels0 <- floor(stats::predict(stats::smooth.spline(-log(lambda),df),breaks0)$y)
+        loglambda <- -log(lambda)
+        breaks0 <- seq(min(loglambda),max(loglambda),length=6)
+        labels0 <- floor(stats::predict(stats::smooth.spline(loglambda,df),breaks0)$y)
         labels0[1] <- 1
-        breaks0 <- stats::predict(stats::smooth.spline(df, -log(lambda)),labels0)$y
+        breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
 
         title0 <- bquote("Coefficients path. "*.(object$name))
         if(!is.null(title)) title0 <- title
@@ -472,9 +458,8 @@ plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
 #====================================================================
 #' @export
 #====================================================================
-plot.SSI <- function(fm,px=c("lambda","arclength"),title=NULL)
+plot.SSI <- function(fm,title=NULL)
 {
-    px <- match.arg(px)
     if(!inherits(fm, "SSI")) stop("The provided object is not from the class 'SSI'")
 
     theme0 <- theme(
@@ -486,34 +471,27 @@ plot.SSI <- function(fm,px=c("lambda","arclength"),title=NULL)
 
     beta <- as.vector(fm$beta)
     id <- factor(rep(seq(ncol(fm$beta)),each=nrow(fm$beta)))
-    df <- rep(fm$df,ncol(fm$beta))
+    df <- fm$df
     lambda <- fm$lambda
     if(lambda[length(lambda)] < .Machine$double.eps*1000)
       lambda[length(lambda)] <- lambda[length(lambda)-1]/2
-    lambda <- rep(lambda,ncol(fm$beta))
-    arclength <- apply(fm$beta,1,function(x)sum(abs(x)))
-    arclength <- rep(arclength,ncol(fm$beta))
-    dat <- data.frame(df=df,lambda=lambda,arclength=arclength,beta=beta,id=id)
 
-    index <- round(seq(1,sum(fm$lambda>0),length=6))
-    labels0 <- floor(fm$df[index])
-    breaks0 <- -log(fm$lambda[index])
+    dat <- data.frame(df=rep(df,ncol(fm$beta)),lambda=rep(lambda,ncol(fm$beta)),beta=beta,id=id)
 
-    if(px == "lambda") {
-      pt <- ggplot(dat,aes(-log(lambda),beta))
-      labX <- expression("-log("*lambda*")")
-    }
-    if(px == "arclength"){
-      pt <- ggplot(dat,aes(arclength,beta))
-      labX <- "Norm Arc Length"
-    }
+    # Labels and breaks for the DF axis
+    loglambda <- -log(lambda)
+    breaks0 <- seq(min(loglambda),max(loglambda),length=6)
+    labels0 <- floor(stats::predict(stats::smooth.spline(loglambda,df),breaks0)$y)
+    labels0[1] <- 1
+    breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
 
     title0 <- bquote("Coefficients path. "*.(fm$name))
     if(!is.null(title)) title0 <- title
-    pt <- pt + scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
+    pt <- ggplot(dat,aes(-log(lambda),beta)) +
+        scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
                 breaks=breaks0,labels=labels0))+
-     geom_line(size=0.5,aes(color=id,group=id)) + theme_bw() + theme0 +
-     labs(title=title0,y=expression(beta),x=labX)
+        geom_line(size=0.5,aes(color=id,group=id)) + theme_bw() + theme0 +
+        labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")"))
     print(pt)
 }
 

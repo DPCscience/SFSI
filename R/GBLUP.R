@@ -55,12 +55,10 @@ GBLUP <- function(G,y,h2,training=1:length(y),testing=1:length(y),kernel=NULL)
 	G <- G[training,training]
 
 	for(i in 1:length(training))  G[i,i] <- G[i,i]+(1-h2)/h2
-	
+
 	if(!is.null(kernel)){
 	  if(is.list(kernel) & is.null(kernel$kernel))  stop("Parameter 'kernel' must be a 'list' type object")
-	  G <- kernel2(G,kernel)
-	  kernel <- G$kernel
-	  G <- G$K
+	  kernel2(G,kernel,void=TRUE)
 	}
 
 	Ginv <- chol2inv(chol(G))

@@ -1,14 +1,16 @@
 #====================================================================
 #' cov2dist function
 #'
-#' Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise 
+#' Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise
 #' distance \eqn{d(x,y)} between vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'}
 #' is obtained from their cross-product, \eqn{x'y = \sum{x_iy_i}}, as
 #' \deqn{d^2(x,y) = (x-y)'(x-y) = x'x + y'y - 2x'y}
-#' Note that if the variables are centered then the cross-product is proportional to the covariance, 
+#' Note that if the variables are centered then the cross-product is proportional to the covariance,
 #' this is \eqn{x'y = cov(x,y)} up-to a constant
 #' @return  A squared matrix \eqn{D} containing the squared Euclidean distances
 #' @param XtX Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables
+#' @param void \code{TRUE} or \code{FALSE} to whether return or not return the output.
+#' When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
@@ -18,22 +20,35 @@
 #'
 #' # Distance matrix from a cross-product
 #' COV = crossprod(X)   # Cross-product X'X
-#' cov2dist(COV)  # equal to: as.matrix(dist(t(X)))^2
+#' cov2dist(COV)
+#' # it must equal (but faster) to:
+#' as.matrix(dist(t(X)))^2
 #'
 #' # Distance matrix from a variance-covariance matrix
-#' COV = var(X)   # Variance matrix of X
-#' (n-1)*cov2dist(COV)  # equal to: as.matrix(dist(t(X)))^2
+#' COV = cov(X)   # Variance matrix of X
+#' (n-1)*cov2dist(COV)
+#' # it must equal (but faster) to:
+#' as.matrix(dist(t(X)))^2
+#'
+#' # Using void=TRUE
+#' cov2dist(COV,void=TRUE)
+#' (n-1)*COV   # notice that COV was modified
 #' @export
 #' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
-cov2dist <- function(XtX)
+cov2dist <- function(XtX,void=FALSE)
 {
     if((sum(dim(XtX))/2)^2 != length(XtX)) stop("Object 'XtX' must be a squared matrix")
     if(!is.double(XtX)) XtX <- apply(XtX,2,as.double)
     p <- ncol(XtX)
 
-    XtX <- .Call('crossprod2distance',as.integer(p),XtX)[[1]]
-    return(XtX)
+    if(void){
+      tmp <- .Call('crossprod2distance',as.integer(p),XtX)
+    }else{
+      tmp <- XtX[]
+      .Call('crossprod2distance',as.integer(p),tmp)
+      tmp
+    }
 }
 
 #====================================================================
@@ -59,39 +74,42 @@ cov2dist <- function(XtX)
 #'   \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
 #' }
 #' Default \code{kernel=NULL} (no kernel)
+#' @param void \code{TRUE} or \code{FALSE} to whether return or not return the output.
+#' When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
 #' # Simulate matrix
 #' n = 1000; p=10
 #' X = scale(matrix(rnorm(n*p),ncol=p))
-#' COV = crossprod(X)/(n-1)   # Cross-product X'X
+#' COV = cov(X)
 #'
 #' # Gaussian kernel (h=0.2)
 #' h = 0.2
-#' K = kernel2(COV,kernel=list(kernel="GAUSSIAN",h=h))$K
-#' # it must equal (but faster) to:
-#' K2 = exp(-h*as.matrix(dist(t(X)))^2/(n-1))  # or
-#' K2 = exp(-h*cov2dist(COV))
-#' K;K2
+#' kernel2(COV,kernel=list(kernel="GAUSSIAN",h=h))
+#' # it must be equal (but faster) to:
+#' exp(-h*as.matrix(dist(t(X)))^2/(n-1))  # or
+#' exp(-h*cov2dist(COV))
 #'
 #' # Laplacian kernel (h=0.2)
-#' K = kernel2(COV,kernel=list(kernel="LAPLACIAN",h=h))$K
-#' # it must equal (but faster) to:
-#' K2 = exp(-h*as.matrix(dist(t(X)))/sqrt(n-1))  # or
-#' K2 = exp(-h*sqrt(cov2dist(COV)))
-#' K;K2
+#' kernel2(COV,kernel=list(kernel="LAPLACIAN",h=h))
+#' # it must be equal (but faster) to:
+#' exp(-h*as.matrix(dist(t(X)))/sqrt(n-1))  # or
+#' exp(-h*sqrt(cov2dist(COV)))
 #'
 #' # Polynomial kernel (a=1.5, b=2)
 #' a = 1.5; b = 2
-#' K = kernel2(COV,kernel=list(kernel="POLYNOMIAL",a=a,b=b))$K
-#' # it must equal to:
-#' K2 = (a*COV + 1)^b
-#' K;K2
+#' kernel2(COV,kernel=list(kernel="POLYNOMIAL",a=a,b=b))
+#' # it must be equal to:
+#' (a*COV + 1)^b
+#'
+#' # Using void=TRUE
+#' kernel2(COV,kernel=list(kernel="POLYNOMIAL",a=a,b=b),void=TRUE)
+#' COV   # notice that COV was modified
 #' @export
 #' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
-kernel2 <- function(XtX,kernel=NULL)
+kernel2 <- function(XtX,kernel=NULL,void=FALSE)
 {
     kernel$kernel <- match.arg(kernel$kernel,choices=c("GAUSSIAN","LAPLACIAN","POLYNOMIAL"))
 
@@ -106,7 +124,13 @@ kernel2 <- function(XtX,kernel=NULL)
           cat("Hyperparameter 'h' was set to ",kernel$h," for GAUSSIAN kernel \n",sep="")
         }else if(kernel$h <= 0) stop("Parameter 'h' for GAUSSIAN kernel must be greater than zero")
 
-        XtX <- .Call('gaussian_kernel',as.integer(p),XtX,as.numeric(kernel$h))[[1]]
+        if(void){
+          tmp <- .Call('gaussian_kernel',as.integer(p),XtX,as.numeric(kernel$h))
+        }else{
+          tmp <- XtX[]
+          .Call('gaussian_kernel',as.integer(p),tmp,as.numeric(kernel$h))
+          tmp
+        }
 
     }else if(kernel$kernel=="LAPLACIAN"){
         if(is.null(kernel$h)){
@@ -114,7 +138,13 @@ kernel2 <- function(XtX,kernel=NULL)
           cat("Hyperparameter 'h' was set to ",kernel$h," for LAPLACIAN kernel \n",sep="")
         }else if(kernel$h <= 0) stop("Parameter 'h' for LAPLACIAN kernel must be greater than zero")
 
-        XtX <- .Call("laplacian_kernel",as.integer(p),XtX,as.numeric(kernel$h))[[1]]
+        if(void){
+          tmp <- .Call("laplacian_kernel",as.integer(p),XtX,as.numeric(kernel$h))
+        }else{
+          tmp <- XtX[]
+          .Call("laplacian_kernel",as.integer(p),tmp,as.numeric(kernel$h))
+          tmp
+        }
 
     }else if(kernel$kernel=="POLYNOMIAL"){
         if(is.null(kernel$a)){
@@ -126,50 +156,65 @@ kernel2 <- function(XtX,kernel=NULL)
           cat("Hyperparameter 'b' was set to ",kernel$b," for POLYNOMIAL kernel \n",sep="")
         }else if(round(kernel$b)!=kernel$b) stop("Parameter 'b' for POLYNOMIAL kernel must be an integer")
 
-        XtX <- .Call("polynomial_kernel",as.integer(p),XtX,as.numeric(kernel$a),as.numeric(kernel$b))[[1]]
+        if(void){
+          tmp <- .Call("polynomial_kernel",as.integer(p),XtX,as.numeric(kernel$a),as.numeric(kernel$b))
+        }else{
+          tmp <- XtX[]
+          .Call("polynomial_kernel",as.integer(p),tmp,as.numeric(kernel$a),as.numeric(kernel$b))
+          tmp
+        }
+
     }else{
         stop("Parameter 'kernel' does not fulfill the requirements")
     }
-    return(list(K=XtX,kernel=kernel))
 }
 
 #====================================================================
 #' scale_crossprod function
 #'
 #' Recalculate a variance-covariance matrix among \eqn{p} variables to its equivalent for the variables scaled to have unit variance.
-#' The recalculated matrix will contain as off-diagonal entries the covariance between the scaled variables 
-#' \eqn{x*=x/\sigma_x} and \eqn{y*=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} by their 
+#' The recalculated matrix will contain as off-diagonal entries the covariance between the scaled variables
+#' \eqn{x*=x/\sigma_x} and \eqn{y*=y/\sigma_y}, formed by dividing original variables \eqn{x} and \eqn{y} by their
 #' standard deviation \eqn{\sigma_x} and \eqn{\sigma_y}, given by
 #' \deqn{cov(x*,y*)=cov(x,y)/(\sigma_x\sigma_y)}
 #' while in the diagonal the variance will be \eqn{var(x*)=var(x)/\sigma^2_x=1}.
-#' @return  A list object containing the elements:
-#' \itemize{
-#'   \item \code{XtX}: squared matrix with the recalculated variances and covariances
-#'   \item \code{sdX}: vector containing the standard deviations of each variable
-#' }
-#' @param XtX Variance-covariance matrix among \eqn{p} variables.
+#' @return  A squared matrix with the recalculated variances and covariances
+#' @param XtX Variance-covariance matrix among \eqn{p} variables
+#' @param void \code{TRUE} or \code{FALSE} to whether return or not return the output.
+#' When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}
 #' @examples
 #' set.seed(1234)
 #' require(SFSI)
 #' # Simulate matrix
 #' n = 100; p=10
 #' X = matrix(rnorm(n*p),ncol=p)
-#' COV = var(X)   # Cross-product X'X
+#' COV = cov(X)   # Cross-product X'X
 #'
-#' COV2 = scale_crossprod(COV)
-#' COV2$XtX   # equal to: var(scale(X))
-#' COV2$sdX   # equal to: apply(X,2,sd)
+#' scale_crossprod(COV)
+#' # it must be equal to:
+#' cov(scale(X))    # or
+#' SD=apply(X,2,sd); cov(scale(X,center=FALSE,scale=SD))
+#'
+#' # Using void=TRUE
+#' scale_crossprod(COV,void=TRUE)
+#' COV   # notice that COV was modified
 #' @export
 #' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos
 #====================================================================
-scale_crossprod <- function(XtX)
+scale_crossprod <- function(XtX,void=FALSE)
 {
     if((sum(dim(XtX))/2)^2 != length(XtX))
       stop("Object 'XtX' must be a squared matrix. Scaling can not be implemented")
     if(!is.double(XtX)) XtX <- apply(XtX,2,as.double)
     p <- ncol(XtX)
-    XtX <- .Call('scaleXtX',as.integer(p),XtX)
-    return(list(XtX=XtX[[1]],sdX=XtX[[2]]))
+
+    if(void){
+      tmp <- .Call('scaleXtX',as.integer(p),XtX)
+    }else{
+      tmp <- XtX[]
+      .Call('scaleXtX',as.integer(p),tmp)
+      tmp
+    }
 }
 
 #====================================================================
@@ -433,7 +478,7 @@ readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,inde
   |    ._____| | | |       ._____| | .__| |__.  Marco Lopez-Cruz       |
   |    |_______| |_|       |_______| |_______|  Gustavo de los Campos  |
   |                                                                    |
-  |  Sparse Family and Selection Indices. Version 1.0.0                |
+  |  Sparse Family and Selection Index. Version 1.0.1                  |
   |====================================================================|
   ")
 }
