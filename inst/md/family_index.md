@@ -329,8 +329,9 @@ yHat <- fitted(fm)
 beta <- coef(fm)       # Coefficients for all values of lambda
 beta <- coef(fm,df=df) # Coefficients for the optimum lambda
 plot(fm)
-plot(fm,G=G)     # Coefficients path   
-plot(fm,G=G,PC=TRUE,df=10)     
+plot(fm,G=G)           # Network plot
+plot(fm,G=G,df=10)     # Network plot
+plot(fm,G=G,path=TRUE) # Path plot   
 ```
 
 The size and the number of output files might overflow disc memory, thus removing this files after use is advised
