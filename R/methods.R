@@ -1,15 +1,19 @@
 
 #====================================================================
-#' @export
 #====================================================================
-coef.SFI <- function(object,df=NULL)
+coef.SFI <- function(object,...)
 {
+  args0 <- list(...)
+  
+  df <- NULL
+  if("df" %in% names(args0)) df <- args0$df
+  
   if(object$method=="GBLUP")
   {
       BETA <- Matrix::Matrix(object$BETA, sparse=TRUE)
   }else{
     if(!is.null(df)){
-      if( df < 0 | df > length(object$training) )
+      if( df < 0 | df > length(object$trn) )
         stop("Parameter 'df' must be greater than zero and no greater than the number of elements in the training set")
     }
     df0 <- apply(object$df,1,function(x)which.min(abs(x-df)))
@@ -17,7 +21,7 @@ coef.SFI <- function(object,df=NULL)
     {
       if(length(object$BETA)>1){
         index <- c(0,cumsum(object$nset))
-      }else index <- c(0,length(object$testing))
+      }else index <- c(0,length(object$tst))
 
       BETA <- c()
       for(i in seq_along(object$BETA))
@@ -25,7 +29,7 @@ coef.SFI <- function(object,df=NULL)
         if(!is.null(df))
         {
           indexRow <- df0[seq(index[i]+1,index[i+1])]
-          indexRow <- indexRow + c(0,cumsum(rep(ncol(object$df),length(object$testing)-1)))[1:length(indexRow)]
+          indexRow <- indexRow + c(0,cumsum(rep(ncol(object$df),length(object$tst)-1)))[1:length(indexRow)]
         }else indexRow <- NULL
 
         BETA <- rbind(BETA,readBinary(object$BETA[i],indexRow=indexRow,verbose=FALSE))
@@ -33,7 +37,7 @@ coef.SFI <- function(object,df=NULL)
 
       if(is.null(df)){
         BETA <- data.frame(BETA); colnames(BETA) <- NULL; rownames(BETA) <- NULL
-        BETA <- split(BETA,rep(seq_along(object$testing),each=ncol(object$df)))
+        BETA <- split(BETA,rep(seq_along(object$tst),each=ncol(object$df)))
         BETA <- lapply(BETA,function(x) Matrix::Matrix(as.matrix(x), sparse=TRUE))
 
       }else BETA <- Matrix::Matrix(BETA, sparse=TRUE)
@@ -53,50 +57,29 @@ coef.SFI <- function(object,df=NULL)
 }
 
 #====================================================================
-#' @export
 #====================================================================
-predict.SSI <- function(object,X)
+fitted.SSI <- function(object,...)
 {
+  args0 <- list(...)
+  if(length(args0)==0) stop("A matrix of predictors must be provided")
+  
+  X <- args0[[1]]
   yHat <- tcrossprod(X,as.matrix(object$beta))
   colnames(yHat) <- paste0("SSI",1:ncol(yHat))
   yHat
 }
 
 #====================================================================
-#' @export
-#' @importFrom stats cor
 #====================================================================
-predict.SFI <- function(object)
+fitted.SFI <- function(object,...)
 {
-  testing <- object$testing
-  y <- object$y
-  yHat <- fitted.SFI(object)
-
-  correlation <- suppressWarnings(drop(stats::cor(y[testing],yHat)))
-  MSE <- suppressWarnings(apply((y[testing]-yHat)^2,2,sum)/length(testing))
-
-  if(object$method=="GBLUP"){
-    df=NULL;  lambda=NULL
-  }else{
-    df=apply(object$df,2,mean); lambda=apply(object$lambda,2,mean)
-  }
-
-  out <- list(yHat=yHat, correlation=correlation, accuracy=correlation/sqrt(object$h2),
-              MSE=MSE,df=df,lambda=lambda)
-  return(out)
-}
-
-#====================================================================
-#' @export
-#====================================================================
-fitted.SFI <- function(object)
-{
-  yTRN <- object$y[object$training]-mean(object$y[object$training],na.rm=TRUE)
+  args0 <- list(...)
+  yTRN <- object$y[object$trn]-mean(object$y[object$trn],na.rm=TRUE)
   index <- is.na(yTRN)
   if(length(index)>0) yTRN[index] <- 0
 
   if(object$method == "GBLUP"){
-    yHat <- object$BETA%*%yTRN
+    yHat <- drop(object$BETA%*%yTRN)
   }else{
     if(is.character(object$BETA)){
       yHat <- c()
@@ -107,20 +90,18 @@ fitted.SFI <- function(object)
     }else{
        yHat <- do.call("rbind",lapply(object$BETA,function(x)drop(as.matrix(x)%*%yTRN)))
     }
-    dimnames(yHat) <- list(object$testing,paste0("SFI",1:ncol(yHat)))
+    dimnames(yHat) <- list(object$tst,paste0("SFI",1:ncol(yHat)))
   }
   return(yHat)
 }
 
 #====================================================================
-#' @export
-#' @import ggplot2
-#' @importFrom grDevices rainbow
-#' @importFrom stats predict smooth.spline
 #====================================================================
 plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
   py=c("correlation","accuracy","MSE"))
 {
+    PC1 <- PC2 <- PC1_TST <- PC2_TST <- PC1_TRN <- PC2_TRN <- NULL
+    g <- model <- y <- trn_tst <- NULL
     py <- match.arg(py)
     args0 <- list(...)
 
@@ -137,19 +118,19 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
       }
     }
 
-    training <- do.call(rbind,lapply(object,function(x)x$training))
-    testing <- do.call(rbind,lapply(object,function(x)x$testing))
-    if(any(apply(training,2,function(x)length(unique(x)))!=1)) stop("'Training' set is not same across all 'SFI' objects")
-    if(any(apply(testing,2,function(x)length(unique(x)))!=1)) stop("'Testing' set is not same across all 'SFI' objects")
-    training <- as.vector(training[1,])
-    testing <- as.vector(testing[1,])
+    trn <- do.call(rbind,lapply(object,function(x)x$trn))
+    tst <- do.call(rbind,lapply(object,function(x)x$tst))
+    if(any(apply(trn,2,function(x)length(unique(x)))!=1)) stop("'Training' set is not same across all 'SFI' objects")
+    if(any(apply(tst,2,function(x)length(unique(x)))!=1)) stop("'Testing' set is not same across all 'SFI' objects")
+    trn <- as.vector(trn[1,])
+    tst <- as.vector(tst[1,])
 
-    nTST <- length(testing)
-    nTRN <- length(training)
+    nTST <- length(tst)
+    nTRN <- length(trn)
 
     flagPC <- ifelse(!is.null(G),!path,FALSE)
-    flagPath <- ifelse(!is.null(G),path,FALSE)
-    flagCor <- is.null(G)
+    flagPath <- path
+    flagCor <- is.null(G) & !path
 
     if(flagPC | flagPath){
       if(length(object)>1) cat("Only the fist 'SFI' object is considered\n")
@@ -160,7 +141,6 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
     if(flagPC){
         PC <-  RSpectra::eigs_sym(G, 2)
         expvarPC <- 100*(PC$values^2)/sum(G^2)
-
         labelsPC <- paste0("PC",1:2,paste0(" (",sprintf('%.1f',expvarPC[1:2]),"%)"))
     }
 
@@ -179,7 +159,7 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
       for(j in 1:length(object))
       {
           fm0 <- object[[j]]
-          tmp <- predict(fm0)
+          tmp <- summary.SFI(fm0)
           names(tmp[[py]]) <- paste0("SFI",1:length(tmp[[py]]))
 
           tt1 <- data.frame(SFI=names(tmp[[py]]),y=tmp[[py]],df=apply(fm0[['df']],2,mean),lambda=apply(fm0[['lambda']],2,mean))
@@ -204,7 +184,7 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
       dat <- dat[!dat$obj %in% names(index[index==1]),]
       meanopt <- meanopt[!meanopt$obj %in% names(index[index==1]),]
       dat <- dat[!(is.na(dat$y) | is.na(dat$loglambda)),]   # Remove NA values
-      labY <- ifelse(py=="correlation",expression('cor(Y,'*hat(Y)*')'),py)
+      labY <- ifelse(py=="correlation",expression('cor(y,'*hat(y)*')'),py)
       labX <- expression("-log("*lambda*")")
 
       if(nrow(dat)==0 | nrow(meanopt)==0)  stop("The plot can not be generated with the provided data")
@@ -233,7 +213,7 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
 
     if(flagPC)    # Network plot
     {
-        if(is.null(df)) df <- summary(object)[[1]]$max[1,'df']
+        if(is.null(df)) df <- summary.SFI(object)$opt$df
 
         BETA <- coef.SFI(object,df=df)
         df <- mean(apply(BETA,1,function(y)sum(abs(y)>0)))
@@ -241,9 +221,9 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
         PC <- PC$vectors
         dat <- data.frame(id=1:nrow(PC),PC[,1:2])
 
-        set <- ifelse((1:nrow(dat)) %in% testing, 'testing','inactive')
+        set <- ifelse((1:nrow(dat)) %in% tst, 'testing','inactive')
         index <- which(apply(BETA,2,function(x)any(abs(x)>0)))   # Active set
-        set[training[index]] <- "active"
+        set[trn[index]] <- "active"
         dat <- data.frame(dat,set)
         colnames(dat) <- c("id","PC1","PC2","set")
 
@@ -256,29 +236,29 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
 
         pt <- ggplot(dat,aes(x=PC1,y=PC2)) +
           labs(title=title0,x=labelsPC[1],y=labelsPC[2])+
-          geom_point(data=dat[dat$set=="inactive",],aes(fill=set),colour="gray75",shape=21,size=1)
+          geom_point(data=dat[dat$set=="inactive",],aes(fill=set),colour="gray35",shape=21,size=1)
 
         for(i in 1:nTST)
         {
             indexTRN <- which(abs(BETA[i,])>0)
             if(length(indexTRN)>0)
             {
-                dat1 <- dat[training,c("PC1","PC2")][indexTRN,]
-                dat2 <- dat[testing,c("PC1","PC2")][i,]
+                dat1 <- dat[trn,c("PC1","PC2")][indexTRN,]
+                dat2 <- dat[tst,c("PC1","PC2")][i,]
                 colnames(dat1) <- paste0(colnames(dat1),"_TRN")
                 colnames(dat2) <- paste0(colnames(dat2),"_TST")
                 dat1 <- data.frame(dat2[rep(1,nrow(dat1)),],dat1)
                 dat1$effect <- abs(BETA[i,indexTRN])
                 dat1$effect <-  dat1$effect /max(dat1$effect)
                 pt <- pt + geom_segment(data=dat1,aes(x=PC1_TST,y=PC2_TST,xend=PC1_TRN,yend=PC2_TRN),
-                    size=log10(dat1$effect + 1.6),color=grDevices::rainbow(nTST)[i])
+                    size=0.15,color="gray65") 
             }
         }
 
         pt <- pt  +
             geom_point(data=dat[dat$set=="active",],aes(fill=set),shape=21,colour="black",size=2) +
             geom_point(data=dat[dat$set=="testing",],aes(fill=set),shape=21,colour="black",size=3) +
-            scale_fill_manual(values=c("inactive"="gray75","active"="#56B4E9","testing"="#E69F00")[index]) + theme_bw() +
+            scale_fill_manual(values=c("inactive"="gray35","active"="#56B4E9","testing"="#E69F00")[index]) + theme_bw() +
             theme0 + theme(legend.title=element_blank(),legend.margin=margin(t=0,b=0.25,l=0.25,r=0.25,unit='line'))
         print(pt)
 
@@ -301,9 +281,9 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
             nTRN0 <- length(index)
             if(nTRN0 > 1){
                 g0 <- NA
-                if(!is.null(G)) g0 <- rep(G[testing[i],training[index]],each=nDF)
-                tst0 <- factor(rep(testing[i],nTRN0*nDF))
-                trn0 <- factor(rep(training[index],each=nDF))
+                if(!is.null(G)) g0 <- rep(G[tst[i],trn[index]],each=nDF)
+                tst0 <- factor(rep(tst[i],nTRN0*nDF))
+                trn0 <- factor(rep(trn[index],each=nDF))
                 trn_tst0 <- tst0:trn0
                 df0 <- rep(df,nTRN0)
                 lambda0 <- rep(lambda,nTRN0)
@@ -325,24 +305,33 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
         theme0 <- theme0 + theme(legend.key.height=unit(3,"line"),
                       legend.key.width = unit(0.8, "lines"))
 
-        pt <- ggplot(dat,aes(-log(lambda),beta,color=g,group=trn_tst))+ viridis::scale_color_viridis() +
+        if(!is.null(G))
+        {
+          pt <- ggplot(dat,aes(-log(lambda),beta,color=g,group=trn_tst))+ viridis::scale_color_viridis() +
               geom_line() + theme_bw() + theme0 +
               labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")")) +
               scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
                 breaks=breaks0,labels=labels0))
+        }else{
+          pt <- ggplot(dat,aes(-log(lambda),beta,color=trn_tst,group=trn_tst))+
+            geom_line() + theme_bw() + theme0 +
+            labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")")) +
+            scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
+                                                   breaks=breaks0,labels=labels0)) +
+            theme(legend.position = "none")
+        }
         print(pt)
     }
 }
 
 #====================================================================
-#' @export
-#' @import ggplot2
 #====================================================================
 plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
   title=NULL,showFolds=FALSE)
 {
     py <- match.arg(py)
     args0 <- list(...)
+    fold <- loglambda <- y <- model <- NULL
 
     object <- args0[unlist(lapply(args0,function(x)class(x)=="SFI_CV"))]
 
@@ -409,7 +398,7 @@ plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
     dat <- dat[!dat$obj %in% names(index[index==1]),]
     meanopt <- meanopt[!meanopt$obj %in% names(index[index==1]),]
     dat <- dat[!(is.na(dat$y) | is.na(dat$loglambda)),]   # Remove NA values
-    labY <- ifelse(py=="correlation",expression('cor(Y,'*hat(Y)*')'),py)
+    labY <- ifelse(py=="correlation",expression('cor(y,'*hat(y)*')'),py)
     labX <- expression("-log("*lambda*")")
 
     # Labels and breaks for the DF axis
@@ -456,11 +445,10 @@ plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
 }
 
 #====================================================================
-#' @export
 #====================================================================
-plot.SSI <- function(fm,title=NULL)
+plot.SSI <- function(x,...)
 {
-    if(!inherits(fm, "SSI")) stop("The provided object is not from the class 'SSI'")
+    if(!inherits(x, "SSI")) stop("The provided object is not from the class 'SSI'")
 
     theme0 <- theme(
         panel.grid.minor = element_blank(),
@@ -468,15 +456,15 @@ plot.SSI <- function(fm,title=NULL)
         plot.title = element_text(hjust = 0.5),
         legend.position="none"
     )
+    args0 <- list(...)
 
-    beta <- as.vector(fm$beta)
-    id <- factor(rep(seq(ncol(fm$beta)),each=nrow(fm$beta)))
-    df <- fm$df
-    lambda <- fm$lambda
-    if(lambda[length(lambda)] < .Machine$double.eps*1000)
-      lambda[length(lambda)] <- lambda[length(lambda)-1]/2
+    beta <- as.vector(x$beta)
+    id <- factor(rep(seq(ncol(x$beta)),each=nrow(x$beta)))
+    df <- x$df
+    lambda <- x$lambda
+    if(lambda[length(lambda)] < .Machine$double.eps*1000) lambda[length(lambda)] <- lambda[length(lambda)-1]/2
 
-    dat <- data.frame(df=rep(df,ncol(fm$beta)),lambda=rep(lambda,ncol(fm$beta)),beta=beta,id=id)
+    dat <- data.frame(df=rep(df,ncol(x$beta)),lambda=rep(lambda,ncol(x$beta)),beta=beta,id=id)
 
     # Labels and breaks for the DF axis
     loglambda <- -log(lambda)
@@ -485,8 +473,9 @@ plot.SSI <- function(fm,title=NULL)
     labels0[1] <- 1
     breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
 
-    title0 <- bquote("Coefficients path. "*.(fm$name))
-    if(!is.null(title)) title0 <- title
+    title0 <- bquote("Coefficients path. "*.(x$name))
+    if("title" %in% names(args0)) title0 <- args0$title
+    
     pt <- ggplot(dat,aes(-log(lambda),beta)) +
         scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
                 breaks=breaks0,labels=labels0))+
@@ -496,87 +485,71 @@ plot.SSI <- function(fm,title=NULL)
 }
 
 #====================================================================
-#' @export
 #====================================================================
-summary.SFI_CV <- function(...)
+summary.SFI_CV <- function(object, ...)
 {
     args0 <- list(...)
-    fm <- args0[unlist(lapply(args0,function(x)class(x) == "SFI_CV"))]
-
-    if(sum(unlist(lapply(fm,function(x)x$method)) == "GBLUP") > 1){
-        cat("Only the first 'SFI_CV' object for GBLUP model will be considered\n")
-        fm <- fm[-which(unlist(lapply(fm,function(x)x$method)) == "GBLUP")[-1]]
+    if(!inherits(object, "SFI_CV")) stop("The provided object is not from the class 'SFI'")
+    
+    if(object$method == "GBLUP"){
+      df <- NA; lambda <- NA
+    }else{
+      df <- apply(object$df,2,mean)
+      lambda <- apply(object$lambda,2,mean)
     }
-    if(sum(unlist(lapply(fm,function(x)x$method)) != "GBLUP") == 0){
-        stop("At least one 'SFI' model must be given")
-    }
-
-    varnames <- c("correlation","accuracy","MSE")
-    out <- NULL
-    if("GBLUP" %in% unlist(lapply(fm,function(x)x$method))){
-        fm0 <- fm[[which(unlist(lapply(fm,function(x)x$method)) == 'GBLUP')]]
-        out$GBLUP <- data.frame(correlation=mean(fm0$correlation),accuracy=mean(fm0$accuracy),MSE=mean(fm0$MSE))
-    }
-
-    fm <- fm[which(unlist(lapply(fm,function(x)x$method)) != 'GBLUP')]
-    SFI <- vector("list",length(fm))
-    names(SFI) <- unlist(lapply(fm,function(x)x$name))
-    for(j in 1:length(fm))
+    
+    correlation <- apply(object$correlation,2,mean)
+    MSE <- apply(object$MSE,2,mean)
+    accuracy <- apply(object$accuracy,2,mean)
+    
+    out <- data.frame(correlation=correlation,accuracy=accuracy,MSE=MSE,df=df,lambda=lambda)
+    
+    # Detect maximum correlation
+    index <- which.max(out$correlation)
+    if(length(index)==0)
     {
-        fm0 <- fm[[j]]
-        tt1 <- data.frame(t(do.call("rbind",lapply(fm0[varnames],function(x)apply(x,2,mean)))),
-            df=apply(fm0[['df']],2,mean),lambda=apply(fm0[['lambda']],2,mean))
-
-        # Detect maximum correlation
-        index <- which.max(tt1$correlation)
-        tt1 <- tt1[index,]
-        rownames(tt1) <- NULL
-        SFI[[j]]$max <- tt1
-
-        if(!is.null(out$GBLUP))
-        {
-            RG <- (tt1[,varnames] - out$GBLUP[rep(1,nrow(tt1)),varnames])/tt1[,varnames]
-            RG <- t(apply(RG,1,function(x)paste0(round(x*100,3)," %")))
-            colnames(RG) <- varnames
-            RG <- data.frame(RG,tt1[,c("df","lambda")])
-            SFI[[j]]$gain <- RG
-        }
+      if(nrow(out)==1){
+        index <- 1
+      }else stop("'summary' method can not be implemented with the provided data")
     }
-    out$SFI <- SFI
-    return(out)
+    opt <- out[index,]
+    
+    do.call(c, list(as.list(out), opt=list(opt))) 
 }
 
 #====================================================================
-#' @export
 #====================================================================
-summary.SFI <- function(...)
+summary.SFI <- function(object,...)
 {
     args0 <- list(...)
-    fm <- args0[unlist(lapply(args0,function(x)class(x)%in%"SFI"))]
-
-    varnames <- c("correlation","accuracy","MSE")
-
-    SFI <- vector("list",length(fm))
-    names(SFI) <- unlist(lapply(fm,function(x)x$name))
-    for(j in 1:length(fm))
-    {
-        fm0 <- fm[[j]]
-        fv <- predict(fm0)
-
-        tt1 <- data.frame(t(do.call(rbind,fv[varnames])),
-                df=apply(fm0[['df']],2,mean),lambda=apply(fm0[['lambda']],2,mean))
-
-        # Detect maximum correlation
-        index <- which.max(tt1$correlation)
-        if(length(index)==0)
-        {
-          if(nrow(tt1)==1){
-            index <- 1
-          }else stop("'summary' method can not be implemented with the provided data")
-        }
-        tt1 <- tt1[index,]
-        rownames(tt1) <- NULL
-        SFI[[j]]$max <- tt1
+    if(!inherits(object, "SFI")) stop("The provided object is not from the class 'SFI'")
+    
+    tst <- object$tst
+    y <- object$y
+    if(object$method == "GBLUP"){
+      df <- NA; lambda <- NA
+    }else{
+      df <- apply(object$df,2,mean)
+      lambda <- apply(object$lambda,2,mean)
     }
-    return(SFI)
+    yHat <- as.matrix(fitted.SFI(object))
+    
+    correlation <- suppressWarnings(drop(stats::cor(y[tst],yHat,use="pairwise.complete.obs")))
+    MSE <- suppressWarnings(apply((y[tst]-yHat)^2,2,sum,na.rm=TRUE)/length(tst))
+    accuracy <- correlation/sqrt(object$h2)
+    
+    out <- data.frame(correlation=correlation, accuracy=correlation/sqrt(object$h2),
+                MSE=MSE,df=df,lambda=lambda)
+
+    # Detect maximum correlation
+    index <- which.max(out$correlation)
+    if(length(index)==0)
+    {
+      if(nrow(out)==1){
+        index <- 1
+      }else stop("'summary' method can not be implemented with the provided data")
+    }
+    opt <- out[index,]
+  
+    do.call(c, list(as.list(out), opt=list(opt))) 
 }

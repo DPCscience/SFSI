@@ -1,78 +1,3 @@
-#' Least Angle Regression to solve the LASSO-type problem
-#'
-#' Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
-#' least squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
-#' a variance matrix among predictors and a covariance vector between response and predictors.
-#'
-#' The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
-#' predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) using 'covariance updates'
-#' to solve the optimization function
-#' \deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + 1/2\lambda||\beta||_2^2}
-#' where \eqn{\lambda} is the penalization parameter
-#' @return  List with the following elements:
-#' \itemize{
-#'   \item \code{beta}: vector of regression coefficients.
-#'   \item \code{lambda}: penalty of LASSO-type problem for all the sequence of coefficients.
-#'   \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
-#'   \item \code{sdx}: vector of standard deviation of predictors.
-#' }
-#' @param XtX Variance-covariance matrix among predictors
-#' @param Xty Covariance vector between response variable and predictors
-#' @param method One of:
-#' \itemize{
-#'  \item \code{'LAR'}: Computes the entire sequence of all coefficients. Values of lambdas are calculated at each step.
-#'  \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
-#' }
-#' Default is \code{method='LAR'}
-#' @param eps An effective zero. Default is the machine precision
-#' @param maxDF Maximum number of predictors in the last lars solution.
-#' Default \code{maxDF=NULL} will calculate solution for all the predictors
-#' @param scale \code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
-#' (see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
-#' taken from the diagonal of \code{XtX}
-#' @param verbose \code{TRUE} or \code{FALSE} to whether printing each lars step
-#' @examples
-#' set.seed(1234)
-#' require(SFSI)
-#' # Simulate variables
-#' n=500; p=200;  rho=0.65
-#' X = matrix(rnorm(n*p),ncol=p)
-#' signal = rho*scale(X%*%rnorm(p))
-#' noise =  sqrt(1-rho^2)*rnorm(n)
-#' y = signal + noise
-#'
-#' # Training and testing sets
-#' pTST = 0.3      # percentage to predict
-#' tst = sample(1:n,floor(pTST*n))
-#' trn = (1:n)[-tst]
-#'
-#' # Calculate covariances in training set
-#' P = var(X[trn,])
-#' rhs = as.vector(cov(y[trn],X[trn,]))
-#'
-#' # Run the penalized regression
-#' fm = lars2(P,rhs,method="LAR-LASSO",verbose=TRUE)
-#'
-#' # Regression coefficients
-#' beta = as.matrix(fm$beta)
-#'
-#' # Predicted values in training and testing set
-#' yHat_TRN =  X[trn,] %*% t(beta)
-#' yHat_TST =  X[tst,] %*% t(beta)
-#'
-#' par(mfrow=c(1,2))
-#' plot(fm$df,cor(y[trn],yHat_TRN)[1,],main="Training set")
-#' plot(fm$df,cor(y[tst],yHat_TST)[1,],main="Testing set")
-#' @export
-#' @author Marco Lopez-Cruz (\email{lopezcru@@msu.edu}) and Gustavo de los Campos. Adapted from 'lars' package (Hastie & Efron, 2013)
-#' @references
-#' \itemize{
-#' \item \insertRef{Efron2004}{SFSI}
-#' \item \insertRef{Friedman2010}{SFSI}
-#' \item \insertRef{Hastie2013}{SFSI}
-#' \item \insertRef{Tibshirani1996}{SFSI}
-#' }
-#' @keywords lars2
 
 lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
     eps=.Machine$double.eps,scale=TRUE,verbose=FALSE)
@@ -94,7 +19,7 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
 
   if(scale){
     sdx <- sqrt(diag(XtX))
-    XtX <- scale_crossprod(XtX)
+    XtX <- scale_cov(XtX)
     Xty <- Xty/sdx
   }else{
     sdx <- rep(1,p)
@@ -202,5 +127,6 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
   df <- apply(beta,1,function(x)sum(abs(x)>0))
 
   out <- list(method=method,beta=Matrix::Matrix(beta, sparse=TRUE),lambda=lambda,df=df,sdx=sdx)
+  class(out) <- "SSI"
   return(out)
 }
