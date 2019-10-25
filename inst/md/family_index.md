@@ -10,12 +10,12 @@ Predictive ability of both kinship-based BLUP and SFI can be then compared using
 <div id="Outline" />
 
 ## Outline
-  * [Data](#data)    
-  * [Equivalence of G-BLUP and non-Sparse Family Index](#GBLUP&FI)
-  * [non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
-  * [Predicting testing individuals using a trainig set](#predictSFI)
-  * [Parallel computing for large datasets](#parallelizing)
-  * [Working with binary files](#binaryFiles)
+  * [1. Data](#data)    
+  * [2. Equivalence of G-BLUP and non-Sparse Family Index](#GBLUP&FI)
+  * [3. Non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
+  * [4. Predicting testing individuals using a trainig set](#predictSFI)
+  * [5. Parallel computing for large datasets](#parallelizing)
+  * [6. Working with binary files](#binaryFiles)
    
 -------------------------------------------------------------------------------------------
 
