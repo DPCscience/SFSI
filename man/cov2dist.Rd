@@ -7,21 +7,40 @@
 cov2dist(XtX, void = FALSE)
 }
 \arguments{
-\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables}
+\item{XtX}{Symmetric variance-covariance matrix among \eqn{p}{p} (centered) variables}
 
 \item{void}{\code{TRUE} or \code{FALSE} to whether return or not return the output.
-When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}}
+When \code{FALSE} no result is displayed but the input \code{XtX} is modified. Default \code{void=FALSE}}
 }
 \value{
-A squared matrix \eqn{D} containing the squared Euclidean distances
+A matrix \eqn{D} containing the squared Euclidean distances
 }
 \description{
-Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p} variables. The pairwise
-distance \eqn{d(x,y)} between vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'}
-is obtained from their cross-product, \eqn{x'y = \sum{x_iy_i}}, as
-\deqn{d^2(x,y) = (x-y)'(x-y) = x'x + y'y - 2x'y}
-Note that if the variables are centered then the cross-product is proportional to the covariance,
-this is \eqn{x'y = cov(x,y)} up-to a constant
+Computes a squared Euclidean distance matrix from a covariance matrix among \eqn{p}{p} variables with mean zero
+}
+\details{
+For any variables
+\ifelse{html}{\out{X<sub>i</sub>}}{\eqn{X_i}{X_i}} and
+\ifelse{html}{\out{X<sub>j</sub>}}{\eqn{X_j}{X_j}} with mean zero and with sample vectors
+\ifelse{html}{\out{<b>x</b><sub>i</sub> = (x<sub>i1</sub>,...,x<sub>in</sub>)'}}{\eqn{\textbf{x}_i=(x_{i1},...,x_{in})'}{x_i=(x_i1,...,x_in)'}} and
+\ifelse{html}{\out{<b>x</b><sub>j</sub> = (x<sub>j1</sub>,...,x<sub>jn</sub>)'}}{\eqn{\textbf{x}_j=(x_{j1},...,x_{jn})'}{x_j=(x_j1,...,x_jn)'}}
+, their (sample) variances are equal (up-to a constant) to their cross-products, this is,
+\ifelse{html}{\out{var(X<sub>i</sub>) = <b>x</b>'<sub>i</sub><b>x</b><sub>i</sub>}}{\eqn{var(X_i)=\textbf{x}_i'\textbf{x}_i}{var(X_i) = x'_i x_i}} and
+\ifelse{html}{\out{var(X<sub>j</sub>) = <b>x</b>'<sub>j</sub><b>x</b><sub>j</sub>}}{\eqn{var(X_j)=\textbf{x}_j'\textbf{x}_j}{var(X_j) = x'_j x_j}}.
+Likewise, the covariance is
+\ifelse{html}{\out{cov(X<sub>i</sub>,X<sub>j</sub>) = <b>x</b>'<sub>i</sub><b>x</b><sub>j</sub>}}{\eqn{cov(X_i,X_j)=\textbf{x}_i'\textbf{x}_j}{cov(X_i,X_j) = x'_i x_j}}.
+
+The distance
+\ifelse{html}{\out{d(X<sub>i</sub>,X<sub>j</sub>)}}{\eqn{d(X_i,X_j)}{d(X_i,X_j)}}
+between the variables expressed in terms of cross-products is
+
+\ifelse{html}{\out{<center>d<sup>2</sup>(X<sub>i</sub>,X<sub>j</sub>) = <b>x</b>'<sub>i</sub><b>x</b><sub>i</sub> + <b>x</b>'<sub>j</sub><b>x</b><sub>j</sub> - 2<b>x</b>'<sub>i</sub><b>x</b><sub>j</sub></center>}}{\deqn{d^2(X_i,X_j) = \textbf{x}_i'\textbf{x}_i + \textbf{x}_j'\textbf{x}_j - 2\textbf{x}_i'\textbf{x}_j}{d^2(X_i,X_j) = x'_i x_i + x'_j x_j - 2x'_i x_j}}
+
+Therefore, the output distance matrix will contain as off-diagonal entries
+\ifelse{html}{\out{<center>d<sup>2</sup>(X<sub>i</sub>,X<sub>j</sub>) = var(X<sub>i</sub>) + var(X<sub>j</sub>) - 2cov(X<sub>i</sub>,X<sub>j</sub>)</center>}}{\deqn{d^2(X_i,X_j) = var(X_i)+var(X_j)- 2cov(X_i,X_j)}{d^2(X_i,X_j) = var(X_i) + var(X_j) - 2cov(X_i,X_j)}}
+
+while in the diagonal, the distance between one variable with itself is
+\ifelse{html}{\out{d<sup>2</sup>(X<sub>i</sub>,X<sub>i</sub>) = 0}}{\eqn{d^2(X_i,X_i)=0}{d^2(X_i,X_i) = 0}}
 }
 \examples{
 set.seed(1234)

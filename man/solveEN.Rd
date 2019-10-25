@@ -13,16 +13,16 @@ solveEN(XtX, Xty, lambda = NULL, nLambda = 100, alpha = 1,
 \item{Xty}{Covariance vector between response variable and predictors}
 
 \item{lambda}{Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of
-\code{n='nLambda'} lambdas will be generated starting from a maximum equal to
-\tabular{c}{\code{max(abs(Xty)/alpha)}}
+\code{'nLambda'} lambdas will be generated starting from a maximum equal to
+\ifelse{html}{\out{<center><font face="Courier">max(abs(Xty)/alpha)</font></center>}}{\deqn{\code{max(abs(Xty)/alpha)}}{max(abs(Xty)/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 
-\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})}
+\item{alpha}{Numeric between 0 and 1 indicating the weights given to the L1 and L2-penalties}
 
 \item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
-(see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
+(see \code{help(scale_cov)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 taken from the diagonal of \code{XtX}}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
@@ -46,45 +46,64 @@ values of the penalization parameter using as inputs a variance matrix among pre
 vector between response and predictors, via the Coordinate Descent (CD) algorithm (Friedman, 2007).
 }
 \details{
-The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
-predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) by optimizing the function
-\deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + \lambda J(\beta)}
-where \eqn{\lambda} is the penalization parameter and \eqn{J(\beta)} is a penalty function given by
-\deqn{1/2(1-\alpha)||\beta||_2^2 + \alpha||\beta||_1}
-for \eqn{\alpha} between 0 and 1
+Finds solutions for the regression coefficients in a linear model
+\ifelse{html}{\out{<center>y<sub>i</sub> = <b>x</b>'<sub>i</sub> <b>&beta;</b> + e<sub>i</sub></center>}}{\deqn{y_i=\textbf{x}_i'\boldsymbol{\beta}+e_i}{y_i = x'_i beta + e_i}}
+
+where
+\ifelse{html}{\out{y<sub>i</sub>}}{\eqn{y_i}{y_i}} is the response for the \ifelse{html}{\out{i<sup>th</sup>}}{\eqn{i^{th}}{i^th}} observation,
+\ifelse{html}{\out{<b>x</b><sub>i</sub>=(x<sub>i1</sub>,...,x<sub>ip</sub>)'}}{\eqn{\textbf{x}_i=(x_{i1},...,x_{ip})'}{x_i=(x_i1,...,x_ip)'}}
+is a vector of \eqn{p}{p} predictors assumed to have unit variance,
+\ifelse{html}{\out{<b>&beta;</b>=(&beta;<sub>1</sub>,...,&beta;<sub>p</sub>)'}}{\eqn{\boldsymbol{\beta}=(\beta_1,...,\beta_p)'}{beta=(beta[1],...,beta[p])'}}
+is a vector of regression coefficients, and
+\ifelse{html}{\out{e<sub>i</sub>}}{\eqn{e_i}{e_i}}
+is a residual.
+
+The regression coefficients
+\ifelse{html}{\out{<b>&beta;</b>}}{\eqn{\boldsymbol{\beta}}{beta}}
+are estimated as function of the variance matrix among
+predictors (\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}}) by minimizing the penalized mean squared error function
+
+\ifelse{html}{\out{<center>-<b>Xty</b>' <b>&beta;</b> + 1/2 <b>&beta;</b>'(<b>XtX</b>)<b>&beta;</b> + &lambda; J(<b>&beta;</b>)</center>}}{\deqn{-\textbf{Xty}' \boldsymbol{\beta} + 1/2 \boldsymbol{\beta}'(\textbf{XtX}) \boldsymbol{\beta} + \lambda J(\boldsymbol{\beta})}{-Xty' beta + 1/2 beta'(XtX)beta + lambda J(beta)}}
+
+where \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}}
+is the penalization parameter and
+\ifelse{html}{\out{J(<b>&beta;</b>)}}{\eqn{J(\boldsymbol{\beta})}{J(beta)}}
+is a penalty function given by
+
+\ifelse{html}{\out{<center>1/2(1-&alpha;)||<b>&beta;</b>||<sub>2</sub><sup>2</sup> + &alpha;||<b>&beta;</b>||<sub>1</sub></center>}}{\deqn{1/2(1-\alpha)||\boldsymbol{\beta}||_2^2 + \alpha||\boldsymbol{\beta}||_1}{1/2(1-alpha)||beta||_2^2 + alpha||beta||_1}}
+
+where \ifelse{html}{\out{0 &le; &alpha; &le; 1}}{\eqn{0\leq\alpha\leq 1}{0 <= alpha <= 1}}, and
+\ifelse{html}{\out{||<b>&beta;</b>||<sub>1</sub> = &sum;|&beta;<sub>j</sub>|}}{\eqn{||\boldsymbol{\beta}||_1=\sum|\beta_j|}{||beta||_1 = sum(|beta_j|)}} and
+\ifelse{html}{\out{||<b>&beta;</b>||<sub>2</sub><sup>2</sup> = &sum;&beta;<sub>j</sub><sup>2</sup>}}{\eqn{||\boldsymbol{\beta}||_2^2=\sum\beta_j^2}{||beta||_2^2 = sum(beta_j^2)}} are the L1 and (squared) L2-norms, respectively.
+
+The "partial residual" excluding the contribution of the predictor
+\ifelse{html}{\out{x<sub>ij</sub>}}{\eqn{x_{ij}}{x_ij}} is
+\ifelse{html}{\out{<center>e<sub>i</sub><sup>(j)</sup> = y<sub>i</sub> - <b>x</b>'<sub>i</sub> <b>&beta;</b> + x<sub>ij</sub>&beta;<sub>j</sub></center>}}{\deqn{e_i^{(j)}=y_i-\textbf{x}_i'\boldsymbol{\beta}+x_{ij}\beta_j}{r_i = y_i - x'_i beta + x_ij beta_j}}
+
+then the ordinary least-squares (OLS) coefficient of
+\ifelse{html}{\out{x<sub>ij</sub>}}{\eqn{x_{ij}}{x_ij}}
+on this residual is (up-to a constant)
+
+\ifelse{html}{\out{<center>&beta;<sub>j</sub><sup>(ols)</sup> = Xty<sub>j</sub> - <b>XtX</b>'<sub>j</sub> <b>&beta;</b> + &beta;<sub>j</sub></center>}}{\deqn{\beta_j^{(ols)}=Xty_i-\textbf{XtX}_j'\boldsymbol{\beta}+\beta_j}{beta_j^ols = Xty_j - XtX'_j beta}}
+
+where
+\ifelse{html}{\out{Xty<sub>j</sub>}}{\eqn{Xty_j}{Xty_j}}
+is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} element of
+\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}} and
+\ifelse{html}{\out{<b>XtX</b><sub>j</sub>}}{\eqn{\textbf{XtX}_j}{XtX_j}}
+is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} column of the matrix
+\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}.
+
+Coefficients are updated for each \eqn{j=1,...,p}{j=1,...,p} from their current value
+\ifelse{html}{\out{&beta;<sub>j</sub>}}{\eqn{\beta_j}{beta_j}}
+to a new value
+\ifelse{html}{\out{&beta;<sub>j</sub>(&alpha;,&lambda;)}}{\eqn{\beta_j(\alpha,\lambda)}{beta_j(alpha,lambda)}},
+given \ifelse{html}{\out{&alpha;}}{\eqn{\alpha}{alpha}} and
+\ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}},
+by "soft-thresholding" their OLS estimate until convergence as fully described in Friedman (2007).
 }
 \examples{
-set.seed(1234)
-require(SFSI)
-# Simulate variables
-n=500; p=200;  rho=0.65
-X = matrix(rnorm(n*p),ncol=p)
-signal = rho*scale(X\%*\%rnorm(p))
-noise =  sqrt(1-rho^2)*rnorm(n)
-y = signal + noise
-
-# Training and testing sets
-pTST = 0.3      # percentage to predict
-tst = sample(1:n,floor(pTST*n))
-trn = (1:n)[-tst]
-
-# Calculate covariances in training set
-P = var(X[trn,])
-rhs = as.vector(cov(y[trn],X[trn,]))
-
-# Run the penalized regression
-fm = solveEN(P,rhs,verbose=TRUE)
-
-# Regression coefficients
-beta = as.matrix(fm$beta)
-
-# Predicted values in training and testing set
-yHat_TRN =  X[trn,] \%*\% t(beta)
-yHat_TST =  X[tst,] \%*\% t(beta)
-
-par(mfrow=c(1,2))
-plot(fm$df,cor(y[trn],yHat_TRN)[1,],main="Training set")
-plot(fm$df,cor(y[tst],yHat_TST)[1,],main="Testing set")
+  # See examples from 'SSI' function (see help(SSI))
 }
 \references{
 \itemize{

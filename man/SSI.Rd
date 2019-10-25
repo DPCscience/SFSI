@@ -14,25 +14,20 @@ SSI(XtX, Xty, kernel = NULL, scale = TRUE, maxDF = NULL,
 
 \item{Xty}{Covariance vector between response variable and predictors}
 
-\item{kernel}{Kernel transformation to be applied to \code{XtX}. List consisting on one of:
-\itemize{
-  \item \code{list(kernel='GAUSSIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
-  \item \code{list(kernel='LAPLACIAN',h)}. If \code{h} is not provided the value of \code{h=-2*log(0.5)} is used.
-  \item \code{list(kernel='POLYNOMIAL',a,b)}. The values of \code{a=1} and \code{b=2} are used when they are not provided.
-}
-Default \code{kernel=NULL} (no kernel)}
+\item{kernel}{Kernel transformation to be applied to \code{XtX}. See \code{help(kernel2)} for details. Default \code{kernel=NULL} (no kernel)}
 
 \item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
-(see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
+(see \code{help(scale_cov)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 taken from the diagonal of \code{XtX}}
 
 \item{maxDF}{Maximum (average across individuals) number of predictors in the last solution (when \code{method='LAR'} or \code{'LAR-LASSO'}).
-Default \code{maxDF=NULL} will calculate solutions including 1,2,...,nTRN predictors}
+Default \code{maxDF=NULL} will calculate solutions including \eqn{1,2,...,p}{1,2,...,p}
+predictors}
 
 \item{lambda}{Penalization parameter sequence vector used for the Coordinate Descent algorithm.
 Default is \code{lambda=NULL}, in this case a decreasing grid of
-\code{n='nLambda'} lambdas will be generated starting from a maximum equal to
-\tabular{c}{\code{max(abs(Xty)/alpha)}}
+\code{'nLambda'} lambdas will be generated starting from a maximum equal to
+\ifelse{html}{\out{<center><font face="Courier">max(abs(Xty)/alpha)</font></center>}}{\deqn{\code{max(abs(Xty)/alpha)}}{max(abs(Xty)/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
@@ -44,7 +39,7 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
  \item \code{'LAR-LASSO'}: Similar to \code{'LAR'} but solutions when a predictor leaves the solution are also returned.
 }}
 
-\item{alpha}{Numeric between 0 and 1 indicating the weights for LASSO (\eqn{\alpha=1}) and Ridge-Regression (\eqn{\alpha=0})}
+\item{alpha}{Numeric between 0 and 1 indicating the weights given to the L1 and L2-penalties}
 
 \item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
@@ -64,7 +59,7 @@ List object containing the elements:
   \item \code{sdx}: vector of standard deviation of predictors.
   \item \code{kernel}: transformation applied to the elements of \code{XtX}.
 }
-The returned object is of the class 'SSI' for which methods \code{predict}, \code{plot} and \code{summary} exist
+The returned object is of the class 'SSI' for which methods \code{fitted} and \code{plot} exist
 }
 \description{
 Computes the entire Elastic-Net solution for the regression coefficients of a penalized regression simultaneously for all
@@ -72,51 +67,81 @@ values of the penalization parameter via either the Coordinate Descent (Friedman
 Analysis is performed using either 'solveEN' or 'lars2' functions.
 }
 \details{
-The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
-predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) by optimizing the function
-\deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + \lambda J(\beta)}
-where \eqn{\lambda} is the penalization parameter and \eqn{J(\beta)} is a penalty function given by
-\deqn{1/2(1-\alpha)||\beta||_2^2 + \alpha||\beta||_1}
-for \eqn{\alpha} between 0 and 1
+Finds solutions for the regression coefficients in a linear model 
+\ifelse{html}{\out{<center>y<sub>i</sub> = <b>x</b>'<sub>i</sub> <b>&beta;</b> + e<sub>i</sub></center>}}{\deqn{y_i=\textbf{x}_i'\boldsymbol{\beta}+e_i}{y_i = x'_i beta + e_i}}
+
+where 
+\ifelse{html}{\out{y<sub>i</sub>}}{\eqn{y_i}{y_i}} is the response for the \ifelse{html}{\out{i<sup>th</sup>}}{\eqn{i^{th}}{i^th}} observation, 
+\ifelse{html}{\out{<b>x</b><sub>i</sub>=(x<sub>i1</sub>,...,x<sub>ip</sub>)'}}{\eqn{\textbf{x}_i=(x_{i1},...,x_{ip})'}{x_i=(x_i1,...,x_ip)'}}
+is a vector of \eqn{p}{p} predictors assumed to have unit variance, 
+\ifelse{html}{\out{<b>&beta;</b>=(&beta;<sub>1</sub>,...,&beta;<sub>p</sub>)'}}{\eqn{\boldsymbol{\beta}=(\beta_1,...,\beta_p)'}{beta=(beta_1,...,beta_p)'}}
+is a vector of regression coefficients, and
+\ifelse{html}{\out{e<sub>i</sub>}}{\eqn{e_i}{e_i}}
+is a residual.
+
+The regression coefficients 
+\ifelse{html}{\out{<b>&beta;</b>}}{\eqn{\boldsymbol{\beta}}{beta}}
+are estimated as function of the variance matrix among
+predictors (\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}}) using either Coordinate Descent (see \code{help(solveEN)}) or Least Angle Regression (see \code{help(lars2)}).
 }
 \examples{
-set.seed(1234)
-require(SFSI)
-# Simulate variables
-n=500; p=200;  rho=0.65
-X = matrix(rnorm(n*p),ncol=p)
-signal = rho*scale(X\%*\%rnorm(p))
-noise =  sqrt(1-rho^2)*rnorm(n)
-y = signal + noise
+  \dontrun{
+  set.seed(1234)
+  require(SFSI)
+  # Simulate variables
+  n=1000; p=1200;  rho=0.65
+  X = matrix(rnorm(n*p),ncol=p)
+  beta0 = rnorm(p)
+  signal = rho*scale(X\%*\%beta0)
+  noise =  sqrt(1-rho^2)*rnorm(n)
+  y = signal + noise
 
-# Training and testing sets
-pTST = 0.3      # percentage to predict
-tst = sample(1:n,floor(pTST*n))
-trn = (1:n)[-tst]
+  # Training and testing sets
+  pTST = 0.3      # percentage to predict
+  tst = sample(1:n,ceiling(pTST*n))
+  trn = (1:n)[-tst]
 
-# Calculate covariances in training set
-P = var(X[trn,])
-rhs = as.vector(cov(y[trn],X[trn,]))
+  # Calculate covariances in training set
+  P = var(X[trn,])
+  rhs = as.vector(cov(y[trn],X[trn,]))
 
-# Run the penalized regression
-fm = SSI(P,rhs)                    # or
-fm = SSI(P,rhs,method="LAR")       # or
-fm = SSI(P,rhs,method="LAR-LASSO")
+  # Run the penalized regression using LARS method
+  fm = SSI(P,rhs,method="LAR-LASSO")                    
+  
+  # The above is the equivalent to
+  fm = lars2(P,rhs)                    
 
-# Regression coefficients
-plot(fm)  # Path plot along lambda
-beta = as.matrix(fm$beta)
+  # Run the penalized regression using CD method
+  fm = SSI(P,rhs,method="CD")                    
+  
+  # The above is the equivalent to
+  fm = solveEN(P,rhs)                    
 
-# Predicted values in training and testing set
-yHat_TRN =  X[trn,] \%*\% t(beta)   # or
-yHat_TRN =  predict(fm,X[trn,])
+  # Regression coefficients
+  plot(fm)  # Path plot along lambda
+  beta = as.matrix(fm$beta)
 
-yHat_TST =  X[tst,] \%*\% t(beta)   # or
-yHat_TST =  predict(fm,X[tst,])
+  # Predicted values in training and testing set
+  yHat_TRN =  X[trn,] \%*\% t(beta)   # or
+  yHat_TRN =  fitted(fm,X[trn,])
 
-par(mfrow=c(1,2))
-plot(fm$df,cor(y[trn],yHat_TRN)[1,],main="Training set")
-plot(fm$df,cor(y[tst],yHat_TST)[1,],main="Testing set")
+  yHat_TST =  X[tst,] \%*\% t(beta)   # or
+  yHat_TST =  fitted(fm,X[tst,])
+
+  # Accuracy of prediction in training and testing set
+  corTRN = as.vector(cor(y[trn],yHat_TRN))
+  corTST = as.vector(cor(y[tst],yHat_TST))
+
+  # Plot of accuracy vs penalization
+  par(mfrow=c(1,2))
+  plot(-log(fm$lambda),corTRN,main="Training set",type="l")
+  plot(-log(fm$lambda),corTST,main="Testing set",type="l")
+
+  # Get the best prediction (in testing set)
+  yHatOPT <- yHat_TST[,which.max(corTST)]
+  par(mfrow=c(1,1))
+  plot(y[tst],yHatOPT)
+  }
 }
 \references{
 \itemize{

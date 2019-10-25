@@ -25,7 +25,7 @@ Default \code{maxDF=NULL} will calculate solution for all the predictors}
 \item{eps}{An effective zero. Default is the machine precision}
 
 \item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
-(see \code{help(scale_crossprod)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
+(see \code{help(scale_cov)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
 taken from the diagonal of \code{XtX}}
 
 \item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each lars step}
@@ -41,48 +41,52 @@ List with the following elements:
 }
 \description{
 Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
-least squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
+least-squares estimates, via the Least Angle Regression (LARS) algorithm (Efron, 2004). It uses as inputs
 a variance matrix among predictors and a covariance vector between response and predictors.
 }
 \details{
-The regression coefficients \eqn{\beta=(\beta_1,...,\beta_p)'} are estimated as function of the variance matrix among
-predictors (\eqn{XtX}) and the covariance vector between response and predictors (\eqn{Xty}) using 'covariance updates'
-to solve the optimization function
-\deqn{-Xty' \beta + 1/2\beta' (XtX)\beta + 1/2\lambda||\beta||_2^2}
-where \eqn{\lambda} is the penalization parameter
+Finds solutions for the regression coefficients in a linear model
+\ifelse{html}{\out{<center>y<sub>i</sub> = <b>x</b>'<sub>i</sub> <b>&beta;</b> + e<sub>i</sub></center>}}{\deqn{y_i=\textbf{x}_i'\boldsymbol{\beta}+e_i}{y_i = x'_i beta + e_i}}
+
+where
+\ifelse{html}{\out{y<sub>i</sub>}}{\eqn{y_i}{y_i}} is the response for the \ifelse{html}{\out{i<sup>th</sup>}}{\eqn{i^{th}}{i^th}} observation,
+\ifelse{html}{\out{<b>x</b><sub>i</sub>=(x<sub>i1</sub>,...,x<sub>ip</sub>)'}}{\eqn{\textbf{x}_i=(x_{i1},...,x_{ip})'}{x_i=(x_i1,...,x_ip)'}}
+is a vector of \eqn{p}{p} predictors assumed to have unit variance,
+\ifelse{html}{\out{<b>&beta;</b>=(&beta;<sub>1</sub>,...,&beta;<sub>p</sub>)'}}{\eqn{\boldsymbol{\beta}=(\beta_1,...,\beta_p)'}{beta=(beta_1,...,beta_p)'}}
+is a vector of regression coefficients, and
+\ifelse{html}{\out{e<sub>i</sub>}}{\eqn{e_i}{e[i]}}
+is a residual.
+
+The regression coefficients
+\ifelse{html}{\out{<b>&beta;</b>}}{\eqn{\boldsymbol{\beta}}{beta}}
+are estimated as function of the variance matrix among
+predictors (\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}}) by minimizing the penalized mean squared error function
+
+\ifelse{html}{\out{<center>-<b>Xty</b>' <b>&beta;</b> + 1/2 <b>&beta;</b>'(<b>XtX</b>)<b>&beta;</b> + 1/2 &lambda; ||<b>&beta;</b>||<sub>1</sub></center>}}{\deqn{-\textbf{Xty}' \boldsymbol{\beta} + 1/2 \boldsymbol{\beta}'(\textbf{XtX}) \boldsymbol{\beta} + 1/2\lambda||\boldsymbol{\beta}||_1}{-Xty' beta + 1/2 beta'(XtX)beta + 1/2 lambda ||beta||_1}}
+
+where \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}}
+is the penalization parameter and
+\ifelse{html}{\out{||<b>&beta;</b>||<sub>1</sub> = &sum;|&beta;<sub>j</sub>|}}{\eqn{||\boldsymbol{\beta}||_1=\sum{|\beta_j|}}{||beta||_1=sum(|beta_j|)}}
+is the L1-norm.
+
+The algorithm to find solutions for each \ifelse{html}{\out{&beta;<sub>j</sub>}}{\eqn{\beta_j}{beta_j}} is fully described in Efron (2004) in which the "current correlation" between the predictor
+\ifelse{html}{\out{x<sub>ij</sub>}}{\eqn{x_{ij}}{xij}}
+and the residual
+\ifelse{html}{\out{e<sub>i</sub> = y<sub>i</sub> - <b>x</b>'<sub>i</sub> <b>&beta;</b>}}{\eqn{e_i=y_i-\textbf{x}_i'\boldsymbol{\beta}}{e_i = y_i - x'_i beta}}
+is expressed (up-to a constant) as
+
+\ifelse{html}{\out{<center>r<sub>j</sub> = Xty<sub>j</sub> - <b>XtX</b>'<sub>j</sub> <b>&beta;</b></center>}}{\deqn{r_j=Xty_i-\textbf{XtX}_j'\boldsymbol{\beta}}{r_j = Xty_j - XtX'_j beta}}
+
+where
+\ifelse{html}{\out{Xty<sub>j</sub>}}{\eqn{Xty_j}{Xty_j}}
+is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} element of
+\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}} and
+\ifelse{html}{\out{<b>XtX</b><sub>j</sub>}}{\eqn{\textbf{XtX}_j}{XtX_j}}
+is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} column of the matrix
+\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}
 }
 \examples{
-set.seed(1234)
-require(SFSI)
-# Simulate variables
-n=500; p=200;  rho=0.65
-X = matrix(rnorm(n*p),ncol=p)
-signal = rho*scale(X\%*\%rnorm(p))
-noise =  sqrt(1-rho^2)*rnorm(n)
-y = signal + noise
-
-# Training and testing sets
-pTST = 0.3      # percentage to predict
-tst = sample(1:n,floor(pTST*n))
-trn = (1:n)[-tst]
-
-# Calculate covariances in training set
-P = var(X[trn,])
-rhs = as.vector(cov(y[trn],X[trn,]))
-
-# Run the penalized regression
-fm = lars2(P,rhs,method="LAR-LASSO",verbose=TRUE)
-
-# Regression coefficients
-beta = as.matrix(fm$beta)
-
-# Predicted values in training and testing set
-yHat_TRN =  X[trn,] \%*\% t(beta)
-yHat_TST =  X[tst,] \%*\% t(beta)
-
-par(mfrow=c(1,2))
-plot(fm$df,cor(y[trn],yHat_TRN)[1,],main="Training set")
-plot(fm$df,cor(y[tst],yHat_TST)[1,],main="Testing set")
+  # See examples from 'SSI' function (see help(SSI))
 }
 \references{
 \itemize{

@@ -17,34 +17,36 @@ Collects all outputs saved at the provided \code{saveAt} parameter from the SFI 
 according to \code{subset} parameter.
 }
 \examples{
-require(SFSI)
-# Read data from BGLR package
-data(wheat,package="BGLR")
-X = scale(wheat.X)
-G = tcrossprod(X)/ncol(X)    # Genomic relationship matrix
-y = wheat.Y[,1]              # Response variable
-h2 = 0.5                     # Heritability (rough estimate)
+  \dontrun{
+  require(SFSI)
+  # Read data from BGLR package
+  data(wheat,package="BGLR")
+  X = scale(wheat.X)
+  G = tcrossprod(X)/ncol(X)    # Genomic relationship matrix
+  y = wheat.Y[,1]              # Response variable
+  h2 = 0.5                     # Heritability (rough estimate)
 
-# Training and testing sets
-set.seed(1234)
-n = length(y)
-pTST = 0.3      # percentage to predict
-tst = sample(1:n,floor(pTST*n))
-trn = (1:n)[-tst]
+  # Training and testing sets
+  set.seed(1234)
+  n = length(y)
+  pTST = 0.3      # percentage to predict
+  tst = sample(1:n,floor(pTST*n))
+  trn = (1:n)[-tst]
 
-prefix <- "testSFI"
-# Run the analysis into 5 subsets and save them at a given prefix
-fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,mc.cores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,mc.cores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,mc.cores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,mc.cores=5)
-fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,mc.cores=5)
+  prefix <- "testSFI"
+  # Run the analysis into 5 subsets and save them at a given prefix
+  fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,mc.cores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,mc.cores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,mc.cores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,mc.cores=5)
+  fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,mc.cores=5)
 
-# Collect all results after completion
-fm <- collect(prefix)
-plot(fm)
-unlink(paste0(prefix,"*.RData"))   # Remove files
-unlink(paste0(prefix,"*.bin"))     # Remove files
+  # Collect all results after completion
+  fm <- collect(prefix)
+  plot(fm)
+  unlink(paste0(prefix,"*.RData"))   # Remove files
+  unlink(paste0(prefix,"*.bin"))     # Remove files
+  }
 }
 \references{
 \itemize{

@@ -7,7 +7,7 @@
 kernel2(XtX, kernel = NULL, void = FALSE)
 }
 \arguments{
-\item{XtX}{Cross-product (\eqn{X'X}) of a matrix \eqn{X} with \eqn{p} (centered) variables.}
+\item{XtX}{Symmetric numeric matrix (e.g., a variance-covariance matrix among \eqn{p}{p} variables)}
 
 \item{kernel}{List consisting on one of:
 \itemize{
@@ -18,22 +18,42 @@ kernel2(XtX, kernel = NULL, void = FALSE)
 Default \code{kernel=NULL} (no kernel)}
 
 \item{void}{\code{TRUE} or \code{FALSE} to whether return or not return the output.
-When \code{FALSE} no result is displayed but the input is modified. Default \code{void=FALSE}}
+When \code{FALSE} no result is displayed but the input \code{XtX} is modified. Default \code{void=FALSE}}
 }
 \value{
-A squared matrix \eqn{K} containing the kernel transformation
+A matrix \eqn{K}{K} containing the kernel transformation
 }
 \description{
-Applies a kernel transformation to a covariance matrix among \eqn{p} predictors. The pairwise transformation
-\eqn{K(x,y)} for vectors \eqn{x=(x_1,...,x_n)'} and \eqn{y=(y_1,...,y_n)'} is calculated from their cross-product,
-\eqn{x'y = \sum{x_iy_i}}, as
+Applies a kernel transformation to any symmetric matrix such as a variance matrix among \eqn{p} predictors
+}
+\details{
+For any variables
+\ifelse{html}{\out{X<sub>i</sub>}}{\eqn{X_i}{X_i}} and
+\ifelse{html}{\out{X<sub>j</sub>}}{\eqn{X_j}{X_j}} with mean zero and with sample vectors
+\ifelse{html}{\out{<b>x</b><sub>i</sub> = (x<sub>i1</sub>,...,x<sub>in</sub>)'}}{\eqn{\textbf{x}_i=(x_{i1},...,x_{in})'}{x_i=(x_i1,...,x_in)'}} and
+\ifelse{html}{\out{<b>x</b><sub>j</sub> = (x<sub>j1</sub>,...,x<sub>jn</sub>)'}}{\eqn{\textbf{x}_j=(x_{j1},...,x_{jn})'}{x_j=(x_j1,...,x_jn)'}}
+, their (sample) variances are equal (up-to a constant) to their cross-products, this is,
+\ifelse{html}{\out{var(X<sub>i</sub>) = <b>x</b>'<sub>i</sub><b>x</b><sub>i</sub>}}{\eqn{var(X_i)=\textbf{x}_i'\textbf{x}_i}{var(X_i) = x'_i x_i}} and
+\ifelse{html}{\out{var(X<sub>j</sub>) = <b>x</b>'<sub>j</sub><b>x</b><sub>j</sub>}}{\eqn{var(X_j)=\textbf{x}_j'\textbf{x}_j}{var(X_j) = x'_j x_j}}.
+Likewise, the covariance is
+\ifelse{html}{\out{cov(X<sub>i</sub>,X<sub>j</sub>) = <b>x</b>'<sub>i</sub><b>x</b><sub>j</sub>}}{\eqn{cov(X_i,X_j)=\textbf{x}_i'\textbf{x}_j}{cov(X_i,X_j) = x'_i x_j}}.
+
+The output matrix will contain the pairwise transformation
+\ifelse{html}{\out{K(X<sub>i</sub>,X<sub>j</sub>)}}{\eqn{K(X_i,X_j)}{K(X_i,X_j)}}
+given by
+
 \enumerate{
-  \item Gaussian kernel. Bandwidth parameter \eqn{h}:
-\deqn{K(x,y)=exp\{-h d^2(x,y)\}=exp\{-h [x'x + y'y - 2x'y]\}}
-  \item Laplacian kernel. Bandwidth parameter \eqn{h}:
-\deqn{K(x,y)=exp\{-h d(x,y)\}=exp\{-h \sqrt{x'x + y'y - 2x'y]}\}}
-  \item Polynomial kernel. Parameters \eqn{a>0} and integer \eqn{b}:
-\deqn{K(x,y)=[a(x'y) + 1]^b}
+  \item Gaussian kernel (bandwidth parameter \eqn{h}{h}):
+
+  \ifelse{html}{\out{<center>K(X<sub>i</sub>,X<sub>j</sub>) = exp{-h d<sup>2</sup>(X<sub>i</sub>,X<sub>j</sub>)} = exp{-h [var(X<sub>i</sub>) + var(X<sub>j</sub>) - 2cov(X<sub>i</sub>,X<sub>j</sub>)]}</center>}}{\deqn{K(X_i,X_j)=exp\{-h\;d^2(X_i,X_j)\}=exp\{-h [var(X_i)+var(X_j)-2cov(X_i,X_j)]\}}{K(X_i,X_j) = exp(-h d^2(X_i,X_j)) = exp(-h (var(X_i) + var(X_j)- 2cov(X_i,X_j)))}}
+
+  \item Laplacian kernel (bandwidth parameter \eqn{h}{h}):
+
+  \ifelse{html}{\out{<center>K(X<sub>i</sub>,X<sub>j</sub>) = exp{-h d(X<sub>i</sub>,X<sub>j</sub>)} = exp{-h &radic;[var(X<sub>i</sub>) + var(X<sub>j</sub>) - 2cov(X<sub>i</sub>,X<sub>j</sub>)]}</center>}}{\deqn{K(X_i,X_j)=exp\{-h\;d(X_i,X_j)\}=exp\{-h \sqrt{var(X_i)+var(X_j)-2cov(X_i,X_j)}\}}{K(X_i,X_j) = exp(-h d(X_i,X_j)) = exp(-h sqrt(var(X_i) + var(X_j)- 2cov(X_i,X_j)))}}
+
+  \item Polynomial kernel (parameters \eqn{a>0}{a>0} and integer \eqn{b}{b}):
+
+  \ifelse{html}{\out{<center>K(X<sub>i</sub>,X<sub>j</sub>) = [a cov(X<sub>i</sub>,X<sub>j</sub>) + 1]<sup>b</sup></center>}}{\deqn{K(X_i,X_j)=[a\;cov(X_i,X_j)+1]^b}{K(X_i,X_j) = (a cov(X_i,X_j) + 1)^b}}
 }
 }
 \examples{
