@@ -115,9 +115,8 @@ set.seed(seed)
 folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
 
-out <- matrix(NA,nrow=nLambda+1,ncol=nFolds)    # Object to store results
-rownames(out) <- c("GBLUP",paste0("SFI",1:nLambda))
-colnames(out) <- paste0("Fold",1:nFolds)
+corGBLUP <- rep(NA,ncol=nFolds)                # Object to store results of G-BLUP
+corSFI <- matrix(NA,nrow=nLambda,ncol=nFolds)  # Object to store results of SFI
 
 for(k in 1:nFolds)
 {
@@ -127,22 +126,27 @@ for(k in 1:nFolds)
   # G-BLUP 
   fm <- GBLUP(G,y,h2,trn,tst)  
   yHat <- fitted(fm)           # Predicted values (in testing set)
-  out['GBLUP',k] <- cor(y[tst],yHat)
+  corGBLUP[k] <- cor(y[tst],yHat)
   
   # Penalized FI
   fm <- SFI(G,y,h2,trn,tst,lambda=lambda)  
   yHat <- fitted(fm)           # Predicted values (in testing set)
-  out[-1,k] <- drop(cor(y[tst],yHat))
+  corSFI[,k] <- drop(cor(y[tst],yHat))
   cat("  -- Done fold=",k,"\n")
 }
 
-# Compare results
-outMeans <- rowMeans(out,na.rm=TRUE)   # Average across folds
+# Average across folds
+corGBLUP <- mean(corGBLUP)
+corSFI <- rowMeans(corSFI,na.rm=TRUE)   
 
 # Plot results
-plot(-log(lambda),outMeans[-1],type="l",lwd=2,col=2,ylab="correlation")
-abline(h=outMeans[1],lwd=2,col=3)
+plot(-log(lambda),corSFI,type="l",lwd=2,col=2,ylab="correlation")
+abline(h=corGBLUP,lwd=2,col=3)
 legend("bottomright",legend=c("SFI","GBLUP"),col=c(2,3),pch=20)
+
+# Gain in accuracy of the optimal SFI
+index <- which.max(corSFI)
+(corSFI[index] - corGBLUP)/corGBLUP
 
 # Run the SFI with the generated grid of lambdas
 fm1 <- SFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="SFI",mc.cores=4)
