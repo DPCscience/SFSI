@@ -146,13 +146,21 @@ legend("bottomright",legend=c("SFI","GBLUP"),col=c(2,3),pch=20)
 
 # Gain in accuracy of the optimal SFI
 index <- which.max(corSFI)
-(corSFI[index] - corGBLUP)/corGBLUP
+100*(corSFI[index] - corGBLUP)/corGBLUP
+```
 
+***3.1 Comparison of performance using 'SFI_CV' function***
+
+The above cross-validation can be done using the 'SFI_CV' function which divide data into a number of folds provided in `nFolds` parameter using the specified `seed` parameter. 
+
+A vector of lambdas are generated internally by the program when `lambda` is not provided. The number of lambdas is passed as `nLambda` parameter.
+
+```r
 # Run the SFI with the generated grid of lambdas
 fm1 <- SFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="SFI",mc.cores=4)
 
 # Run the un-penalized FI (G-BLUP model)
-fm2 <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,name="G-BLUP",mc.cores=4)
+fm2 <- SFI_CV(G,y,h2,method="GBLUP",nFolds=nFolds,seed=seed,name="G-BLUP",mc.cores=4)
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
 plot(fm1,fm2,py='correlation')
@@ -165,33 +173,15 @@ avgCor <- colMeans(fm1$correlation)
 max(avgCor,na.rm=TRUE)
 
 # Maximum average correlation obtained using 'summary' method 
-out1 <- summary(fm1)[['SFI']][[1]][['max']]
-out1
+(out1 <- summary(fm1)$opt)
 
 # Maximum average correlation for G-BLUP
-out2 <- summary(fm2)[['SFI']][[1]][['max']]
-out2
+(out2 <- summary(fm2)$opt)
 
 # Relative gain over G-BLUP (percentage)
-100*(out1[1]-out2[1])/out1[1]
+100*(out1[1]-out2[1])/out2[1]
 ```
 
-The same comparison between G-BLUP and PFI can be done without passing a vector of lambdas since they are generated internally
-by the program when `lambda` is not provided
-
-```r
-# Run the PFI. Lambdas will be generated automatically
-fm1 <- SFI_CV(G,y,h2,nFolds=nFolds,seed=seed,mc.cores=4)
-
-# Run the un-penalized FI. Using option method='G-BLUP'
-fm2 <- SFI_CV(G,y,h2,method="GBLUP",nFolds=nFolds,seed=seed)
-
-# Plot of the (average) correlation in testing set vs the average number of predictors (in training set)
-plot(fm1,fm2)
-
-# Relative gain over G-BLUP (percentage)
-summary(fm1,fm2)[['SFI']][[1]][['gain']]
-```
 [Back to Outline](#Outline)
 
 -------------------------------------------------------------------------------------------
@@ -201,7 +191,7 @@ summary(fm1,fm2)[['SFI']][[1]][['gain']]
 **4. Predicting values for a testing set using a training set**
 
 Breeding values can be predicted for individuals in a testing set using information from a training data.
-An optimal value of the parameter `lambda` can be obtained by cross-validating in training dat and then use it to
+An optimal value of the parameter `lambda` can be obtained by cross-validating in training data and then use it to
 predict testing individuals.
 ```r
 set.seed(123)
@@ -210,23 +200,23 @@ tst <- sample(1:n,floor(n*pTST))   # Select lines to predict
 trn <- (1:n)[-tst]
 
 # Cross-validation in training data to get a value of lambda
-fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,mc.cores=4,seed=123)
-lambda <- summary(fm)[['SFI']][[1]][['max']][1,'lambda']
+fm <- SFI_CV(G,y,h2,trn=trn,nFolds=5,mc.cores=4,seed=123)
+lambda0 <- summary(fm)$opt$lambda
 
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
 yNA[tst] <- NA
-fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda,mc.cores=4)
+fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda0,mc.cores=4)
 
 # Correlation between predicted and observed values (in testing set)
-plot(predict(fm)$yHat,y[tst])
-cor(predict(fm)$yHat,y[tst])
+plot(y[tst],fitted(fm))
+cor(y[tst],fitted(fm))
 
 # Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
 GBLUP(G,y,h2,trn,tst)$correlation
 ```
 
-A better estimate of the parameter `lambda` could be obtained by running repeatedly several cross-validations
+An estimate of the parameter `lambda` could be also obtained by running repeatedly several cross-validations
 by providing different values of the parameter `seed` and then averaging across repetitions.
 
 ```r
@@ -235,8 +225,8 @@ nRep <- 10      # Number of times to run the cross-validation
 lambda <- c()   # Vector to store the values of lambda
 for(j in 1:nRep)
 {
-   fm <- SFI_CV(G,y,h2,training=trn,nFolds=3,mc.cores=4,seed=j*500)
-   lambda[j] <- summary(fm)[[1]][[1]][['max']][1,'lambda']
+   fm <- SFI_CV(G,y,h2,trn=trn,nFolds=5,mc.cores=4,seed=j*500)
+   lambda[j] <- summary(fm)$opt$lambda
    cat("  -- Done repetition=",j,"\n")
 }
 
