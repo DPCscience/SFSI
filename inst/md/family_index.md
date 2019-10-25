@@ -61,15 +61,16 @@ library(SFSI)
 # G-BLUP  
 G0 <- G
 diag(G0) <- diag(G0) + (1-h2)/h2
-B <- solve(G0)%*%G
-yHat_GBLUP <- crossprod(B,y-mean(y))         # Predicted values (in testing set)
+B1 <- solve(G0)%*%G
+yHat_GBLUP <- crossprod(B1,y-mean(y))        # Predicted values (in testing set)
   
 # Non-sparse FI
 fm <- SFI(G,y,h2,lambda=0,mc.cores=4,verbose=TRUE)  
-yHat_SFI <- predict(fm)$yHat                 # Predicted values (in testing set)
+B2 <- coef(fm)
+yHat_SFI <- fitted(fm)                       # Predicted values (in testing set)
 
 # Compare regression coefficients
-max(B-coef(fm,df=length(fm$training)))
+max(B1-B2)
 
 # Compare results
 cor(yHat_GBLUP,yHat_SFI)
