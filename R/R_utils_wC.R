@@ -245,7 +245,7 @@ readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,inde
   |    ._____| | | |       ._____| | .__| |__.  Marco Lopez-Cruz       |
   |    |_______| |_|       |_______| |_______|  Gustavo de los Campos  |
   |                                                                    |
-  |  Sparse Family and Selection Index. Version 1.0.1                  |
+  |  Sparse Family and Selection Index. Version 1.0.2                  |
   |====================================================================|
   ")
 }
