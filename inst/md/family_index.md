@@ -175,7 +175,7 @@ max(avgCor,na.rm=TRUE)
 # Maximum average correlation obtained using 'summary' method 
 (out1 <- summary(fm1)$opt)
 
-# Maximum average correlation for G-BLUP
+# Average correlation obtained with G-BLUP
 (out2 <- summary(fm2)$opt)
 
 # Relative gain over G-BLUP (percentage)
@@ -213,7 +213,8 @@ plot(y[tst],fitted(fm))
 cor(y[tst],fitted(fm))
 
 # Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
-GBLUP(G,y,h2,trn,tst)$correlation
+fm2 <- GBLUP(G,yNA,h2,trn,tst)
+cor(y[tst],fitted(fm2))
 ```
 
 An estimate of the parameter `lambda` could be also obtained by running repeatedly several cross-validations
@@ -235,7 +236,7 @@ lambda0 <- mean(lambda)                     # Aritmethic mean or
 lambda0 <- prod(lambda)^(1/length(lambda))  # Geometric mean
 
 fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda0)
-cor(predict(fm)$yHat,y[tst])
+cor(y[tst],fitted(fm))
 ```
 [Back to Outline](#Outline)
 
@@ -266,7 +267,7 @@ for(j in 1:nChunks){
   yHat <- fitted(fm)
   df <- fm$df
   lambda <- fm$lambda
-  yTST <- fm$y[fm$testing] 
+  yTST <- fm$y[fm$tst] 
   save(yHat,yTST,df,lambda,file=paste0("out_subset_",j,".RData"))
 }
 ```
@@ -286,8 +287,9 @@ for(j in 1:nChunks){
 # Accuracy in testing set
 correlation <- drop(cor(out$yTST,out$yHat))
 lambda <- apply(out$lambda,2,mean)
-dat = data.frame(df=apply(out$df,2,mean),logLambda=-log(lambda),correlation)
-plot(correlation~logLambda,data=dat[dat$df>1,],type="l",lwd=2,col=2)
+df <- apply(out$df,2,mean)
+dat = data.frame(df=df,negLogLambda=-log(lambda),correlation)
+plot(correlation~negLogLambda,data=dat[dat$df>1,],type="l",lwd=2,col=2)
 indexMax <- which.max(correlation)
 abline(h=correlation[indexMax],lty=2,col=3)
 abline(v=-log(lambda[indexMax]),lty=2,col=3)
@@ -314,18 +316,18 @@ are separatelly saved as binary (`*.bin`) files. Results of all chunks can be ga
 fm <- collect(prefix)
 ```
 
-Object `fm` does not contain the regression coefficients in memory but a path where they are storaged in disc. Methods `coef`, `summary`, `predict`, `fitted`, and `plot` will read these files every time they are called
+Object `fm` does not contain the regression coefficients in memory but a path where they are storaged in disc. Methods `coef`, `summary`, `fitted`, and `plot` will read these files every time they are called
 
 ```r
-summary(fm)
-df <- summary(fm)[[1]][['max']][1,'df']  # Optimal value of degrees of freedom
+df0 <- summary(fm)$opt$df  # Optimal value of degrees of freedom
 yHat <- fitted(fm)
-beta <- coef(fm)       # Coefficients for all values of lambda
-beta <- coef(fm,df=df) # Coefficients for the optimum lambda
+beta <- coef(fm)           # Coefficients for all values of lambda
+beta <- coef(fm,df=df0)    # Coefficients for the optimum lambda
 plot(fm)
-plot(fm,G=G)           # Network plot
-plot(fm,G=G,df=10)     # Network plot
-plot(fm,G=G,path=TRUE) # Path plot   
+plot(fm,G=G)              # Network plot
+plot(fm,G=G,df=10)        # Network plot for a given 'df'
+plot(fm,path=TRUE)        # Path plot   
+plot(fm,path=TRUE,G=G)    # Path plot using kinship  
 ```
 
 The size and the number of output files might overflow disc memory, thus removing this files after use is advised
@@ -364,7 +366,7 @@ sum(abs(G-G2))  # Loss of precision relative to the original matrix
 sum(abs(G-G3))  # No loss of precision
 ```
 
-**6.1. Passing a binary file name instead of a matrix**
+***6.1. Passing a binary file name instead of a matrix***
 
 Parameter `G` can be the name of a binary file containing a genomic matrix which will be read internally. In addition, specific rows
 and columns can be read using parameter `indexG` which should match to the individuals whose scores are passed in `y`.
