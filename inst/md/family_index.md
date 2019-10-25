@@ -66,8 +66,8 @@ yHat_GBLUP <- crossprod(B1,y-mean(y))        # Predicted values (in testing set)
   
 # Non-sparse FI
 fm <- SFI(G,y,h2,lambda=0,mc.cores=4,verbose=TRUE)  
-B2 <- coef(fm)
-yHat_SFI <- fitted(fm)                       # Predicted values (in testing set)
+B2 <- as.matrix(coef(fm))
+yHat_SFI <- crossprod(B2,y-mean(y))          # Predicted values (in testing set)
 
 # Compare regression coefficients
 max(B1-B2)
@@ -80,55 +80,15 @@ head(cbind(yHat_GBLUP,yHat_SFI))
 Slightly differences are due to the iterative feature of the SFI model. Adjusting parameters `tol` and `maxIter` can yield results
 that perfectly match those of the G-BLUP model but default values provide sufficiently closed estimates. 
 
+***2.1. Fitting G-BLUP using 'GBLUP' function***
+
 Kinship-BLUP model can be fitted using function `GBLUP` from the 'SFSI' package
 ```r
 fm <- GBLUP(G,y,h2)  
-yHat_GBLUP2 <- predict(fm)$yHat  
+yHat_GBLUP2 <- fitted(fm)        # Predicted values (in testing set) using 'fitted' method
 head(cbind(yHat_GBLUP,yHat_SFI,yHat_GBLUP2))
 ```
 
-**2.1. Equivalence of G-BLUP and non-Sparse Family Index using cross-validation**
-
-```r
-# Create folds to perform cross-validation
-nFolds <- 5
-seed <- 123
-set.seed(seed)
-folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
-folds <- sample(folds)
-
-out <- matrix(NA,ncol=2,nrow=nFolds)    # Object to store results
-colnames(out) <- c("GBLUP","SFI")
-for(k in 1:nFolds)
-{
-  trn <- which(folds != k)
-  tst <- which(folds == k)
-  
-  # G-BLUP 
-  fm <- GBLUP(G,y,h2,trn,tst)  
-  yHat <- predict(fm)$yHat  
-  out[k,'GBLUP'] <- cor(yHat,y[tst])
-  
-  # G-BLUP as un-penalized FI
-  fm <- SFI(G,y,h2,trn,tst,lambda=0)  
-  yHat <- predict(fm)$yHat               # Predicted values (in testing set)
-  out[k,'SFI'] <- cor(yHat,y[tst])
-  cat("  -- Done fold=",k,"\n")
-}
-
-# Compare results
-out
-colMeans(out)   # Average across folds
-```
-  
-The above cross-validation can be done using the 'PFI_CV' function with the same `seed` and `nFolds` parameters
-
-```r
-fm <- SFI_CV(G,y,h2,lambda=0,nFolds=nFolds,seed=seed,mc.cores=4)
-
-# Compare with previous results (that used heritability calculated using complete data)
-cbind(out,fm$correlation)
-```
 [Back to Outline](#Outline)
 
 -------------------------------------------------------------------------------------------
@@ -139,11 +99,50 @@ cbind(out,fm$correlation)
 
 Predictive ability of the non-Sparse (or G-BLUP) will be compared with that of the Sparse Family Index using the correlation between
 observed and predicted values in a cross-validation fashion for different values of the penalization parameter lambda.
+
+Each value of `lambda` will yield a different family index.
+
 ```r
 # Generate a grid of lambdas evenly spaced in logarithm scale starting from 1 to 0
 nLambda <- 100     # Number of lambdas to generate
 lambda <- exp(seq(log(1), log(1e-05), length = nLambda))
 lambda[nLambda] <- 0
+
+# Create folds to perform cross-validation
+nFolds <- 5
+seed <- 123
+set.seed(seed)
+folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
+folds <- sample(folds)
+
+out <- matrix(NA,nrow=nLambda+1,ncol=nFolds)    # Object to store results
+rownames(out) <- c("GBLUP",paste0("SFI",1:nLambda))
+colnames(out) <- paste0("Fold",1:nFolds)
+
+for(k in 1:nFolds)
+{
+  trn <- which(folds != k)
+  tst <- which(folds == k)
+  
+  # G-BLUP 
+  fm <- GBLUP(G,y,h2,trn,tst)  
+  yHat <- fitted(fm)           # Predicted values (in testing set)
+  out['GBLUP',k] <- cor(y[tst],yHat)
+  
+  # Penalized FI
+  fm <- SFI(G,y,h2,trn,tst,lambda=lambda)  
+  yHat <- fitted(fm)           # Predicted values (in testing set)
+  out[-1,k] <- drop(cor(y[tst],yHat))
+  cat("  -- Done fold=",k,"\n")
+}
+
+# Compare results
+outMeans <- rowMeans(out,na.rm=TRUE)   # Average across folds
+
+# Plot results
+plot(-log(lambda),outMeans[-1],type="l",lwd=2,col=2,ylab="correlation")
+abline(h=outMeans[1],lwd=2,col=3)
+legend("bottomright",legend=c("SFI","GBLUP"),col=c(2,3),pch=20)
 
 # Run the SFI with the generated grid of lambdas
 fm1 <- SFI_CV(G,y,h2,lambda=lambda,nFolds=nFolds,seed=seed,name="SFI",mc.cores=4)
