@@ -4,7 +4,7 @@
 
 ### Data
 
-Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some genotypic value plus some environmental deviation in such a way that there is a given correlation between the phenotypic and genotypic values (heritability). Also, some correlation exists between genotypic value of the response and that of all predictors (co-hetitabilities).
+Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some genotypic value plus some environmental deviation in such a way that there is a given correlation between the phenotypic and genotypic values (heritability). Also, some correlation exists between genotypic value of the response and that of all predictors (co-heritabilities), this value is equivalent to the squared root of the genetic correlation.
 
 **1. Simulate data**
 
@@ -14,7 +14,7 @@ n <- 1000
 p <- 1200
 
 # Simulating response variable
-h2y <- 0.4      
+h2y <- 0.3      
 Uy = sqrt(h2y)*scale(rnorm(n))  # Genotypic value
 Ey =  sqrt(1-h2y)*scale(rnorm(n))  # Environmental term
 y = scale(Uy + Ey)
@@ -38,14 +38,14 @@ for(j in 1:p)
 }
 ```
 
-Genotypic covariances can be calculated from this simulated data by calculating the covariance between the simulated genotypic values; however in a real situation, genotypic values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
+Genotypic covariances (between response and predictors) can be calculated from this simulated data by calculating the covariance between the simulated genotypic values; however in a real situation, genotypic values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
 ```r
+# Genotypic covariance between response and predictors 
+gencov <- drop(cov(Ux,Uy))
+ 
 # Phenotypic covariance between response and predictors 
 phencov <- drop(cov(X,y))
 
-# Genotypic covariance between response and predictors 
-gencov <- drop(cov(Ux,Uy))
-  
 plot(phencov,gencov)
 
 # Phenotypic covariance matrix among predictors
@@ -63,12 +63,23 @@ fm1 <- SSI(P,gencov,method="CD")
 # Phenotypic SS
 fm2 <- SSI(P,phencov,method="CD")
 
-yHatGen <- fitted(fm1,X)
-yHatPhen <- fitted(fm2,X)
+# Regression coeficients for each value of lambda
+B1 <- as.matrix(fm1$beta)
+B2 <- as.matrix(fm2$beta)
 
+# Fited values (selection indices)
+yHat_Gen <- X %*% t(B1)
+yHat_Phen <- X %*% t(B2)
+```
+The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
 
-corGen <- drop(cor(Uy,yHatGen))
-corPhen <- drop(cor(Uy,yHatPhen))
+The accuracy of selection varies according to the penalization parameter lambda, thus an optimal value of lambda can be choosen such the accuracy of selection is maximum.
+
+Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data.
+
+```r
+corGen <- drop(cor(Uy,yHat_Gen))
+corPhen <- drop(cor(Uy,yHat_Phen))
 
 rg <- range(c(corPhen,corGen),na.rm=TRUE)
 
