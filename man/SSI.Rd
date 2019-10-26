@@ -6,7 +6,7 @@
 \usage{
 SSI(XtX, Xty, kernel = NULL, scale = TRUE, maxDF = NULL,
   lambda = NULL, nLambda = 100, method = c("CD", "LAR", "LAR-LASSO"),
-  alpha = 1, name = NULL, tol = 1e-05, maxIter = 1000,
+  alpha = 1, name = NULL, tol = 1e-05, maxIter = 800,
   verbose = FALSE)
 }
 \arguments{
