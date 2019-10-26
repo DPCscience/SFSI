@@ -26,7 +26,7 @@ h2xy <- rbeta(p,3,8)
 h2x <- rbeta(p,8,8)
 
 # Simulating predictor variables
-Ux <- Ex <- X <- matrix(NA,ncol=p,nrow=n)
+Ux <- Ex <- x <- matrix(NA,ncol=p,nrow=n)
 
 for(j in 1:p)
 {
@@ -34,7 +34,7 @@ for(j in 1:p)
   a2 =  sqrt(1-h2xy[j])*scale(rnorm(n))
   Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)    # Genotypic value
   Ex[,j] <- sqrt(1-h2x[j])*scale(rnorm(n)) # Environmental term
-  X[,j] <- scale(Ux[,j] + Ex[,j])
+  x[,j] <- scale(Ux[,j] + Ex[,j])
 }
 ```
 
@@ -44,12 +44,12 @@ Genotypic covariances (between response and predictors) can be calculated from t
 gencov <- drop(cov(Ux,Uy))
  
 # Phenotypic covariance between response and predictors 
-phencov <- drop(cov(X,y))
+phencov <- drop(cov(x,y))
 
 plot(phencov,gencov)
 
 # Phenotypic covariance matrix among predictors
-Px <- var(X)
+Px <- var(x)
 ```
 
 **2. Phenotypic vs Genotypic selection index**
@@ -68,8 +68,8 @@ B1 <- as.matrix(fm1$beta)
 B2 <- as.matrix(fm2$beta)
 
 # Fited values (selection indices)
-GSI <- (X %*% t(B1))
-PSI <- (X %*% t(B2))
+GSI <- (x %*% t(B1))
+PSI <- (x %*% t(B2))
 ```
 The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
 
@@ -95,42 +95,73 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + geom_line(
 
 ```r
 # Create folds to perform cross-validation
-nFolds <- 10
+nFolds <- 5
 seed <- 123
 set.seed(seed)
 folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
 folds <- sample(folds)
+
+# Objects to store results
+accGSI <- accPSI <- c()
+dfGSI <- dfPSI <- c()
+lambdaGSI <- lambdaPSI <- c()
 
 for(k in 1:nFolds)
 {
   trn <- which(folds != k)
   tst <- which(folds == k)
   
-  Xtrn <- scale(X[trn,]); ytrn <- scale(y[trn])
-  Uxtrn <- scale(Ux[trn,]); Uytrn <- scale(Uy[trn])
-
-  # Phenotypic covariance between response and predictors 
-  phencov <- drop(cov(Xtrn,ytrn))
+  xTRN <- scale(x[trn,])
+  yTRN <- scale(y[trn])
+  
+  UxTRN <- scale(Ux[trn,])
+  UyTRN <- scale(Uy[trn])
 
   # Genotypic covariance between response and predictors 
-  gencov <- drop(cov(Uxtrn,Uytrn))
-  
+  gencov <- drop(cov(UxTRN,UyTRN))
+
+  # Phenotypic covariance between response and predictors 
+  phencov <- drop(cov(xTRN,yTRN))
+
   # Phenotypic covariance matrix among predictors
-  Px <- var(Xtrn)
+  Px <- var(xTRN)
 
-  fm1 <- SSI(Px,gencov,method="CD")
-  fm2 <- SSI(Px,phencov,method="CD")
+  fm1 <- SSI(Px,gencov,method="CD",tol=1E-4,maxIter=500)
+  fm2 <- SSI(Px,phencov,method="CD",tol=1E-4,maxIter=500)
+  
+  # Retrieve data from 'df' and 'lambda'
+  dfGSI <- cbind(dfGSI,fm1$df)
+  dfPSI <- cbind(dfPSI,fm2$df)
+  lambdaGSI <- cbind(lambdaGSI,fm1$lambda)
+  lambdaPSI <- cbind(lambdaPSI,fm2$lambda)
 
-  yHatGen <- fitted(fm1,X[trn,])
-  yHatPhen <- fitted(fm2,X[trn,])
-
-  corPhen <- drop(cor(Uy,yHatPhen))
-  corGen <- drop(cor(Uy,yHatGen))
+  # Calculate the index (in testing set)
+  xTST <- scale(x[tst,])
+  GSI <- fitted(fm1,xTST)  
+  PSI <- fitted(fm2,xTST)    
+ 
+  # Accuracy of the indices (in testing set)
+  UyTST <- scale(Uy[tst])
+  accGSI <- cbind(accGSI,drop(cor(UyTST,GSI)))
+  accPSI <- cbind(accPSI,drop(cor(UyTST,PSI)))
+  cat("----- Fold",k,". Done\n")
 }
-rg <- range(c(corPhen,corGen),na.rm=TRUE)
 
-plot(fm1$df,corGen,col=2,type="l",lwd=2,xlab="number of predictors",ylab="accuracy",ylim=rg)
-points(fm2$df,corPhen,col=4,type="l",lwd=2)
-legend("bottomleft",legend=c("GenSS","PhenSS"),col=c(2,4),pch=20)
+# Accuracy of the indices across folds
+accGSIm <- apply(accGSI,1,mean)
+accPSIm <- apply(accPSI,1,mean)
+
+dfGSI <- apply(dfGSI,1,mean)
+dfPSI <- apply(dfPSI,1,mean)
+lambdaGSI <- apply(lambdaGSI,1,mean)
+lambdaPSI <- apply(lambdaPSI,1,mean)
+
+dat <- rbind(
+  data.frame(SI="GSI",accuracy=accGSIm,df=dfGSI,lambda=lambdaGSI),
+  data.frame(SI="PSI",accuracy=accPSIm,df=dfPSI,lambda=lambdaPSI)
+)
+
+# Plot the average accuracy (in testing set) across folds
+ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + geom_line(size=0.8)
 
 ```
