@@ -1,6 +1,6 @@
 
 SSI <- function(XtX,Xty,kernel=NULL,scale=TRUE,maxDF=NULL,lambda=NULL,nLambda=100,
-  method=c("CD","LAR","LAR-LASSO"),alpha=1,name=NULL,tol=1E-5,maxIter=1000,verbose=FALSE)
+  method=c("CD","LAR","LAR-LASSO"),alpha=1,name=NULL,tol=1E-5,maxIter=800,verbose=FALSE)
 {
   method <- match.arg(method)
 
