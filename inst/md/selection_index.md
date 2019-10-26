@@ -9,13 +9,13 @@ Data will be simulated for *n* observations and *p* predictors. Both phenotypic 
 **1. Simulate data**
 
 ```r
-set.seed(12345)
-n <- 1000
-p <- 1200
+set.seed(1234)
+n <- 1500
+p <- 1000
 
 # Simulating response variable
 h2y <- 0.3      
-Uy = sqrt(h2y)*scale(rnorm(n))  # Genotypic value
+Uy = sqrt(h2y)*scale(rnorm(n))     # Genotypic value
 Ey =  sqrt(1-h2y)*scale(rnorm(n))  # Environmental term
 y = scale(Uy + Ey)
 
@@ -23,7 +23,7 @@ y = scale(Uy + Ey)
 h2xy <- rbeta(p,3,8)
 
 # Heritabilities of the predictors
-h2x <- rbeta(p,8,3)
+h2x <- rbeta(p,8,8)
 
 # Simulating predictor variables
 Ux <- Ex <- X <- matrix(NA,ncol=p,nrow=n)
@@ -32,7 +32,7 @@ for(j in 1:p)
 {
   a1 = sqrt(h2xy[j])*scale(Uy)
   a2 =  sqrt(1-h2xy[j])*scale(rnorm(n))
-  Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)  # Genotypic value
+  Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)    # Genotypic value
   Ex[,j] <- sqrt(1-h2x[j])*scale(rnorm(n)) # Environmental term
   X[,j] <- scale(Ux[,j] + Ex[,j])
 }
@@ -49,7 +49,7 @@ phencov <- drop(cov(X,y))
 plot(phencov,gencov)
 
 # Phenotypic covariance matrix among predictors
-P <- var(X)
+Px <- var(X)
 ```
 
 **2. Phenotypic vs Genotypic selection index**
@@ -58,40 +58,42 @@ P <- var(X)
 library(SFSI)
 
 # Genotypic SS
-fm1 <- SSI(P,gencov,method="CD")
+fm1 <- SSI(Px,gencov,method="CD")
 
 # Phenotypic SS
-fm2 <- SSI(P,phencov,method="CD")
+fm2 <- SSI(Px,phencov,method="CD")
 
 # Regression coeficients for each value of lambda
 B1 <- as.matrix(fm1$beta)
 B2 <- as.matrix(fm2$beta)
 
 # Fited values (selection indices)
-yHat_Gen <- X %*% t(B1)
-yHat_Phen <- X %*% t(B2)
+GSI <- (X %*% t(B1))
+PSI <- (X %*% t(B2))
 ```
 The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
 
-The accuracy of selection varies according to the penalization parameter lambda, thus an optimal value of lambda can be choosen such the accuracy of selection is maximum.
+The accuracy of selection varies according to the penalization parameter lambda, thus an optimal value of lambda can be chosen such the accuracy of selection is maximum.
 
-Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data.
+Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. The accuracy is equal to the product of the squared root of the heritability of the index times the genetic correlation between the index and the target 
 
 ```r
-corGen <- drop(cor(Uy,yHat_Gen))
-corPhen <- drop(cor(Uy,yHat_Phen))
+# Accuracy of the indices
+accGSI <- drop(cor(Uy,GSI))
+accPSI <- drop(cor(Uy,PSI))
 
-rg <- range(c(corPhen,corGen),na.rm=TRUE)
+dat <- rbind(
+  data.frame(SI="GSI",accuracy=accGSI,df=fm1$df,lambda=fm1$lambda),
+  data.frame(SI="PSI",accuracy=accPSI,df=fm2$df,lambda=fm2$lambda)
+)
 
-plot(-log(fm1$lambda),corGen,col=2,type="l",lwd=2,xlab=expression(-log(lambda)),ylab="accuracy",ylim=rg)
-points(-log(fm2$lambda),corPhen,col=4,type="l",lwd=2)
-legend("bottomleft",legend=c("GenSS","PhenSS"),col=c(2,4),pch=20)
+library(ggplot2)
+ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + geom_line(size=0.8)
 ```
 
 **3. Phenotypic vs Genotypic selection index using cross-validation**
 
 ```r
-
 # Create folds to perform cross-validation
 nFolds <- 10
 seed <- 123
@@ -103,18 +105,21 @@ for(k in 1:nFolds)
 {
   trn <- which(folds != k)
   tst <- which(folds == k)
+  
+  Xtrn <- scale(X[trn,]); ytrn <- scale(y[trn])
+  Uxtrn <- scale(Ux[trn,]); Uytrn <- scale(Uy[trn])
 
   # Phenotypic covariance between response and predictors 
-  phencov <- drop(cov(X[trn,],y[trn]))
+  phencov <- drop(cov(Xtrn,ytrn))
 
   # Genotypic covariance between response and predictors 
-  gencov <- drop(cov(Ux[trn,],Uy[trn]))
+  gencov <- drop(cov(Uxtrn,Uytrn))
   
   # Phenotypic covariance matrix among predictors
-  P <- var(X[trn,])
+  Px <- var(Xtrn)
 
-  fm1 <- SSI(P,gencov,method="CD")
-  fm2 <- SSI(P,phencov,method="CD")
+  fm1 <- SSI(Px,gencov,method="CD")
+  fm2 <- SSI(Px,phencov,method="CD")
 
   yHatGen <- fitted(fm1,X[trn,])
   yHatPhen <- fitted(fm2,X[trn,])
