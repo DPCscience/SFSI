@@ -4,17 +4,19 @@
 
 ### Data
 
+Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some genotypic value plus some environmental deviation in such a way that there is a given correlation between the phenotypic and genotypic values (heritability). Also, some correlation exists between genotypic value of the response and that of all predictors (co-hetitabilities).
+
 **1. Simulate data**
 
 ```r
 set.seed(12345)
 n <- 1000
-p <- 750
+p <- 1200
 
 # Simulating response variable
-h2y <- 0.4
-Uy = sqrt(h2y)*scale(rnorm(n))
-Ey =  sqrt(1-h2y)*scale(rnorm(n))
+h2y <- 0.4      
+Uy = sqrt(h2y)*scale(rnorm(n))  # Genotypic value
+Ey =  sqrt(1-h2y)*scale(rnorm(n))  # Environmental term
 y = scale(Uy + Ey)
 
 # Co-heritabilities of the response with predictors
@@ -30,15 +32,13 @@ for(j in 1:p)
 {
   a1 = sqrt(h2xy[j])*scale(Uy)
   a2 =  sqrt(1-h2xy[j])*scale(rnorm(n))
-  Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)
-  Ex[,j] <- sqrt(1-h2x[j])*scale(rnorm(n))
-  
+  Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)  # Genotypic value
+  Ex[,j] <- sqrt(1-h2x[j])*scale(rnorm(n)) # Environmental term
   X[,j] <- scale(Ux[,j] + Ex[,j])
 }
 ```
 
-Phenotypic and genetic correlations can be calculated from this simulated data; however for real data, genotypic covariance
-must be estimated thorugh linear mixed models using replicates or using kinship relationship among individuals
+Genotypic covariances can be calculated from this simulated data by calculating the covariance between the simulated genotypic values; however in a real situation, genotypic values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
 ```r
 # Phenotypic covariance between response and predictors 
 phencov <- drop(cov(X,y))
@@ -57,14 +57,18 @@ P <- var(X)
 ```r
 library(SFSI)
 
+# Genotypic SS
 fm1 <- SSI(P,gencov,method="CD")
+
+# Phenotypic SS
 fm2 <- SSI(P,phencov,method="CD")
 
 yHatGen <- fitted(fm1,X)
 yHatPhen <- fitted(fm2,X)
 
-corPhen <- drop(cor(Uy,yHatPhen))
+
 corGen <- drop(cor(Uy,yHatGen))
+corPhen <- drop(cor(Uy,yHatPhen))
 
 rg <- range(c(corPhen,corGen),na.rm=TRUE)
 
