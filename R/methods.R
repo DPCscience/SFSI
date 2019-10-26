@@ -16,7 +16,9 @@ coef.SFI <- function(object,...)
       if( df < 0 | df > length(object$trn) )
         stop("Parameter 'df' must be greater than zero and no greater than the number of elements in the training set")
     }
-    df0 <- apply(object$df,1,function(x)which.min(abs(x-df)))
+    if(ncol(object$df) == 1) df <- mean(as.vector(object$df))  # If only one lambda was considered
+    
+    which.df <- apply(object$df,1,function(x)which.min(abs(x-df)))
     if(is.character(object$BETA))
     {
       if(length(object$BETA)>1){
@@ -28,7 +30,7 @@ coef.SFI <- function(object,...)
       {
         if(!is.null(df))
         {
-          indexRow <- df0[seq(index[i]+1,index[i+1])]
+          indexRow <- which.df[seq(index[i]+1,index[i+1])]
           indexRow <- indexRow + c(0,cumsum(rep(ncol(object$df),length(object$tst)-1)))[1:length(indexRow)]
         }else indexRow <- NULL
 
@@ -45,8 +47,8 @@ coef.SFI <- function(object,...)
     }else{
       if(!is.null(df))
       {
-        BETA <- c()
-        for(i in seq_along(object$BETA))  BETA <- rbind(BETA,object$BETA[[i]][df0[i],])
+        BETA <- matrix(NA,nrow=length(object$tst),ncol=length(object$trn))
+        for(i in seq_along(object$BETA))  BETA[i,] <- object$BETA[[i]][which.df[i],]
         BETA <- Matrix::Matrix(BETA, sparse=TRUE)
 
       }else BETA <- object$BETA
