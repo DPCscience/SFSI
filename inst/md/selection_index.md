@@ -62,6 +62,10 @@ plot(phencov,gencov)
 Px <- var(x)
 ```
 
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/COV_1.png" width="420">
+</p>
+
 ### 2. Phenotypic vs Genotypic selection index
 
 An index that uses phenotypic covariances will yield predictions that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
@@ -206,4 +210,116 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 
 <p align="center">
 <img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="420">
+</p>
+
+
+### 4. Different patterns of phenotypic and genotypic covariances
+
+The only difference between GSI and PSI is that GSI uses genotypic covariances instead of phenotypic covariances between predictors and response. Thus, whenever they are very different the results of GSI and PSI are expected to be different. The genotypic covariances will depend of the heritability of the predictors and the genetic correlation between predictors and the response. The example above was done considering moderately heritable predictors with high genetic correlation.
+
+Code below will perform the same analysis for four different escenarios:
+1. Both heritability and genetic correlation are high
+2. Low heritability and high genotypic correlation
+3. High heritability and low genotypic correlation
+4. Both heritability and genetic correlation are low
+
+```r
+# Set up
+n <- 1500
+p <- 750
+h2y <- 0.25            # Heritability of the response
+
+# Co-heritabilities (squared root of the genetic correlation) (high and low)
+h2xyH <- rbeta(p,30,1)  
+h2xyL <- rbeta(p,2,10)
+
+# Heritabilities of the predictors (high and low)
+h2xH <- rbeta(p,30,1) 
+h2xL <- rbeta(p,2,10) 
+
+# Funtion for relevant plots
+library(ggpubr)
+makePlot <- function(h2xy,h2x,out1,out2)
+{
+  # Histogram of h2 and genetic correlation
+  dat <- rbind(data.frame(comp="h2",x=h2x),data.frame(comp="r",x=h2xy^2))
+  pp1 <- ggplot(dat, aes(x, fill = comp)) + labs(title="Heritability and \n genetic correlation") +
+     geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity')
+  
+  # Plot of accuracy
+  dat <- rbind( data.frame(SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
+                data.frame(SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
+  )
+
+  dat2 <- aggregate(accuracy ~ SI, dat,mean)
+  rg <- range(dat$accuracy)
+  pp2 <- ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
+    geom_boxplot(width=0.5) + ylim(rg[1]*0.995,ifelse(rg[2]*1.005>1,1,rg[2]*1.005)) +
+    labs(title="Accuracy of the GSI and PSI")+theme(legend.position="none")+
+    annotate("text", x=dat2$SI, y=rg[1]*0.996, label=sprintf("%.3f", dat2$accuracy))
+
+  ggarrange(pp1,pp2)
+}
+
+```
+**Scenario 1**
+```r
+dat <- simulate_data(n,p,h2y,h2xyH,h2xH,1234)
+
+# Perform CV
+out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",10,5,100,tol=2E-4,maxIter=200)    # GSI
+out2 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"pheno",10,5,100,tol=2E-4,maxIter=200)   # PSI
+
+makePlot(h2xyH,h2xH,out1,out2)
+```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" width="420">
+</p>
+
+**Scenario 2**
+```r
+dat <- simulate_data(n,p,h2y,h2xyH,h2xL,1234)
+
+# Perform CV
+out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",10,5,100,tol=5E-4,maxIter=200)    # GSI
+out2 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"pheno",10,5,100,tol=5E-4,maxIter=200)   # PSI
+
+makePlot(h2xyH,h2xL,out1,out2)
+```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" width="420">
+</p>
+
+
+**Scenario 3**
+```r
+dat <- simulate_data(n,p,h2y,h2xyL,h2xH,1234)
+
+# Perform CV
+out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",10,5,100,tol=5E-4,maxIter=200)    # GSI
+out2 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"pheno",10,5,100,tol=5E-4,maxIter=200)   # PSI
+
+makePlot(h2xyL,h2xH,out1,out2)
+```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" width="420">
+</p>
+
+
+**Scenario 4**
+```r
+dat <- simulate_data(n,p,h2y,h2xyL,h2xL,1234)
+
+# Perform CV
+out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",10,5,100,tol=5E-4,maxIter=200)    # GSI
+out2 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"pheno",10,5,100,tol=5E-4,maxIter=200)   # PSI
+
+makePlot(h2xyL,h2xL,out1,out2)
+```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" width="420">
 </p>
