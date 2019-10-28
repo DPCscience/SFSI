@@ -95,24 +95,23 @@ The performance of the indices are assessed by their accuracies of selection whi
 
 Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. The accuracy is equal to the product of the squared root of the heritability of the index times the genetic correlation between the index and the target.
 
-Code below will calculate the accuracy of the GSI and PSI in a cross validation fashion
-
+Code below will calculate the accuracy of the GSI and PSI in a cross validation fashion. The total number of data points will be `nRep` times `nFold`
 
 ```r
 # Create folds to perform cross-validation
-nRep <- 1      # Number of replicates of CV
-nFolds <- 5    # Number of folds
-nLambda <- 100   # Number of indices generated
+nRep <- 2      # Number of replicates of CV
+nFold <- 5    # Number of folds
+nLambda <- 100   # Number of indices to generate
 
 # Objects to store results
-accGSI <- accPSI <- matrix(NA,nrow=nLambda,nFolds*nRep)
-dfGSI <- dfPSI <- matrix(NA,nrow=nLambda,nFolds*nRep)
-lambdaGSI <- lambdaPSI <- matrix(NA,nrow=nLambda,nFolds*nRep)
+accGSI <- accPSI <- c()
+dfGSI <- dfPSI <- c()
+lambdaGSI <- lambdaPSI <- c()
   
 for(rep in 1:nRep)
 {
   set.seed(rep*1234)
-  folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
+  folds <- rep(seq(1:nFold), ceiling(n/nFold))[1:n]
   folds <- sample(folds)
 
   for(k in 1:nFolds)
@@ -133,8 +132,8 @@ for(rep in 1:nRep)
     # Phenotypic covariance matrix among predictors
     Px <- var(xTRN)
 
-    fm1 <- SSI(Px,gencov,method="CD",tol=1E-4,maxIter=500)
-    fm2 <- SSI(Px,phencov,method="CD",tol=1E-4,maxIter=500)
+    fm1 <- SSI(Px,gencov,method="CD",tol=1E-4,maxIter=500,nLambda=nLambda)
+    fm2 <- SSI(Px,phencov,method="CD",tol=1E-4,maxIter=500,nLambda=nLambda)
   
     # Retrieve data from 'df' and 'lambda'
     dfGSI <- cbind(dfGSI,fm1$df)
@@ -151,7 +150,7 @@ for(rep in 1:nRep)
     UyTST <- Uy[tst]
     accGSI <- cbind(accGSI,drop(cor(UyTST,GSI)))
     accPSI <- cbind(accPSI,drop(cor(UyTST,PSI)))
-    cat("----- Fold",k,". Done\n")
+    cat("----- Rep=",rep,". Fold=",k,". Done\n")
   }
 }
 
@@ -159,14 +158,14 @@ for(rep in 1:nRep)
 accGSIm <- apply(accGSI,1,mean)
 accPSIm <- apply(accPSI,1,mean)
 
-dfGSI <- apply(dfGSI,1,mean)
-dfPSI <- apply(dfPSI,1,mean)
-lambdaGSI <- apply(lambdaGSI,1,mean)
-lambdaPSI <- apply(lambdaPSI,1,mean)
+dfGSIm <- apply(dfGSI,1,mean)
+dfPSIm <- apply(dfPSI,1,mean)
+lambdaGSIm <- apply(lambdaGSI,1,mean)
+lambdaPSIm <- apply(lambdaPSI,1,mean)
 
 dat <- rbind(
-  data.frame(SI="GSI",accuracy=accGSIm,df=dfGSI,lambda=lambdaGSI),
-  data.frame(SI="PSI",accuracy=accPSIm,df=dfPSI,lambda=lambdaPSI)
+  data.frame(SI="GSI",accuracy=accGSIm,df=dfGSIm,lambda=lambdaGSIm),
+  data.frame(SI="PSI",accuracy=accPSIm,df=dfPSIm,lambda=lambdaPSIm)
 )
 
 # Plot the average accuracy (in testing set) across folds
@@ -177,9 +176,11 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + geom_line(
 An optimal index can be obtained such as the accuracy is maximum
 ```r
 dat <- rbind(
-  data.frame(SI="GSI",accuracy=accGSI[which.max(accGSIm),]),
-  data.frame(SI="PSI",accuracy=accPSI[which.max(accPSIm),])
+  data.frame(SI="GSI",accuracy=apply(accGSI,2,max,na.rm=TRUE)),
+  data.frame(SI="PSI",accuracy=apply(accPSI,2,max,na.rm=TRUE))
 )
 
-ggplot(dat,aes(SI,accuracy)) + geom_bar(stat="identity",width=0.5)
+ggplot(dat,aes(SI,accuracy)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
+  geom_boxplot(width=0.5) 
+  
 ```
