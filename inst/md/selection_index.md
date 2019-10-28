@@ -188,8 +188,8 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="400">
-</b>
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="420">
+</p>
 
 An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication 
 ```r
@@ -205,5 +205,5 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="400">
-</b>
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="420">
+</p>
