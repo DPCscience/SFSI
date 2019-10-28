@@ -52,9 +52,9 @@ Px <- var(x)
 
 ### 2. Phenotypic vs Genotypic selection index
 
-An index that uses phenotypic covariances will yield prediction that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
+An index that uses phenotypic covariances will yield predictions that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
 
-Code below will calculate SS that use both phenotypic and genotypic covariances. 
+Code below will calculate SS that use both phenotypic (PSI) and genotypic covariances (GSI) 
 ```r
 library(SFSI)
 
@@ -73,7 +73,8 @@ GSI <- (x %*% t(B1))
 PSI <- (x %*% t(B2))
 ```
 
-The indices can be evaluated by their Mean Squared Error of prediction in genotypic value prediction
+The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
+The indices can be also evaluated by their Mean Squared Error of prediction in genotypic value prediction
 ```r
 # MSE of the indices
 mseGSI <- apply((Uy-GSI)^2,2,sum)/n
@@ -87,67 +88,71 @@ dat <- rbind(
 library(ggplot2)
 ggplot(dat[dat$df>1,],aes(-log(lambda),MSE,color=SI,group=SI)) + geom_line(size=0.8)
 ```
-The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
 
 ### 3. Phenotypic vs Genotypic selection index using cross-validation
 
-The accuracy of selection varies according to the penalization parameter lambda, thus an optimal value of lambda can be chosen such the accuracy of selection is maximum.
+The performance of the indices are assessed by their accuracies of selection which varies according to the penalization parameter lambda.
 
-Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. The accuracy is equal to the product of the squared root of the heritability of the index times the genetic correlation between the index and the target 
+Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. The accuracy is equal to the product of the squared root of the heritability of the index times the genetic correlation between the index and the target.
+
+Code below will calculate the accuracy of the GSI and PSI in a cross validation fashion
 
 
 ```r
 # Create folds to perform cross-validation
-nFolds <- 5
-seed <- 123
-set.seed(seed)
-folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
-folds <- sample(folds)
+nRep <- 1      # Number of replicates of CV
+nFolds <- 5    # Number of folds
+nLambda <- 100   # Number of indices generated
 
 # Objects to store results
-accGSI <- accPSI <- c()
-dfGSI <- dfPSI <- c()
-lambdaGSI <- lambdaPSI <- c()
-
-for(k in 1:nFolds)
+accGSI <- accPSI <- matrix(NA,nrow=nLambda,nFolds*nRep)
+dfGSI <- dfPSI <- matrix(NA,nrow=nLambda,nFolds*nRep)
+lambdaGSI <- lambdaPSI <- matrix(NA,nrow=nLambda,nFolds*nRep)
+  
+for(rep in 1:nRep)
 {
-  trn <- which(folds != k)
-  tst <- which(folds == k)
+  set.seed(rep*1234)
+  folds <- rep(seq(1:nFolds), ceiling(n/nFolds))[1:n]
+  folds <- sample(folds)
+
+  for(k in 1:nFolds)
+  {
+    trn <- which(folds != k)
+    tst <- which(folds == k)
   
-  xTRN <- scale(x[trn,])
-  yTRN <- scale(y[trn])
+    xTRN <- scale(x[trn,])
+    yTRN <- scale(y[trn])
   
-  UxTRN <- Ux[trn,]
-  UyTRN <- Uy[trn]
+    UxTRN <- Ux[trn,]
+    UyTRN <- Uy[trn]
 
-  # Genotypic covariance between response and predictors 
-  gencov <- drop(cov(UxTRN,UyTRN))
+    # Genotypic and phenotypic covariances between response and predictors 
+    gencov <- drop(cov(UxTRN,UyTRN))
+    phencov <- drop(cov(xTRN,yTRN))
 
-  # Phenotypic covariance between response and predictors 
-  phencov <- drop(cov(xTRN,yTRN))
+    # Phenotypic covariance matrix among predictors
+    Px <- var(xTRN)
 
-  # Phenotypic covariance matrix among predictors
-  Px <- var(xTRN)
-
-  fm1 <- SSI(Px,gencov,method="CD",tol=1E-4,maxIter=500)
-  fm2 <- SSI(Px,phencov,method="CD",tol=1E-4,maxIter=500)
+    fm1 <- SSI(Px,gencov,method="CD",tol=1E-4,maxIter=500)
+    fm2 <- SSI(Px,phencov,method="CD",tol=1E-4,maxIter=500)
   
-  # Retrieve data from 'df' and 'lambda'
-  dfGSI <- cbind(dfGSI,fm1$df)
-  dfPSI <- cbind(dfPSI,fm2$df)
-  lambdaGSI <- cbind(lambdaGSI,fm1$lambda)
-  lambdaPSI <- cbind(lambdaPSI,fm2$lambda)
+    # Retrieve data from 'df' and 'lambda'
+    dfGSI <- cbind(dfGSI,fm1$df)
+    dfPSI <- cbind(dfPSI,fm2$df)
+    lambdaGSI <- cbind(lambdaGSI,fm1$lambda)
+    lambdaPSI <- cbind(lambdaPSI,fm2$lambda)
 
-  # Calculate the index (in testing set)
-  xTST <- scale(x[tst,])
-  GSI <- fitted(fm1,xTST)  
-  PSI <- fitted(fm2,xTST)    
+    # Calculate the index (in testing set)
+    xTST <- scale(x[tst,])
+    GSI <- fitted(fm1,xTST)  
+    PSI <- fitted(fm2,xTST)    
  
-  # Accuracy of the indices (in testing set)
-  UyTST <- Uy[tst]
-  accGSI <- cbind(accGSI,drop(cor(UyTST,GSI)))
-  accPSI <- cbind(accPSI,drop(cor(UyTST,PSI)))
-  cat("----- Fold",k,". Done\n")
+    # Accuracy of the indices (in testing set)
+    UyTST <- Uy[tst]
+    accGSI <- cbind(accGSI,drop(cor(UyTST,GSI)))
+    accPSI <- cbind(accPSI,drop(cor(UyTST,PSI)))
+    cat("----- Fold",k,". Done\n")
+  }
 }
 
 # Accuracy of the indices across folds
