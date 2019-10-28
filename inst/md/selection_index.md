@@ -2,6 +2,18 @@
 
 ## Sparse Selection Index (SSI)
 
+<div id="Outline" />
+
+## Outline
+  * [1. Data](#data)    
+  * [2. Phenotypic vs Genotypic Selection Index](#GSI&PSI)
+  * [3. Accuracy of the index](#GSI&PSIcv)
+  * [4. Genotypic covariance components patterns](#Scen)
+   
+-------------------------------------------------------------------------------------------
+
+<div id="data" />
+
 ### 1. Data
 
 Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some genotypic value plus some environmental deviation in such a way that there is a given correlation between the phenotypic and genotypic values (heritability). Also, some correlation exists between genotypic value of the response and that of all predictors (co-heritabilities), this value is equivalent to the squared root of the genetic correlation.
@@ -61,6 +73,11 @@ plot(phencov,gencov)
 # Phenotypic covariance matrix among predictors
 Px <- var(x)
 ```
+[Back to Outline](#Outline)
+
+-------------------------------------------------------------------------------------------
+
+<div id="GSI&PSI" />
 
 ### 2. Phenotypic vs Genotypic selection index
 
@@ -100,6 +117,11 @@ dat <- rbind(
 library(ggplot2)
 ggplot(dat[dat$df>1,],aes(-log(lambda),MSE,color=SI,group=SI)) + geom_line(size=0.8)
 ```
+[Back to Outline](#Outline)
+
+-------------------------------------------------------------------------------------------
+
+<div id="GSI&PSIcv" />
 
 ### 3. Phenotypic vs Genotypic selection index using cross-validation
 
@@ -208,6 +230,11 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 <img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="420">
 </p>
 
+[Back to Outline](#Outline)
+
+-------------------------------------------------------------------------------------------
+
+<div id="Scen" />
 
 ### 4. Different patterns of phenotypic and genotypic covariances
 
@@ -272,7 +299,7 @@ makePlot(h2xyH,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="400">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="380">
 </p>
 
 **Scenario 2**
@@ -287,7 +314,7 @@ makePlot(h2xyH,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" width="420">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" width="380">
 </p>
 
 
@@ -303,7 +330,7 @@ makePlot(h2xyL,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" width="420">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" width="380">
 </p>
 
 
@@ -319,5 +346,5 @@ makePlot(h2xyL,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" width="420">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" width="380">
 </p>
