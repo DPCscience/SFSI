@@ -15,8 +15,8 @@ p <- 1000
 
 # Simulating response variable
 h2y <- 0.3      
-Uy = sqrt(h2y)*scale(rnorm(n))     # Genotypic value
-Ey =  sqrt(1-h2y)*scale(rnorm(n))  # Environmental term
+Uy = sqrt(h2y)*as.vector(scale(rnorm(n)))    # Genotypic value
+Ey =  sqrt(1-h2y)*as.vector(scale(rnorm(n))) # Environmental term
 y = scale(Uy + Ey)
 
 # Co-heritabilities of the response with predictors
@@ -41,10 +41,10 @@ for(j in 1:p)
 Genotypic covariances (between response and predictors) can be calculated from this simulated data by calculating the covariance between the simulated genotypic values; however in a real situation, genotypic values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
 ```r
 # Genotypic covariance between response and predictors 
-gencov <- drop(cov(Ux,Uy))
+gencov <- as.vector(cov(Ux,Uy))
  
 # Phenotypic covariance between response and predictors 
-phencov <- drop(cov(x,y))
+phencov <- as.vector(cov(x,y))
 
 plot(phencov,gencov)
 
@@ -54,6 +54,9 @@ Px <- var(x)
 
 **2. Phenotypic vs Genotypic selection index**
 
+An index that uses phenotypic covariances will yield prediction that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
+
+Code below will calculate SS that use both phenotypic and genotypic covariances. 
 ```r
 library(SFSI)
 
@@ -71,27 +74,29 @@ B2 <- as.matrix(fm2$beta)
 GSI <- (x %*% t(B1))
 PSI <- (x %*% t(B2))
 ```
+
+The indices can be evaluated by their Mean Squared Error of prediction in genotypic value prediction
+```r
+# MSE of the indices
+mseGSI <- apply((Uy-GSI)^2,2,sum)/n
+msePSI <- apply((Uy-PSI)^2,2,sum)/n
+
+dat <- rbind(
+  data.frame(SI="GSI",MSE=mseGSI,df=fm1$df,lambda=fm1$lambda),
+  data.frame(SI="PSI",MSE=msePSI,df=fm2$df,lambda=fm2$lambda)
+)
+
+library(ggplot2)
+ggplot(dat[dat$df>1,],aes(-log(lambda),MSE,color=SI,group=SI)) + geom_line(size=0.8)
+```
 The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
+
+**3. Phenotypic vs Genotypic selection index using cross-validation**
 
 The accuracy of selection varies according to the penalization parameter lambda, thus an optimal value of lambda can be chosen such the accuracy of selection is maximum.
 
 Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. The accuracy is equal to the product of the squared root of the heritability of the index times the genetic correlation between the index and the target 
 
-```r
-# Accuracy of the indices
-accGSI <- drop(cor(Uy,GSI))
-accPSI <- drop(cor(Uy,PSI))
-
-dat <- rbind(
-  data.frame(SI="GSI",accuracy=accGSI,df=fm1$df,lambda=fm1$lambda),
-  data.frame(SI="PSI",accuracy=accPSI,df=fm2$df,lambda=fm2$lambda)
-)
-
-library(ggplot2)
-ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + geom_line(size=0.8)
-```
-
-**3. Phenotypic vs Genotypic selection index using cross-validation**
 
 ```r
 # Create folds to perform cross-validation
@@ -114,8 +119,8 @@ for(k in 1:nFolds)
   xTRN <- scale(x[trn,])
   yTRN <- scale(y[trn])
   
-  UxTRN <- scale(Ux[trn,])
-  UyTRN <- scale(Uy[trn])
+  UxTRN <- Ux[trn,]
+  UyTRN <- Uy[trn]
 
   # Genotypic covariance between response and predictors 
   gencov <- drop(cov(UxTRN,UyTRN))
@@ -141,7 +146,7 @@ for(k in 1:nFolds)
   PSI <- fitted(fm2,xTST)    
  
   # Accuracy of the indices (in testing set)
-  UyTST <- scale(Uy[tst])
+  UyTST <- Uy[tst]
   accGSI <- cbind(accGSI,drop(cor(UyTST,GSI)))
   accPSI <- cbind(accPSI,drop(cor(UyTST,PSI)))
   cat("----- Fold",k,". Done\n")
@@ -164,4 +169,14 @@ dat <- rbind(
 # Plot the average accuracy (in testing set) across folds
 ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + geom_line(size=0.8)
 
+```
+
+An optimal index can be obtained such as the accuracy is maximum
+```r
+dat <- rbind(
+  data.frame(SI="GSI",accuracy=accGSI[which.max(accGSIm),]),
+  data.frame(SI="PSI",accuracy=accPSI[which.max(accPSIm),])
+)
+
+ggplot(dat,aes(SI,accuracy)) + geom_bar(stat="identity",width=0.5)
 ```
