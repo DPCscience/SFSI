@@ -187,6 +187,10 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 
 ```
 
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_acc_1.pdf" width="450">
+</b>
+
 An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication 
 ```r
 dat <- rbind(
