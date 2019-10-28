@@ -2,11 +2,9 @@
 
 ## Sparse Selection Index (SSI)
 
-### Data
+### 1. Data
 
 Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some genotypic value plus some environmental deviation in such a way that there is a given correlation between the phenotypic and genotypic values (heritability). Also, some correlation exists between genotypic value of the response and that of all predictors (co-heritabilities), this value is equivalent to the squared root of the genetic correlation.
-
-**1. Simulate data**
 
 ```r
 set.seed(1234)
@@ -52,7 +50,7 @@ plot(phencov,gencov)
 Px <- var(x)
 ```
 
-**2. Phenotypic vs Genotypic selection index**
+### 2. Phenotypic vs Genotypic selection index
 
 An index that uses phenotypic covariances will yield prediction that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
 
@@ -66,7 +64,7 @@ fm1 <- SSI(Px,gencov,method="CD")
 # Phenotypic SS
 fm2 <- SSI(Px,phencov,method="CD")
 
-# Regression coeficients for each value of lambda
+# Regression coefficients for each value of lambda
 B1 <- as.matrix(fm1$beta)
 B2 <- as.matrix(fm2$beta)
 
@@ -91,7 +89,7 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),MSE,color=SI,group=SI)) + geom_line(size=
 ```
 The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
 
-**3. Phenotypic vs Genotypic selection index using cross-validation**
+### 3. Phenotypic vs Genotypic selection index using cross-validation
 
 The accuracy of selection varies according to the penalization parameter lambda, thus an optimal value of lambda can be chosen such the accuracy of selection is maximum.
 
