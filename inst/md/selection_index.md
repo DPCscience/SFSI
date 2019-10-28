@@ -210,7 +210,7 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="420">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="415">
 </p>
 
 An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication 
@@ -227,7 +227,7 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="420">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="415">
 </p>
 
 [Back to Outline](#Outline)
@@ -299,7 +299,7 @@ makePlot(h2xyH,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="380">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="370">
 </p>
 
 **Scenario 2**
@@ -314,7 +314,7 @@ makePlot(h2xyH,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" width="380">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" width="370">
 </p>
 
 
@@ -330,7 +330,7 @@ makePlot(h2xyL,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" width="380">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" width="370">
 </p>
 
 
@@ -346,5 +346,5 @@ makePlot(h2xyL,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" width="380">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" width="370">
 </p>
