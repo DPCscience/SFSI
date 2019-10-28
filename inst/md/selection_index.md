@@ -33,13 +33,13 @@ simulate_data <- function(n,p,h2y,h2xy,h2x,seed)
   return(list(y=y,Uy=Uy,x=x,Ux=Ux))
 }
 
-# Simulate data with a highly heritable response 
+# Simulate data with a low heritable response 
 n <- 1500
-p <- 1000
+p <- 750
 
-h2y <- 0.3          # Heritability of the response
-h2xy <- rbeta(p,3,8)  # Co-heritabilities of the response with predictors
-h2x <- rbeta(p,8,8)   # Heritabilities of the predictors
+h2y <- 0.25          # Heritability of the response
+h2xy <- rbeta(p,10,2)  # Co-heritabilities of the response with predictors
+h2x <- rbeta(p,10,10)   # Heritabilities of the predictors
 
 dat <- simulate_data(n,p,h2y,h2xy,h2x,1234)
 y <- dat$y
@@ -111,7 +111,7 @@ Code below will calculate the accuracy of the GSI and PSI in a cross validation 
 
 ```r
 # Function to perform cross-validation  
-SI_CV <- function(x,y,Ux,Uy,covType=c("geno","pheno"),nRep,nFold,nLambda)
+SI_CV <- function(x,y,Ux,Uy,covType=c("geno","pheno"),nRep,nFold,nLambda,tol=1E-4,maxIter=500)
 {
   n <- length(y)
   
@@ -140,7 +140,7 @@ SI_CV <- function(x,y,Ux,Uy,covType=c("geno","pheno"),nRep,nFold,nLambda)
       Px <- var(xTRN)
 
       # Estimate regression coefficients
-      fm <- SSI(Px,covariance,method="CD",tol=1E-4,maxIter=500,nLambda=nLambda)
+      fm <- SSI(Px,covariance,method="CD",tol=tol,maxIter=maxIter,nLambda=nLambda)
   
       # Retrieve data from 'df' and 'lambda'
       dfSI <- cbind(dfSI,fm$df)
@@ -188,7 +188,7 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_acc_1.png" width="450">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="400">
 </b>
 
 An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication 
@@ -198,11 +198,12 @@ dat <- rbind(
   data.frame(SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
 )
 
+rg <- range(dat$accuracy)
 ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
-  geom_boxplot(width=0.5) 
+  geom_boxplot(width=0.5) + ylim(rg[1]*0.99,ifelse(rg[2]*1.01>1,1,rg[2]*1.01))
   
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_acc_2.png" width="400">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="400">
 </b>
