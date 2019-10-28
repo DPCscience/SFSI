@@ -198,7 +198,11 @@ dat <- rbind(
   data.frame(SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
 )
 
-ggplot(dat,aes(SI,accuracy)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
+ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
   geom_boxplot(width=0.5) 
   
 ```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_acc_2.png" width="400">
+</b>
