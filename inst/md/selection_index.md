@@ -62,10 +62,6 @@ plot(phencov,gencov)
 Px <- var(x)
 ```
 
-<p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/COV_1.png" width="420">
-</p>
-
 ### 2. Phenotypic vs Genotypic selection index
 
 An index that uses phenotypic covariances will yield predictions that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
@@ -241,10 +237,12 @@ h2xL <- rbeta(p,2,10)
 library(ggpubr)
 makePlot <- function(h2xy,h2x,out1,out2)
 {
+  thm0 <- theme(plot.title = element_text(hjust = 0.5))
+  
   # Histogram of h2 and genetic correlation
   dat <- rbind(data.frame(comp="h2",x=h2x),data.frame(comp="r",x=h2xy^2))
   pp1 <- ggplot(dat, aes(x, fill = comp)) + labs(title="Heritability and \n genetic correlation") +
-     geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity')
+     geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity') + thm0
   
   # Plot of accuracy
   dat <- rbind( data.frame(SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
@@ -255,7 +253,7 @@ makePlot <- function(h2xy,h2x,out1,out2)
   rg <- range(dat$accuracy)
   pp2 <- ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
     geom_boxplot(width=0.5) + ylim(rg[1]*0.995,ifelse(rg[2]*1.005>1,1,rg[2]*1.005)) +
-    labs(title="Accuracy of the GSI and PSI")+theme(legend.position="none")+
+    labs(title="Accuracy of the GSI and PSI")+theme(legend.position="none")+thm0+
     annotate("text", x=dat2$SI, y=rg[1]*0.996, label=sprintf("%.3f", dat2$accuracy))
 
   ggarrange(pp1,pp2)
@@ -267,14 +265,14 @@ makePlot <- function(h2xy,h2x,out1,out2)
 dat <- simulate_data(n,p,h2y,h2xyH,h2xH,1234)
 
 # Perform CV
-out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",10,5,100,tol=2E-4,maxIter=200)    # GSI
-out2 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"pheno",10,5,100,tol=2E-4,maxIter=200)   # PSI
+out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",10,5,100,tol=5E-4,maxIter=200)    # GSI
+out2 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"pheno",10,5,100,tol=5E-4,maxIter=200)   # PSI
 
 makePlot(h2xyH,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" width="420">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="400">
 </p>
 
 **Scenario 2**
