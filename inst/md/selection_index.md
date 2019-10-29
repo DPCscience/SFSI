@@ -113,7 +113,7 @@ ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/yVSyHat.png" width="415">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/yVSyHat.png" width="410">
 </p>
 
 [Back to Outline](#Outline)
@@ -279,7 +279,7 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" width="415">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" height="345">
 </p>
 
 [Back to Outline](#Outline)
@@ -351,7 +351,7 @@ makePlot(h2xyH,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="355">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="345">
 </p>
 
 **Scenario 2**
@@ -366,7 +366,7 @@ makePlot(h2xyH,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" height="355">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" height="345">
 </p>
 
 
@@ -382,7 +382,7 @@ makePlot(h2xyL,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" height="355">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" height="345">
 </p>
 
 
@@ -398,5 +398,5 @@ makePlot(h2xyL,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" height="355">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" height="345">
 </p>
