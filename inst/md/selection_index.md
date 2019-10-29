@@ -9,7 +9,8 @@
   * [2. Phenotypic vs Genotypic Selection Index](#GSI&PSI)
   * [3. Sparse Phenotypic and Genotypic Selection Index](#Sparse)
   * [4. Accuracy of the index](#SGSI&SPSIcv)
-  * [5. Genotypic covariance components patterns](#Scen)
+  * [5. Prediction of non-observed data](#predict)
+  * [6. Genotypic covariance components patterns](#Scen)
    
 -------------------------------------------------------------------------------------------
 
@@ -286,9 +287,48 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 
 -------------------------------------------------------------------------------------------
 
+<div id="predict" />
+
+### 5. Prediction of non-observed data
+
+The problem of prediction of data that have not been observed will be mimicked by predicting a proportion of the dataset using the remainig dataset from where a value of the penalization parameter will be chosen.
+
+```r
+# Data to train
+dat <- simulate_data(1000,p,h2y,h2xy,h2x,123)
+
+# New data
+newdat <- simulate_data(500,p,h2y,h2xy,h2x,1234)
+
+# Cross validation in the training data
+out1 <- SI_CV(x[trn,],y[trn],Ux[trn,],Uy[trn],"geno",5,3,nLambda,tol=5E-4,maxIter=200)    
+
+# Get the lambda that achieved maximum accuracy
+lambda0 <- c()
+for(j in 1:ncol(out1$lambda)) lambda0[j] <- out1$lambdaSI[which.max(out1$accSI[,j]),j]
+
+# Use the lambda obtained to calculate an sparse GSI to predict the new data
+lambda <- mean(lambda0)
+
+x <- scale(rbind(dat$x,newdat$x))   # Use all data from trn and new dataset
+Px <- var(x)  
+covariance <- drop(cov(dat$Ux,dat$Uy))  # Must be estimated using linear models
+fm <- SSI(Px,covariance,lambda=lambda)
+
+yHat <- fitted(fm,newdat$x)
+
+cor(yHat,newdat$Uy)   # Accuracy
+cor(yHat,newdat$y)    # Correlation with phenotypic values ("non-observed")
+```
+
+
+[Back to Outline](#Outline)
+
+-------------------------------------------------------------------------------------------
+
 <div id="Scen" />
 
-### 5. Different patterns of phenotypic and genotypic covariances
+### 6. Different patterns of phenotypic and genotypic covariances
 
 The only difference between GSI and PSI is that GSI uses genotypic covariances instead of phenotypic covariances between predictors and response. The phenotypic correlation depends on all the heritability of the response, the heritability of the predictors, and the genetic correlation between predictors and the response. Whenever the heritabilities are very high, both phenotypic and genotypic correlations are almost the same and the accuracy of the GSI and PSI are quite similar; however different extents of heritability and genetic correlations are likely to yield GSI and PSI with different accuracies. The example above was done considering moderately heritable predictors with moderate genetic correlation.
 
