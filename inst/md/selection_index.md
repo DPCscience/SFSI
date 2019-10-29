@@ -190,10 +190,11 @@ SI_CV <- function(x,y,Ux,Uy,covType=c("geno","pheno"),nRep,nFold,nLambda,tol=1E-
   # Objects to store results
   accSI <- dfSI <- lambdaSI <- c()
   
+  seeds <- seq(1E2,.Machine$integer.max,length=nRep)
   for(rep in 1:nRep)
   {
     # Create folds
-    set.seed(rep*1234)
+    set.seed(seeds[rep])
     folds <- rep(seq(1:nFold), ceiling(n/nFold))[1:n]
     folds <- sample(folds)
 
@@ -344,7 +345,7 @@ Code below will perform the same analysis for four different escenarios:
 ```r
 # Set up
 n <- 1500
-p <- 750
+p <- 500
 h2y <- 0.25            # Heritability of the response
 
 # Co-heritabilities (squared root of the genetic correlation) (high and low)
