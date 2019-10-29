@@ -195,10 +195,9 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
       if(!is.null(title)) title0 <- title
 
       # Labels and breaks for the DF axis
-      breaks0 <- seq(min(dat$loglambda),max(dat$loglambda),length=6)
-      labels0 <- floor(stats::predict(stats::smooth.spline(dat$loglambda,dat$df),breaks0)$y)
-      labels0[1] <- 1
-      breaks0 <- stats::predict(stats::smooth.spline(dat$df, dat$loglambda),labels0)$y
+      ax2 <- getSecondAxis(dat$lambda,dat$df)
+      brks0 <- ax2$breaks
+      labs0 <- ax2$labels
 
       theme0 <- theme0 + theme(legend.justification = c(1,ifelse(py=="MSE",1,0)),
                   legend.position=c(0.96,ifelse(py=="MSE",0.96,0.04)),
@@ -208,8 +207,11 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
       pt <- ggplot(dat[dat$df>1,],aes(loglambda,y,group=model,color=model)) + geom_line(size=0.66) +
           geom_hline(data=dat2,aes(yintercept=y,color=model,group=model),size=0.66) +
           labs(title=title0,x=labX,y=labY)+theme_bw() + theme0 +
-          geom_vline(data=meanopt,aes(xintercept=loglambda),size=0.5,linetype="dotted",color="gray50")+
-          scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",breaks=breaks0,labels=labels0))
+          geom_vline(data=meanopt,aes(xintercept=loglambda),size=0.5,linetype="dotted",color="gray50")
+      
+      if(length(brks0)>3){
+        pt <- pt + scale_x_continuous(sec.axis=sec_axis(~.+0,"number of predictors",breaks=brks0,labels=labs0))
+      }
       print(pt)
     }
 
@@ -295,11 +297,9 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
         }
 
         # Labels and breaks for the DF axis
-        loglambda <- -log(lambda)
-        breaks0 <- seq(min(loglambda),max(loglambda),length=6)
-        labels0 <- floor(stats::predict(stats::smooth.spline(loglambda,df),breaks0)$y)
-        labels0[1] <- 1
-        breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
+        ax2 <- getSecondAxis(lambda,df)
+        brks0 <- ax2$breaks
+        labs0 <- ax2$labels
 
         title0 <- bquote("Coefficients path. "*.(object$name))
         if(!is.null(title)) title0 <- title
@@ -311,16 +311,15 @@ plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
         {
           pt <- ggplot(dat,aes(-log(lambda),beta,color=g,group=trn_tst))+ viridis::scale_color_viridis() +
               geom_line() + theme_bw() + theme0 +
-              labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")")) +
-              scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
-                breaks=breaks0,labels=labels0))
+              labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")"))
         }else{
           pt <- ggplot(dat,aes(-log(lambda),beta,color=trn_tst,group=trn_tst))+
-            geom_line() + theme_bw() + theme0 +
-            labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")")) +
-            scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
-                                                   breaks=breaks0,labels=labels0)) +
-            theme(legend.position = "none")
+            geom_line() + theme_bw() + theme0 + theme(legend.position = "none") +
+            labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")")) 
+        }
+        
+        if(length(brks0)>3){
+          pt <- pt + scale_x_continuous(sec.axis=sec_axis(~.+0,"number of predictors",breaks=brks0,labels=labs0))
         }
         print(pt)
     }
@@ -404,11 +403,10 @@ plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
     labX <- expression("-log("*lambda*")")
 
     # Labels and breaks for the DF axis
-    breaks0 <- seq(min(dat$loglambda),max(dat$loglambda),length=6)
-    labels0 <- floor(stats::predict(stats::smooth.spline(dat$loglambda,dat$df),breaks0)$y)
-    labels0[1] <- 1
-    breaks0 <- stats::predict(stats::smooth.spline(dat$df, dat$loglambda),labels0)$y
-
+    ax2 <- getSecondAxis(dat$lambda,dat$df)
+    brks0 <- ax2$breaks
+    labs0 <- ax2$labels
+    
     title0 <- paste0(nFolds," folds CV. ",ifelse(!showFolds,"Average testing","Testing")," set ",py)
     if(!is.null(title)) title0 <- title
 
@@ -425,8 +423,7 @@ plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
         pt <- ggplot(dat,aes(loglambda,y,group=fold:model,color=fold,linetype=model)) + geom_line(size=0.66) +
             geom_hline(data=dat2,aes(yintercept=y,color=fold,group=fold:model,linetype=model),size=0.66) +
             labs(title=title0,x=labX,y=labY)+theme_bw() + scale_color_manual(breaks=levels(dat$fold),values=colors)+
-            geom_vline(data=meanopt,aes(xintercept=loglambda),size=0.5,linetype="dotted",color="gray50")+theme0 +
-            scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",breaks=breaks0,labels=labels0))
+            geom_vline(data=meanopt,aes(xintercept=loglambda),size=0.5,linetype="dotted",color="gray50")+theme0
 
     }else{
         dat <- dat[dat$fold=="mean",]
@@ -440,8 +437,11 @@ plot.SFI_CV <- function(...,py=c("correlation","accuracy","MSE"),
             geom_hline(data=dat2,aes(yintercept=y,group=model,color=model),size=0.66) +
             labs(title=title0,x=labX,y=labY)+theme_bw() +
             scale_color_manual(breaks=levels(dat$model),values=scales::hue_pal()(nlevels(dat$model)))+
-            geom_vline(data=meanopt,aes(xintercept=loglambda,color=model),size=0.5,linetype="dotted")+theme0+
-            scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",breaks=breaks0,labels=labels0))
+            geom_vline(data=meanopt,aes(xintercept=loglambda,color=model),size=0.5,linetype="dotted")+theme0
+    }
+    
+    if(length(brks0)>3){
+      pt <- pt + scale_x_continuous(sec.axis=sec_axis(~.+0,"number of predictors",breaks=brks0,labels=labs0))
     }
     print(pt)
 }
@@ -469,20 +469,20 @@ plot.SSI <- function(x,...)
     dat <- data.frame(df=rep(df,ncol(x$beta)),lambda=rep(lambda,ncol(x$beta)),beta=beta,id=id)
 
     # Labels and breaks for the DF axis
-    loglambda <- -log(lambda)
-    breaks0 <- seq(min(loglambda),max(loglambda),length=6)
-    labels0 <- floor(stats::predict(stats::smooth.spline(loglambda,df),breaks0)$y)
-    labels0[1] <- 1
-    breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
+    ax2 <- getSecondAxis(lambda,df)
+    brks0 <- ax2$breaks
+    labs0 <- ax2$labels
 
     title0 <- bquote("Coefficients path. "*.(x$name))
     if("title" %in% names(args0)) title0 <- args0$title
     
     pt <- ggplot(dat,aes(-log(lambda),beta)) +
-        scale_x_continuous(sec.axis = sec_axis(~.+0,"number of predictors",
-                breaks=breaks0,labels=labels0))+
         geom_line(size=0.5,aes(color=id,group=id)) + theme_bw() + theme0 +
         labs(title=title0,y=expression(beta),x=expression("-log("*lambda*")"))
+    
+    if(length(brks0)>3){
+      pt <- pt + scale_x_continuous(sec.axis=sec_axis(~.+0,"number of predictors",breaks=brks0,labels=labs0))
+    }
     print(pt)
 }
 

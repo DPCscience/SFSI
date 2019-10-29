@@ -234,6 +234,37 @@ readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,inde
 }
 
 #====================================================================
+# Labels and breaks for the DF axis
+#====================================================================
+getSecondAxis <- function(lambda,df,maxLength=6)
+{
+  loglambda <- -log(lambda)
+  labels0 <- sort(unique(round(df)))
+  if(min(labels0)<1) labels0[which.min(labels0)] <- 1
+
+  if(IQR(df)>0)
+  {
+    breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
+  }else breaks0 <- NULL
+
+  index <- 1
+  while(any((breaks0-breaks0[max(index)])>1)){
+    dd <- breaks0-breaks0[max(index)]
+    index <- c(index,which(dd > 1)[1])
+  }
+  breaks0 <- breaks0[index]
+  labels0 <- labels0[index]
+  
+  if(length(breaks0)>maxLength){
+    index <- unique(round(seq(1,length(breaks0),length=maxLength)))
+    breaks0 <- breaks0[index]
+    labels0 <- labels0[index]
+  }
+    
+  return(list(breaks=breaks0,labels=labels0))
+}
+
+#====================================================================
 #====================================================================
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("
@@ -245,7 +276,7 @@ readBinary <- function(filename=paste0(tempdir(),"/file.bin"),indexRow=NULL,inde
   |    ._____| | | |       ._____| | .__| |__.  Marco Lopez-Cruz       |
   |    |_______| |_|       |_______| |_______|  Gustavo de los Campos  |
   |                                                                    |
-  |  Sparse Family and Selection Index. Version 1.0.2                  |
+  |  Sparse Family and Selection Index. Version 1.0.2 (Oct 26-2019)    |
   |====================================================================|
   ")
 }
