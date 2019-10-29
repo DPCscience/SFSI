@@ -295,13 +295,13 @@ The problem of prediction of data that have not been observed will be mimicked b
 
 ```r
 # Data to train
-dat <- simulate_data(1000,p,h2y,h2xy,h2x,123)
+dat <- simulate_data(1200,p,h2y,h2xy=rbeta(p,2,10),h2x=rbeta(p,2,10),123)
 
 # New data
-newdat <- simulate_data(500,p,h2y,h2xy,h2x,1234)
+newdat <- simulate_data(300,p,h2y,h2xy=rbeta(p,2,10),h2x=rbeta(p,2,10),1234)
 
 # Cross validation in the training data
-out1 <- SI_CV(x[trn,],y[trn],Ux[trn,],Uy[trn],"geno",5,3,nLambda,tol=5E-4,maxIter=200)    
+out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",5,3,nLambda,tol=1E-4,maxIter=200)    
 
 # Get the lambda that achieved maximum accuracy
 lambda0 <- c()
@@ -313,12 +313,15 @@ lambda <- mean(lambda0)
 x <- scale(rbind(dat$x,newdat$x))   # Use all data from trn and new dataset
 Px <- var(x)  
 covariance <- drop(cov(dat$Ux,dat$Uy))  # Must be estimated using linear models
-fm <- SSI(Px,covariance,lambda=lambda)
+fm1 <- SSI(Px,covariance,lambda=lambda)
 
-yHat <- fitted(fm,newdat$x)
+yHat <- fitted(fm1,newdat$x)
 
 cor(yHat,newdat$Uy)   # Accuracy
-cor(yHat,newdat$y)    # Correlation with phenotypic values ("non-observed")
+
+# Comparison with the canonical GSI (lambda=0)
+fm2 <- SSI(Px,covariance,lambda=0)
+cor(fitted(fm2,newdat$x),newdat$Uy)   # Accuracy
 ```
 
 
