@@ -62,7 +62,7 @@ x <- dat$x
 Ux <- dat$Ux
 ```
 
-Genotypic covariances (between response and predictors) can be calculated from this simulated data by calculating the covariance between the simulated breeding values; however in a real situation, breeding values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
+Genotypic covariances (between response and predictors) can be calculated from this simulated data by calculating the covariance between the simulated breeding values; however in a real situation, breeding values are **un-observable** and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
 ```r
 # Genotypic covariance between response and predictors 
 gencov <- as.vector(cov(Ux,Uy))
