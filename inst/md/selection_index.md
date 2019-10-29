@@ -49,7 +49,7 @@ simulate_data <- function(n,p,h2y,h2xy,h2x,seed)
 
 # Simulate data with a low heritable response 
 n <- 1500
-p <- 750
+p <- 500
 
 h2y <- 0.25             # Heritability of the response
 h2xy <- rbeta(p,10,10)  # Co-heritabilities of the response with predictors
