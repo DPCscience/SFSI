@@ -314,7 +314,7 @@ makePlot(h2xyH,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" width="370">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" height="370">
 </p>
 
 
@@ -330,7 +330,7 @@ makePlot(h2xyL,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" width="370">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" height="370">
 </p>
 
 
@@ -346,5 +346,5 @@ makePlot(h2xyL,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" width="370">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" height="370">
 </p>
