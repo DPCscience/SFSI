@@ -242,7 +242,7 @@ getSecondAxis <- function(lambda,df,maxLength=6)
   labels0 <- sort(unique(round(df)))
   if(min(labels0)<1) labels0[which.min(labels0)] <- 1
 
-  if(IQR(df)>0)
+  if(stats::IQR(df)>0)
   {
     breaks0 <- stats::predict(stats::smooth.spline(df, loglambda),labels0)$y
   }else breaks0 <- NULL

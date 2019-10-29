@@ -102,7 +102,7 @@ fitted.SFI <- function(object,...)
 plot.SFI <- function(...,df=NULL,G=NULL,path=FALSE,title=NULL,maxCor=0.85,
   py=c("correlation","accuracy","MSE"))
 {
-    PC1 <- PC2 <- PC1_TST <- PC2_TST <- PC1_TRN <- PC2_TRN <- NULL
+    PC1 <- PC2 <- PC1_TST <- PC2_TST <- PC1_TRN <- PC2_TRN <- loglambda <- NULL
     g <- model <- y <- trn_tst <- NULL
     py <- match.arg(py)
     args0 <- list(...)
