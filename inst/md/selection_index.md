@@ -7,8 +7,9 @@
 ## Outline
   * [1. Data](#data)    
   * [2. Phenotypic vs Genotypic Selection Index](#GSI&PSI)
-  * [3. Accuracy of the index](#GSI&PSIcv)
-  * [4. Genotypic covariance components patterns](#Scen)
+  * [3. Sparse Phenotypic and Genotypic Selection Index](#Sparse)
+  * [4. Accuracy of the index](#SGSI&SPSIcv)
+  * [5. Genotypic covariance components patterns](#Scen)
    
 -------------------------------------------------------------------------------------------
 
@@ -16,7 +17,7 @@
 
 ### 1. Data
 
-Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some genotypic value plus some environmental deviation in such a way that there is a given correlation between the phenotypic and genotypic values (heritability). Also, some correlation exists between genotypic value of the response and that of all predictors (co-heritabilities), this value is equivalent to the squared root of the genetic correlation.
+Data will be simulated for *n* observations and *p* predictors. Both phenotypic values of the response variable *y* and predictors *X* are generated as the sum of some **breeding value** plus some environmental deviation in such a way that there is a given correlation between the phenotypic and breeding values (heritability). Also, some correlation exists between the breeding value of the response and that of all predictors (co-heritabilities), this value is equivalent to the squared root of the genetic correlation.
 
 ```r
 
@@ -26,7 +27,7 @@ simulate_data <- function(n,p,h2y,h2xy,h2x,seed)
   set.seed(seed)
   
   # Response variable 
-  Uy = sqrt(h2y)*as.vector(scale(rnorm(n)))    # Genotypic value
+  Uy = sqrt(h2y)*as.vector(scale(rnorm(n)))    # Breeding value
   Ey =  sqrt(1-h2y)*as.vector(scale(rnorm(n))) # Environmental term
   y = scale(Uy + Ey)
 
@@ -37,7 +38,7 @@ simulate_data <- function(n,p,h2y,h2xy,h2x,seed)
   {
     a1 = sqrt(h2xy[j])*scale(Uy)
     a2 =  sqrt(1-h2xy[j])*scale(rnorm(n))
-    Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)    # Genotypic value
+    Ux[,j] <- sqrt(h2x[j])*scale(a1 + a2)    # Breeding value
     Ex[,j] <- sqrt(1-h2x[j])*scale(rnorm(n)) # Environmental term
     x[,j] <- scale(Ux[,j] + Ex[,j])
   }
@@ -49,8 +50,8 @@ simulate_data <- function(n,p,h2y,h2xy,h2x,seed)
 n <- 1500
 p <- 750
 
-h2y <- 0.25          # Heritability of the response
-h2xy <- rbeta(p,10,2)  # Co-heritabilities of the response with predictors
+h2y <- 0.25             # Heritability of the response
+h2xy <- rbeta(p,10,10)  # Co-heritabilities of the response with predictors
 h2x <- rbeta(p,10,10)   # Heritabilities of the predictors
 
 dat <- simulate_data(n,p,h2y,h2xy,h2x,1234)
@@ -60,7 +61,7 @@ x <- dat$x
 Ux <- dat$Ux
 ```
 
-Genotypic covariances (between response and predictors) can be calculated from this simulated data by calculating the covariance between the simulated genotypic values; however in a real situation, genotypic values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
+Genotypic covariances (between response and predictors) can be calculated from this simulated data by calculating the covariance between the simulated breeding values; however in a real situation, breeding values are not observed and covariances must be estimated from variance components using linear mixed models either using replicates or multivariate models considering kinship relationship among individuals
 ```r
 # Genotypic covariance between response and predictors 
 gencov <- as.vector(cov(Ux,Uy))
@@ -79,51 +80,99 @@ Px <- var(x)
 
 <div id="GSI&PSI" />
 
-### 2. Phenotypic vs Genotypic selection index
+### 2. Phenotypic vs Genotypic selection index (SI)
 
-An index that uses phenotypic covariances will yield predictions that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their genotypic values). In the later case, using genotypic covariances seems to be more appropiate.
+An index that uses phenotypic covariances will yield predictions that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their breeding values). In the later case, using genotypic covariances seems to be more appropiate.
 
 Code below will calculate SS that use both phenotypic (PSI) and genotypic covariances (GSI) 
 ```r
+# Regression coefficients for the indices
+B1 <- as.vector(solve(Px)%*%gencov)
+B2 <- as.vector(solve(Px)%*%phencov)
+
+# Fited values (selection indices)
+GSI <- as.vector(x %*% B1)
+PSI <- as.vector(x %*% B2)
+```
+
+When predicting the breeding values, we can see how good they were predicted using both PSI and GSI by evaluating by their Mean Squared Error of prediction in genotypic value prediction
+```r
+# MSE of the phenotypic SI
+sum((Uy-PSI)^2)/n
+
+# MSE of the phenotypic SI
+sum((Uy-GSI)^2)/n
+
+library(ggplot2)
+rg <- range(c(Uy,GSI,PSI))
+dat <- rbind(data.frame(Uy=Uy,yHat=PSI,SI="PSI"),data.frame(Uy=Uy,yHat=GSI,SI="GSI"))
+ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) +
+   labs(x="True BV",y="Predicted BV")+ 
+   geom_abline(slope=1, intercept=0,linetype=2,size=.5,color="gray60") + 
+   geom_point(shape=21,size=0.8) + theme(legend.position=c(0.9,0.15)) 
+```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/yVSyHat.png" width="415">
+</p>
+
+[Back to Outline](#Outline)
+
+-------------------------------------------------------------------------------------------
+
+<div id="Sparse" />
+
+### 3. Sparse Phenotypic and Genotypic selection index
+
+The sparse index is obtained by imposing a penalization in the estimation of the regression coefficients. The penalization is given by the parameter `lambda`.
+
+Code below will calculate sparse genotypic SI (SGSI) and sparse phenotypic SI (SPSI) for 100 values of the penalization parameter
+```r
 library(SFSI)
 
+nLambda <- 100
+
 # Genotypic SS
-fm1 <- SSI(Px,gencov,method="CD")
+fm1 <- SSI(Px,gencov,method="CD",nLambda=nLambda)
 
 # Phenotypic SS
-fm2 <- SSI(Px,phencov,method="CD")
+fm2 <- SSI(Px,phencov,method="CD",nLambda=nLambda)
 
 # Regression coefficients for each value of lambda
 B1 <- as.matrix(fm1$beta)
 B2 <- as.matrix(fm2$beta)
 
-# Fited values (selection indices)
-GSI <- (x %*% t(B1))
-PSI <- (x %*% t(B2))
+# Fitted values (selection indices)
+SGSI <- x %*% t(B1)
+SPSI <- x %*% t(B2)
 ```
 
-The resulting indices are obtained such that the correlation between the index and the target is maximum (accuracy of selection). In this cases, the target of the phenotypic SS is the phenotype and for the genotypic SS is the genotype.
-The indices can be also evaluated by their Mean Squared Error of prediction in genotypic value prediction
+The performance of the index is assessed by its accuracy of selection (i.e., correlation between the index and the breeding values) which  varies as the penalization parameter lambda changes
+
+Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. Code below computes the accuracy of the index along the parameter lambda (logarithm scale)
 ```r
-# MSE of the indices
-mseGSI <- apply((Uy-GSI)^2,2,sum)/n
-msePSI <- apply((Uy-PSI)^2,2,sum)/n
+# Accuracy of the indices
+accSGSI <- as.vector(cor(Uy,SGSI))
+accSPSI <- as.vector(cor(Uy,SPSI))
+
+# Accuracy of the non-sparse SI (canonical SI)
+dat2 <- data.frame(SI=c("SGSI","SPSI"),x=12,accuracy=cor(cbind(Uy,GSI,PSI))[1,-1])
 
 dat <- rbind(
-  data.frame(SI="GSI",MSE=mseGSI,df=fm1$df,lambda=fm1$lambda),
-  data.frame(SI="PSI",MSE=msePSI,df=fm2$df,lambda=fm2$lambda)
+  data.frame(SI="SGSI",accuracy=accSGSI,df=fm1$df,lambda=fm1$lambda),
+  data.frame(SI="SPSI",accuracy=accSPSI,df=fm2$df,lambda=fm2$lambda)
 )
 
-library(ggplot2)
-ggplot(dat[dat$df>1,],aes(-log(lambda),MSE,color=SI,group=SI)) + geom_line(size=0.8)
+ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + 
+    geom_line(size=0.8) + geom_point(data=dat2,aes(x,accuracy),size=2) + xlim(0,12)
 ```
 [Back to Outline](#Outline)
 
 -------------------------------------------------------------------------------------------
 
-<div id="GSI&PSIcv" />
+<div id="SGSI&SPSIcv" />
 
-### 3. Phenotypic vs Genotypic selection index using cross-validation
+### 4. Accuracy of the Sparse phenotypic vs Sparse genotypic SS using cross-validation
 
 The performance of the index is assessed by its accuracy of selection which varies according to the penalization parameter lambda.
 
@@ -186,21 +235,21 @@ nFold <- 5     # Number of folds
 nLambda <- 100   # Number of indices to generate
 
 # Perform CV
-out1 <- SI_CV(x,y,Ux,Uy,"geno",nRep,nFold,nLambda)   # GSI
-out2 <- SI_CV(x,y,Ux,Uy,"pheno",nRep,nFold,nLambda)    # PSI
+out1 <- SI_CV(x,y,Ux,Uy,"geno",nRep,nFold,nLambda,tol=2E-4)     # GSI
+out2 <- SI_CV(x,y,Ux,Uy,"pheno",nRep,nFold,nLambda,tol=2E-4)    # PSI
 
 # Accuracy of the indices across folds
-accGSI <- apply(out1$accSI,1,mean)
-accPSI <- apply(out2$accSI,1,mean)
+accSGSI <- apply(out1$accSI,1,mean)
+accSPSI <- apply(out2$accSI,1,mean)
 
-dfGSI <- apply(out1$dfSI,1,mean)
-dfPSI <- apply(out2$dfSI,1,mean)
-lambdaGSI <- apply(out1$lambdaSI,1,mean)
-lambdaPSI <- apply(out2$lambdaSI,1,mean)
+dfSGSI <- apply(out1$dfSI,1,mean)
+dfSPSI <- apply(out2$dfSI,1,mean)
+lambdaSGSI <- apply(out1$lambdaSI,1,mean)
+lambdaSPSI <- apply(out2$lambdaSI,1,mean)
 
 dat <- rbind(
-  data.frame(SI="GSI",accuracy=accGSI,df=dfGSI,lambda=lambdaGSI),
-  data.frame(SI="PSI",accuracy=accPSI,df=dfPSI,lambda=lambdaPSI)
+  data.frame(SI="SGSI",accuracy=accSGSI,df=dfSGSI,lambda=lambdaSGSI),
+  data.frame(SI="SPSI",accuracy=accSPSI,df=dfSPSI,lambda=lambdaSPSI)
 )
 
 # Plot the average accuracy (in testing set) across all fold-replications
@@ -213,16 +262,19 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 <img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="415">
 </p>
 
-An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication 
+An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication. The sparse index is compared with the non-sparse (canonical) SI 
 ```r
 dat <- rbind(
-  data.frame(SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
-  data.frame(SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
+  data.frame(sp="Canonical",SI="GSI",accuracy=out1$accSI[nrow(out1$accSI),]),
+  data.frame(sp="Sparse",SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
+  data.frame(sp="Canonical",SI="PSI",accuracy=out2$accSI[nrow(out2$accSI),]),
+  data.frame(sp="Sparse",SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
 )
 
+dat2 <- aggregate(accuracy~SI+sp,dat,mean)
 rg <- range(dat$accuracy)
 ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
-  geom_boxplot(width=0.5) + ylim(rg[1]*0.99,ifelse(rg[2]*1.01>1,1,rg[2]*1.01))
+  facet_wrap(~sp,scales="free_y") + geom_boxplot(width=0.5) 
   
 ```
 
@@ -236,9 +288,9 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 
 <div id="Scen" />
 
-### 4. Different patterns of phenotypic and genotypic covariances
+### 5. Different patterns of phenotypic and genotypic covariances
 
-The only difference between GSI and PSI is that GSI uses genotypic covariances instead of phenotypic covariances between predictors and response. Thus, whenever they are very different the results of GSI and PSI are expected to be different. The genotypic covariances will depend of the heritability of the predictors and the genetic correlation between predictors and the response. The example above was done considering moderately heritable predictors with high genetic correlation.
+The only difference between GSI and PSI is that GSI uses genotypic covariances instead of phenotypic covariances between predictors and response. The phenotypic correlation depends on all the heritability of the response, the heritability of the predictors, and the genetic correlation between predictors and the response. Whenever the heritabilities are very high, both phenotypic and genotypic correlations are almost the same and the accuracy of the GSI and PSI are quite similar; however different extents of heritability and genetic correlations are likely to yield GSI and PSI with different accuracies. The example above was done considering moderately heritable predictors with moderate genetic correlation.
 
 Code below will perform the same analysis for four different escenarios:
 1. Both heritability and genetic correlation are high
