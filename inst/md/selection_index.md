@@ -291,7 +291,7 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0
 
 ### 5. Prediction of non-observed data
 
-The problem of prediction of data that have not been observed will be mimicked by predicting a proportion of the dataset using the remainig dataset from where a value of the penalization parameter will be chosen.
+The problem of prediction of data that have not been observed will be mimicked by predicting a newly simulated dataset using a separated training dataset from where a value of the penalization parameter will be chosen.
 
 ```r
 # Data to train
