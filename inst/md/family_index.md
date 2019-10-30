@@ -201,7 +201,7 @@ trn <- (1:n)[-tst]
 
 # Cross-validation in training data to get a value of lambda
 fm <- SFI_CV(G,y,h2,trn=trn,nFolds=5,mc.cores=4,seed=123)
-lambda0 <- summary(fm)$opt$lambda
+lambda0 <- mean(diag(fm$lambda[,apply(fm$correlation,1,which.max)]))
 
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
@@ -224,10 +224,12 @@ by providing different values of the parameter `seed` and then averaging across 
 # Repeated cross-validation in training data to get an optimal lambda
 nRep <- 10      # Number of times to run the cross-validation
 lambda <- c()   # Vector to store the values of lambda
+seeds <- seq(1E2,.Machine$integer.max,length=nRep)  # Vector of seeds for fold creation
+
 for(j in 1:nRep)
 {
-   fm <- SFI_CV(G,y,h2,trn=trn,nFolds=5,mc.cores=4,seed=j*500)
-   lambda[j] <- summary(fm)$opt$lambda
+   fm <- SFI_CV(G,y,h2,trn=trn,nFolds=5,mc.cores=4,seed=seeds[j])
+   lambda <- c(lambda,diag(fm$lambda[,apply(fm$correlation,1,which.max)]))
    cat("  -- Done repetition=",j,"\n")
 }
 
