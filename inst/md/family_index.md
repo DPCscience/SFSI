@@ -234,8 +234,7 @@ for(j in 1:nRep)
 }
 
 # Obtain an optimal lambda by averaging the ones obtained by cross-validation
-lambda0 <- mean(lambda)                     # Aritmethic mean or
-lambda0 <- prod(lambda)^(1/length(lambda))  # Geometric mean
+lambda0 <- mean(lambda)               
 
 fm <- SFI(G,yNA,h2,trn,tst,lambda=lambda0)
 cor(y[tst],fitted(fm))
