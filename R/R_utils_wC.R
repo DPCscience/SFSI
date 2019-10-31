@@ -276,7 +276,7 @@ getSecondAxis <- function(lambda,df,maxLength=6)
   |    ._____| | | |       ._____| | .__| |__.  Marco Lopez-Cruz       |
   |    |_______| |_|       |_______| |_______|  Gustavo de los Campos  |
   |                                                                    |
-  |  Sparse Family and Selection Index. Version 1.0.2 (Oct 26-2019)    |
+  |  Sparse Family and Selection Index. Version 0.1.0 (Oct 31-2019)    |
   |====================================================================|
   ")
 }
