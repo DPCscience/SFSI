@@ -55,36 +55,40 @@ SFI <- function(G,y,h2=0.5,trn=1:length(y),tst=1:length(y),indexG=NULL,subset=NU
      RHS <- RHS[,index,drop=FALSE]
   }else tmp <- ""
 
-  cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",length(trn)," individuals\n",sep="")
+  if(verbose) cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",length(trn)," individuals\n",sep="")
 
   compApply <- function(chunk)
   {
     rhs <- drop(RHS[,chunk])
-    if(is.matrix(lambda)){ 
+    if(is.matrix(lambda)){
       lambda0 <- lambda[chunk,]
     }else lambda0 <- lambda
-      
+
     fm <- solveEN(G,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
                   alpha=alpha,tol=tol,maxIter=maxIter)
 
     # Returning betas to their original scale by scaling them by their SD
     B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)
 
-    cat(1,file=con,append=TRUE)
     if(verbose){
+      cat(1,file=con,append=TRUE)
       utils::setTxtProgressBar(pb, nchar(scan(con,what="character",quiet=TRUE))/length(tst))
     }
     return(list(B=B,lambda=fm$lambda,tst=tst[chunk],df=fm$df))
   }
 
-  pb = utils::txtProgressBar(style=3)
-  con <- tempfile()
+  if(verbose){
+     pb = utils::txtProgressBar(style=3)
+     con <- tempfile()
+  }
   if(mc.cores == 1L) {
     out = lapply(X=seq_along(tst),FUN=compApply)
   }else{
     out = parallel::mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
   }
-  close(pb); unlink(con)
+  if(verbose) {
+    close(pb); unlink(con)
+  }
 
   if(sum(tst != unlist(lapply(out,function(x)x$tst)))>0){
     stop("Matching error. Something went wrong during the analysis.")
