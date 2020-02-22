@@ -4,12 +4,10 @@ SFI_CV                  Sparse Family Index Cross-Validation
 SSI                     Sparse Selection Index
 collect                 collect function
 cov2dist                cov2dist function
-kernel2                 kernel2 function
 lars2                   Least Angle Regression to solve the LASSO-type
                         problem
 readBinary              readBinary function
 saveBinary              saveBinary function
-scale_crossprod         scale_crossprod function
+scale_cov         	scale_cov function
 solveEN                 Coordinate Descent algorithm to solve the
                         Elastic-Net-type problem
-                        
