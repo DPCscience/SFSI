@@ -13,7 +13,7 @@
 // Using the whole matrix XtX as input stored in object XL passed as vector
 //
 //      n:         Number of beta parameters
-//      XtX:        Crossprod matrix X'X in vector form, stacked by columns
+//      XtX:       Crossprod matrix X'X in vector form, stacked by columns
 //      Xty:       Crossprod vector X'y in vector form
 //      q:         Number of lambdas
 //      lambda:    Vector of lambdas for which the betas will be calculated
@@ -21,7 +21,7 @@
 //      maxtole:   Maximum value between two consecutive solutions for beta to be accepted for convergence
 //      maxsteps:  Number of iterations to run before the updating stops
 // ----------------------------------------------------------
-SEXP updatebeta_lambda(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, SEXP maxtole, SEXP maxsteps, SEXP echo)
+SEXP updatebeta(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, SEXP maxtole, SEXP maxsteps, SEXP echo)
 {
     double *pXtX, *pB, *pXty, *plambda, *b, *currfit;
     double bOLS, bNew;
@@ -90,9 +90,9 @@ SEXP updatebeta_lambda(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, 
             }
         }
         if(verbose){
-            printf(" lambda[%d]=\t%11.9f.  nIters=%7d.  maxError=%11.9f\n",k+1,plambda[k],iter,maxdiff);
+            Rprintf(" lambda[%d]=\t%11.9f.  nIters=%7d.  maxError=%11.9f\n",k+1,plambda[k],iter,maxdiff);
             if(maxdiff>maxTol){
-              printf("    Warning: The process did not converge after %d iterations for lambda[%d]=%11.9f\n",maxIter,k+1,plambda[k]);
+              Rprintf("    Warning: The process did not converge after %d iterations for lambda[%d]=%11.9f\n",maxIter,k+1,plambda[k]);
             }
         }
         // memcpy(pB + np*k, b, sizeof(double)*np);
@@ -466,20 +466,24 @@ SEXP delete_col(SEXP R, SEXP p0, SEXP k0, SEXP z, SEXP nz0)
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 
-SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
+SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X,
+   SEXP nRowNames, SEXP nColNames, SEXP rowNames, SEXP colNames)
 {
     FILE *f=NULL;
     int i, j;
     int nrows, ncols, sizevar ;
-    int inc=1;
-    double *pX;
-    double *linedouble;
+    int inc=1, sizeRowNames, sizeColNames;
+    double *pX, *linedouble;
+    const char *s;
+    char space[]="\0";
     float valuefloat;
     SEXP list;
 
     nrows=INTEGER_VALUE(n);
     ncols=INTEGER_VALUE(p);
     sizevar=INTEGER_VALUE(size);
+    sizeRowNames=INTEGER_VALUE(nRowNames);
+    sizeColNames=INTEGER_VALUE(nColNames);
 
     PROTECT(X=AS_NUMERIC(X));
     pX=NUMERIC_POINTER(X);
@@ -490,14 +494,29 @@ SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
     fwrite(&nrows,4, 1 , f);
     fwrite(&ncols,4, 1 , f);
     fwrite(&sizevar,4, 1 , f);
+    fwrite(&sizeRowNames,4, 1 , f);
+    fwrite(&sizeColNames,4, 1 , f);
 
     // Write lines
+    if(sizeRowNames > 0){
+      for(i=0; i<nrows; i++){
+         s=CHAR(STRING_ELT(rowNames, i));
+         fwrite(s, 1, strlen(s), f);
+         fwrite(&space, 1, 1, f);
+      }
+    }
+    if(sizeColNames > 0){
+      for(j=0; j<ncols; j++){
+          s=CHAR(STRING_ELT(colNames, j));
+          fwrite(s, 1, strlen(s), f);
+          fwrite(&space, 1, 1, f);
+      }
+    }
     for(i=0; i<nrows; i++)
     {
         if(sizevar==4)
         {
-            for(j=0; j<ncols; j++)
-            {
+            for(j=0; j<ncols; j++){
                 valuefloat = pX[nrows*j + i];
                 fwrite(&valuefloat,sizevar, 1 , f);
             }
@@ -505,7 +524,6 @@ SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
             F77_NAME(dcopy)(&ncols, pX+i, &nrows,linedouble, &inc);
             fwrite(linedouble,sizevar, ncols , f);
         }
-
     }
 
     fclose(f);
@@ -526,14 +544,17 @@ SEXP writeBinFile(SEXP filename, SEXP n, SEXP p, SEXP size, SEXP X, SEXP echo)
 SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP setCol)
 {
     FILE *f=NULL;
-    int i, j;
+    int i, j, k;
     int *psetRow, *psetCol;
     int nrows, ncols, sizevar, lsrow, lscol;
     int n, p;
+    int sizeRowNames,sizeColNames;
     double *pX;
     double *linedouble;
     float *linefloat;
     SEXP list;
+    SEXP rowNames;
+    SEXP colNames;
 
     lsrow=INTEGER_VALUE(nsetRow);
     lscol=INTEGER_VALUE(nsetCol);
@@ -548,6 +569,8 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
     fread(&nrows, 4, 1, f);
     fread(&ncols, 4, 1, f);
     fread(&sizevar, 4, 1, f);
+    fread(&sizeRowNames, 4, 1, f);
+    fread(&sizeColNames, 4, 1, f);
 
     linedouble=(double *) R_alloc(ncols, sizeof(double));
     linefloat=(float *) R_alloc(ncols, sizeof(float));
@@ -558,11 +581,61 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
     SEXP X=PROTECT(allocMatrix(REALSXP, n, p));
     pX=NUMERIC_POINTER(X);
 
+    PROTECT(rowNames = allocVector(STRSXP, nrows));
+    char lineRowNames[sizeRowNames];
+
+    PROTECT(colNames = allocVector(STRSXP, ncols));
+    char lineColNames[sizeColNames];
+
+    const char *s[100];
+
     // Read lines
+    if(sizeRowNames > 0){
+      fread(&lineRowNames,sizeRowNames,1,f);
+      i=0;
+      j=0;
+      memset(s,'\0',sizeof(s));
+      for(k=0; k<sizeRowNames; k++)
+      {
+        if(lineRowNames[k]=='\0'){
+            SET_STRING_ELT(rowNames, i, mkChar(*s));
+            j=0;
+            i++;
+            memset(s,'\0',sizeof(s));
+            //printf("%s", "\n");
+        }else{
+            s[j]=&lineRowNames[k];
+            j++;
+            //printf("%c", lineRowNames[k]);
+        }
+      }
+    }
+    if(sizeColNames > 0){
+      fread(&lineColNames,sizeColNames,1,f);
+      i=0;
+      j=0;
+      memset(s,'\0',sizeof(s));
+      for(k=0; k<sizeColNames; k++)
+      {
+        if(lineColNames[k]=='\0'){
+            SET_STRING_ELT(colNames, i, mkChar(*s));
+            j=0;
+            i++;
+            memset(s,'\0',sizeof(s));
+            //printf("%s", "\n");
+        }else{
+            s[j]=&lineColNames[k];
+            j++;
+            //printf("%c", lineColNames[k]);
+        }
+      }
+    }
+
     for(i=0; i<n; i++)
     {
         if(lsrow > 0){
-            fseek(f, 12 + ncols*sizevar*(psetRow[i]-1), SEEK_SET);
+            // Move to the line indicated by setRow
+            fseek(f, 20 + sizeRowNames + sizeColNames + ncols*sizevar*(psetRow[i]-1), SEEK_SET);
         }
 
         if(sizevar==4){
@@ -578,7 +651,6 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
                 if(sizevar==4){
                     linedouble[psetCol[j]-1]=linefloat[psetCol[j]-1];
                 }
-
                 pX[n*j + i]=linedouble[psetCol[j]-1];
             }else{
                 if(sizevar==4){
@@ -587,18 +659,21 @@ SEXP readBinFile(SEXP filename, SEXP nsetRow, SEXP nsetCol, SEXP setRow, SEXP se
                 pX[n*j + i]=linedouble[j];
             }
         }
-
     }
 
     fclose(f);
 
-    PROTECT(list = allocVector(VECSXP, 4));
+    PROTECT(list = allocVector(VECSXP, 8));
     // Attaching outputs to list:
     SET_VECTOR_ELT(list, 0, ScalarInteger(n));
     SET_VECTOR_ELT(list, 1, ScalarInteger(p));
     SET_VECTOR_ELT(list, 2, ScalarInteger(sizevar));
-    SET_VECTOR_ELT(list, 3, X);
+    SET_VECTOR_ELT(list, 3, ScalarInteger(sizeRowNames));
+    SET_VECTOR_ELT(list, 4, ScalarInteger(sizeColNames));
+    SET_VECTOR_ELT(list, 5, rowNames);
+    SET_VECTOR_ELT(list, 6, colNames);
+    SET_VECTOR_ELT(list, 7, X);
 
-    UNPROTECT(4);
+    UNPROTECT(6);
     return(list);
 }
