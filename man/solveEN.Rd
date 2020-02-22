@@ -4,7 +4,7 @@
 \alias{solveEN}
 \title{Coordinate Descent algorithm to solve the Elastic-Net-type problem}
 \usage{
-solveEN(XtX, Xty, lambda = NULL, nLambda = 100, alpha = 1,
+solveEN(XtX, Xty, alpha = 1, lambda = NULL, nLambda = 100, 
   scale = TRUE, tol = 1e-05, maxIter = 1000, verbose = FALSE)
 }
 \arguments{
@@ -39,6 +39,7 @@ List object containing the elements:
   \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
   \item \code{sdx}: vector of standard deviation of predictors.
 }
+The returned object is of the class 'SSI' for which methods \code{fitted} exist. Function \code{plotPath} can be also used
 }
 \description{
 Computes the entire Elastic-Net solution for the regression coefficients simultaneously for all
@@ -103,7 +104,22 @@ given \ifelse{html}{\out{&alpha;}}{\eqn{\alpha}{alpha}} and
 by "soft-thresholding" their OLS estimate until convergence as fully described in Friedman (2007).
 }
 \examples{
-  # See examples from 'SSI' function (see help(SSI))
+  require(SFSI)
+  data(wheat.E1) 
+  y = as.vector(Y[,"YLD"])  # Response variable
+  X = scale(WL[[9]])        # Predictors
+
+  # Training and testing sets
+  tst = sample(seq_along(y),ceiling(0.3*length(y)))
+  trn = seq_along(y)[-tst]
+
+  # Calculate covariances in training set
+  XtX = var(X[trn,])
+  Xty = cov(y[trn],X[trn,])
+  
+  # Run the penalized regression
+  fm = solveEN(XtX,Xty)   
+  fm = solveEN(XtX,Xty,alpha=0.5) 
 }
 \references{
 \itemize{

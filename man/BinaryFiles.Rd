@@ -5,16 +5,20 @@
 \alias{saveBinary}
 \title{Binary files}
 \usage{
-saveBinary(X, filename = paste0(tempdir(), "/file.bin"), size = 4,
-  verbose = TRUE)
+saveBinary(X, filename = paste0(tempdir(), "/file.bin"), 
+  row.names = TRUE, col.names = TRUE, size = 4, verbose = TRUE)
   
-readBinary(filename = paste0(tempdir(), "/file.bin"), indexRow = NULL,
-  indexCol = NULL, verbose = TRUE)
+readBinary(filename = paste0(tempdir(), "/file.bin"), 
+  indexRow = NULL, indexCol = NULL, verbose = TRUE)
 }
 \arguments{
 \item{X}{Numeric matrix to save}
 
 \item{filename}{Name of the binary file to save/read}
+
+\item{row.names}{\code{TRUE} or \code{FALSE} to whether save rows names}
+
+\item{col.names}{\code{TRUE} or \code{FALSE} to whether save columns names}
 
 \item{size}{Size of a real variable in bytes (\code{size=4} for single precision and \code{size=8} for double precision)
 that matrix to be saved \code{X} will occupy}
@@ -29,35 +33,29 @@ that matrix to be saved \code{X} will occupy}
 Save/read a fortran-formatted binary file that was saved at a defined precision (single or double).
 }
 \examples{
-  \dontrun{
-  set.seed(1234)
   require(SFSI)
-  # Simulate matrix
-  n = 10; p = 10
-  X = matrix(rnorm(n*p),ncol=p)
-  X
+  data(wheat.G)
 
   # Save matrix
-  saveBinary(X,filename="testMatrix1.bin",size=4)  # as single-precision
-  saveBinary(X,filename="testMatrix2.bin",size=8)  # as double-precision
+  saveBinary(G,filename="testMatrix1.bin",size=4)  # as single-precision
+  saveBinary(G,filename="testMatrix2.bin",size=8)  # as double-precision
 
   # Read the single-precision matrix
-  X2 = readBinary("testMatrix1.bin")
-  X2
-  sum(abs(X-X2))   # Note the loss of precision
+  G2 = readBinary("testMatrix1.bin")
+  G2[1:10,1:5]
+  sum(abs(G-G2))   # Note the loss of precision
 
   # Read the double-precision matrix
-  X2 = readBinary("testMatrix2.bin")
-  X2
-  sum(abs(X-X2))   # No loss of precision
+  G2 = readBinary("testMatrix2.bin")
+  G2[1:10,1:5]
+  sum(abs(G-G2))   # No loss of precision
 
   # Read specific rows and columns
   indexRow = c(2,4,5,8,10)
   indexCol = c(1,2,6,7,10)
-  X2 = readBinary("testMatrix2.bin",indexRow=indexRow,indexCol=indexCol)
-  X2
-  sum(abs(X[indexRow,indexCol]-X2))
- }
+  G2 = readBinary("testMatrix2.bin",indexRow=indexRow,indexCol=indexCol)
+  G2
+  sum(abs(G[indexRow,indexCol]-G2))
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos

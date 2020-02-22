@@ -1,34 +1,48 @@
 
 \name{SFI}
 \alias{SFI}
+\alias{SFI_CV}
 \title{Sparse Family Index}
 \usage{
-SFI(G, y, h2 = 0.5, trn = 1:length(y), tst = 1:length(y),
-  indexG = NULL, subset = NULL, kernel = NULL, lambda = NULL,
-  nLambda = 100, method = c("CD1", "CD2"), alpha = 1, name = NULL,
-  mc.cores=getOption("mc.cores", 2L), tol = 1E-5, maxIter = 800,
-  saveAt = NULL, verbose = TRUE)
+SFI(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL, h2 = NULL,
+    trn = seq_along(y), tst = seq_along(y), subset = NULL, 
+    alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
+    tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
+    mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
+    
+SFI_CV(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL, 
+      h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
+      nLambda = 100, nCV = 1, nFolds = 5, seed = NULL,
+      method = c("CD1","CD2"), tol = 1E-4, maxIter = 500, name = NULL,
+      mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
 }
 \arguments{
-\item{G}{Genetic relatedness matrix. This can be a name of a binary file where the matrix is storaged}
-
 \item{y}{Response variable}
 
-\item{h2}{Heritability of the response variable. Default is \code{h2=0.5}}
+\item{X}{Design matrix for the fixed effects. When \code{X=NULL}, a vector of ones is constructed only for the intercept (default)}
 
-\item{trn}{Vector of integers indicating which individuals are in training set. Default is \code{trn=1:length(y)} will consider all individuals as training}
+\item{b}{Vector of fixed effects. When \code{b=NULL}, only the intercept is estimated from training data using generalized least squares (default)}
 
-\item{tst}{Vector of integers indicating which individuals are in testing set. Default is \code{tst=1:length(y)} will consider all individuals as testing}
+\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \code{G = Z}; otherwise \code{G = Z\%*\%K\%*\%t(Z)} is used}
 
-\item{indexG}{Vector of integers indicating which columns and rows will be read when \code{G} is the name of a binary file.
-Default \code{indexG=NULL} will read the whole matrix}
+\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is storaged}
+
+\item{indexK}{Vector of integers indicating which columns and rows will be read when \code{K} is the name of a binary file. Default \code{indexK=NULL} will read the whole matrix}
+
+\item{h2}{Heritability of the response variable. When \code{h2=NULL} (default), the heritability is calculated from training data from variance components estimated using Maximum Likelihood (ML)}
+
+\item{trn}{Vector of integers indicating which individuals are in training set. Default \code{trn=seq_along(y)} will consider all individuals as training}
+
+\item{tst}{Vector of integers indicating which individuals are in testing set (prediction set). Default \code{tst=seq_along(y)} will consider all individuals as testing}
+
+\item{trn.CV}{Vector of integers indicating which individuals are to be considered for the cross-validation (CV).
+Default is \code{trn.CV=seq_along(y)} will consider all individuals}
 
 \item{subset}{A two-elements numeric vector \eqn{c(m,M)} to fit the model only for the \ifelse{html}{\out{m<sup>th</sup>}}{\eqn{m^{th}}{m^{th}}}
-subset out of \eqn{M} subsets that the
-testing set will be divided into. Results can be automatically saved when \code{saveAt} parameter is provided and can be retrieved later
-using function \code{collect}. Default is \code{subset=NULL} for no subsetting, then the model is fitted using all information}
+subset out of \eqn{M} subsets that the testing set will be divided into. Results can be automatically saved when \code{saveAt} parameter
+is provided and can be retrieved later using function \code{collect} (see \code{help(collect)}). Default is \code{subset=NULL} for no subsetting, then the model is fitted for all data}
 
-\item{kernel}{Kernel transformation to be applied to \code{G[trn,trn]}. See \code{help(kernel2)} for details. Default \code{kernel=NULL} (no kernel)}
+\item{alpha}{Numeric between 0 and 1 indicating the weights given to the L1 and L2-penalties}
 
 \item{lambda}{Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of \code{'nLambda'} lambdas will be generated
 starting from a maximum equal to
@@ -37,14 +51,18 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 
+\item{nFolds}{Number of non-overlaping folds in which the data is split into to do cross-validation. Options: 2,3,5,10 or 'n'. When \code{nFolds='n'} leave-one-out CV is performed}
+
+\item{seed}{Numeric seed to fix randomization when creating folds for cross-validation. If it is a vector, a number equal to its length of CV repetitions are performed}
+
+\item{nCV}{Number of CV repetitions to be performed. Default is \code{nCV=1}}
+
 \item{method}{One of:
 \itemize{
  \item \code{'CD1'}: Computes the coefficients for a provided grid of lambdas common to all individuals in testing set.
  \item \code{'CD2'}: Similar to \code{'CD1'} but using a grid of lambdas specific to each individual in testing set.
 }
 Default is \code{method='CD1'}}
-
-\item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
 \item{mc.cores}{Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}}
 
@@ -55,51 +73,72 @@ Default is \code{method='CD1'}}
 \item{saveAt}{Prefix name that will be added to the output files name to be saved, this may include a path. Regression coefficients
 are saved as binary file as a single-precision (32 bits, 7 significant digits) variable. Default \code{saveAt=NULL} will no save any output}
 
-\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each step}
+\item{name}{Name given to the output for tagging purposes. Default \code{name=NULL} will give the name of the method used}
 
-\item{alpha}{Numeric between 0 and 1 indicating the weights given to the L1 and L2-penalties}
+\item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each step}
 }
 \value{
-List object containing the elements:
+Function 'SFI' returns a list object of the class 'SFI' for which methods \code{coef}, \code{fitted}, \code{plot}, and \code{summary} exist. Functions \code{plotNet} and \code{plotPath} can be also used. It contains the elements:
 \itemize{
+  \item \code{b}: solutions for the fixed effects including the intercept.
   \item \code{BETA}: list object containing, for each individual in testing set, a matrix of regression coefficients.
   \item \code{alpha}: value for the elastic-net weights used.
   \item \code{lambda}: matrix with the sequence of values of lambda used (for each individual in rows).
   \item \code{df}: degrees of freedom (averaged across individuals), number of non-zero predictors at each solution.
-  \item \code{kernel}: transformation applied to the elements of \code{G}.
 }
-Elements used as inputs: \code{y}, \code{h2}, \code{trn}, \code{tst}, \code{method}, \code{name}, are also returned.
-The returned object is of the class 'SFI' for which methods \code{fitted}, \code{plot} and \code{summary} exist
+
+Function 'SFI_CV' returns a list object of the class 'SFI_CV' for which methods \code{plot} and \code{summary} exist, and contains the elements:
+\itemize{
+  \item \code{b}: solutions for the fixed effects including the intercept for each fold using information from the remainig folds.
+  \item \code{h2}: heritability estimated within each fold using information from the remainig folds.
+  \item \code{folds}: matrix containing the folds used for the cross-validation.
+  \item \code{accuracy}: matrix with the correlation between observed and predicted values (in testing set) within each fold (in rows).
+  \item \code{MSE}: matrix with the mean squared error of prediction (in testing set) within each fold (in rows).
+  \item \code{lambda}: matrix with the sequence of values of lambda used (averaged across individuals) within each fold (in rows).
+  \item \code{df}: matrix with the degrees of freedom (averaged across individuals) within each fold (in rows).
+}
 }
 \description{
 Computes the entire Elastic-Net solution for the regression coefficients of a Family Index simultaneously for all values of the penalization parameter via the Coordinate Descent (CD) algorithm.
 }
 \details{
-Finds solutions for the genetic values of individuals in a linear model
+The basic linear mixed model that relates phenotypes with genetic values is of the form
 
-\ifelse{html}{\out{<center>y<sub>i</sub> = u<sub>i</sub> + e<sub>i</sub></center>}}{\deqn{y_i=u_i+e_i}{y_i = u_i + e_i}}
+\ifelse{html}{\out{<center><b>y</b> = <b>X b</b> + <b>Z g</b> + <b>e</b></center>}}{\deqn{\textbf{y}=\textbf{X}\textbf{b}+\textbf{Z}\textbf{g}+\textbf{e}}{y = X b + Z g + e}}
 
 where
-\ifelse{html}{\out{y<sub>i</sub>}}{\eqn{y_i}{y_i}} is the response for the \ifelse{html}{\out{i<sup>th</sup>}}{\eqn{i^{th}}{i^th}} observation,
-\ifelse{html}{\out{u<sub>i</sub>}}{\eqn{u_i}{u_i}}
-is the genetic value of the individual, and
-\ifelse{html}{\out{e<sub>i</sub>}}{\eqn{e_i}{e_i}}
-is an environmental residual.
+\ifelse{html}{\out{<b>y</b>}}{\eqn{\textbf{y}}{y}} is a vector with the response,
+\ifelse{html}{\out{<b>b</b>}}{\eqn{\textbf{b}}{b}} is the vector of fixed effects,
+\ifelse{html}{\out{<b>g</b>}}{\eqn{\textbf{u}}{u}} is the vector of the genetic values of the genotypes,
+\ifelse{html}{\out{<b>e</b>}}{\eqn{\textbf{e}}{e}} is the vector of environmental residuals, and
+\ifelse{html}{\out{<b>X</b>}}{\eqn{\textbf{X}}{X}} and \ifelse{html}{\out{<b>Z</b>}}{\eqn{\textbf{Z}}{Z}} are design matrices conecting the fixed and genetic effects with replicates. Genetic values are assumed to follow a Normal distribution as
+\ifelse{html}{\out{<b>g</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>u</sub><b>K</b>)}}{\eqn{\textbf{u}\sim N(\textbf{0},\sigma^2_u\textbf{K})}{u ~ N(0,sigma^2_u K)}}, and environmental terms are assumed
+\ifelse{html}{\out{<b>e</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>e</sub><b>I</b>)}}{\eqn{\textbf{e}\sim N(\textbf{0},\sigma^2_e\textbf{I})}{u ~ N(0,sigma^2_e I)}}.
 
-The values \ifelse{html}{\out{u<sub>i</sub>}}{\eqn{u_i}{u_i}} for
-\ifelse{html}{\out{i = 1,2,...,n<sub>tst</sub>}}{\eqn{i=1,2,...,n_{tst}}{i = 1,2,...,n_tst}} individuals in a testing set are estimated using (as predictors) all available observations in a training set as
+The resulting vector of genetic values
+\ifelse{html}{\out{<b>u</b> = <b>Z g</b>}}{\eqn{\textbf{u}=\textbf{Z}\textbf{g}}{u = Z g}} will therefore follow 
+\ifelse{html}{\out{<b>u</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>u</sub><b>G</b>)}}{\eqn{\textbf{u}\sim N(\textbf{0},\sigma^2_u\textbf{G})}{u ~ N(0,sigma^2_u G)}} where
+\ifelse{html}{\out{<b>G</b> = <b>Z K Z'</b>}}{\eqn{\textbf{G}=\textbf{Z}\textbf{K}\textbf{Z}'}{G = Z K Z'}}.
+In the un-replicated case, \ifelse{html}{\out{<b>Z</b> = <b>I</b>}}{\eqn{\textbf{Z}=\textbf{I}}{Z = I}} is an identity matrix, and hence 
+\ifelse{html}{\out{<b>u</b> = <b>g</b>}}{\eqn{\textbf{u}=\textbf{g}}{u = g}} and
+\ifelse{html}{\out{<b>G</b> = <b>K</b>}}{\eqn{\textbf{G}=\textbf{K}}{G = K}}.
 
-\ifelse{html}{\out{<center>u<sub>i</sub> = <b>y</b>'<sub>trn</sub> <b>&beta;</b><sub>i</sub></center>}}{\deqn{u_i=\textbf{y}_{trn}'\boldsymbol{\beta}_i}{u_i = y'_trn beta_i}}
+The values \ifelse{html}{\out{<b>u</b><sub>tst</sub> = (u<sub>i</sub>)}}{\eqn{\textbf{u}_{tst}=(u_i)}{u_tst = (u_i)}},
+\ifelse{html}{\out{i = 1,2,...,n<sub>tst</sub>}}{\eqn{i=1,2,...,n_{tst}}{i = 1,2,...,n_tst}}, for a testing set are estimated individual-wise using (as predictors) all available observations in a training set as
+
+\ifelse{html}{\out{<center>u<sub>i</sub> = <b>&beta;</b>'<sub>i</sub> (<b>y</b><sub>trn</sub> - <b>X</b><sub>trn</sub><b>b</b>)</center>}}{\deqn{u_i=\boldsymbol{\beta}'_i(\textbf{y}_{trn}-\textbf{X}_{trn}\textbf{b})}{u_i = beta'_i (y_trn - X_trn*b)}}
 
 where \ifelse{html}{\out{<b>&beta;</b><sub>i</sub>}}{\eqn{\boldsymbol{\beta}_i}{beta_i}}
-is a vector of regression coefficients which are estimated as function of the genetic covariance between predictors
-and that individual (\ifelse{html}{\out{<b>G</b><sub>trn,tst(i)</sub>}}{\eqn{\textbf{G}_{trn,tst(i)}}{G[trn,tst(i)]}}) and the genetic variance among predictors (\ifelse{html}{\out{<b>G</b><sub>trn,trn</sub>}}{\eqn{\textbf{G}_{trn,trn}}{G[trn,trn]}}).
-
-These coefficients are obtained, separately for each individual in the testing set, by minimizing the penalized mean squared error function
+is a vector of weights that are found separately for each individual in the testing set, by minimizing the penalized mean squared error function
 
 \ifelse{html}{\out{<center>-<b>G</b>'<sub>trn,tst(i)</sub> <b>&beta;</b><sub>i</sub> + 1/2 <b>&beta;</b>'<sub>i</sub>(<b>G</b><sub>trn,trn</sub> + &lambda;<sub>0</sub><b>I</b>)<b>&beta;</b><sub>i</sub> + &lambda; J(<b>&beta;</b><sub>i</sub>)</center>}}{\deqn{-\textbf{G}_{trn,tst(i)}' \boldsymbol{\beta}_i + 1/2 \boldsymbol{\beta}_i'(\textbf{G}_{trn,trn} + \lambda_0\textbf{I}) \boldsymbol{\beta}_i + \lambda J(\boldsymbol{\beta}_i)}{-G'[trn,tst(i)] beta_i + 1/2 beta_i'(G[trn,trn] + lambda_0 I)beta_i + lambda J(beta_i)}}
 
-where \ifelse{html}{\out{&lambda;<sub>0</sub> = (1-h<sup>2</sup>)/h<sup>2</sup>}}{\eqn{\lambda_0=(1-h^2)/h^2}{lambda_0 = (1-h^2)/h^2}} is a fixed parameter expressed in terms of the heritability, \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}} is the penalization parameter, and
+where
+\ifelse{html}{\out{<b>G</b><sub>trn,tst(i)</sub>}}{\eqn{\textbf{G}_{trn,tst(i)}}{G[trn,tst(i)}}
+is the \ifelse{html}{\out{i<sup>th</sup>}}{\eqn{i^{th}}{i^th}} column of the
+sub-matrix of \ifelse{html}{\out{<b>G</b>}}{\eqn{\textbf{G}}{G}} whose rows correspond to the training set and columns to the testing set,
+\ifelse{html}{\out{<b>G</b><sub>trn,trn</sub>}}{\eqn{\textbf{G}_{trn,trn}}{G[trn,trn]}}
+is the sub-matrix corresponding to the training set, and \ifelse{html}{\out{&lambda;<sub>0</sub> = (1 - h<sup>2</sup>)/h<sup>2</sup>}}{\eqn{\lambda_0=(1-h^2)/h^2}{lambda_0 = (1 - h^2)/h^2}} is a shrinkage parameter expressed in terms of the heritability, \ifelse{html}{\out{h<sup>2</sup> = &sigma;<sup>2</sup><sub>u</sub>/(&sigma;<sup>2</sup><sub>u</sub> + &sigma;<sup>2</sup><sub>e</sub>)}}{\eqn{h^2=\sigma^2_u/(\sigma^2_u+\sigma^2_e)}{h^2 = sigma^2_u/(sigma^2_u + sigma^2_e)}}, \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}} is the penalization parameter, and
 \ifelse{html}{\out{J(<b>&beta;</b><sub>i</sub>)}}{\eqn{J(\boldsymbol{\beta}_i)}{J(beta_i)}}
 is a penalty function given by
 \ifelse{html}{\out{<center>1/2(1-&alpha;)||<b>&beta;</b><sub>i</sub>||<sub>2</sub><sup>2</sup> + &alpha;||<b>&beta;</b><sub>i</sub>||<sub>1</sub></center>}}{\deqn{1/2(1-\alpha)||\boldsymbol{\beta}_i||_2^2 + \alpha||\boldsymbol{\beta}_i||_1}{1/2(1-alpha)||beta_i||_2^2 + alpha||beta_i||_1}}
@@ -111,46 +150,50 @@ where \ifelse{html}{\out{0 &le; &alpha; &le; 1}}{\eqn{0\leq\alpha\leq 1}{0 <= al
 Each individual solution is found using the 'solveEN' function (see \code{help(solveEN)}) by setting the parameter \code{XtX} equal to
 \ifelse{html}{\out{<b>G</b><sub>trn,trn</sub> + &lambda;<sub>0</sub><b>I</b>}}{\eqn{\textbf{G}_{trn,trn}+\lambda_0\textbf{I}}{G[trn,trn] + lambda_0 I}}
 and \code{Xty} equal to
-\ifelse{html}{\out{<b>G</b><sub>trn,tst(i)</sub>}}{\eqn{\textbf{G}_{trn,tst(i)}}{G[trn,tst(i)]}}
+\ifelse{html}{\out{<b>G</b><sub>trn,tst(i)</sub>}}{\eqn{\textbf{G}_{trn,tst(i)}}{G[trn,tst(i)]}}.
+
+For cross-validation, data specified in \code{trn.CV} is divided into \eqn{k}{k} folds and the SFI is sequentially calculated for (all individuals in) one fold (testing set) using information from the remaining folds (training set).
 }
 \examples{
-  \dontrun{
   require(SFSI)
-  # Read data from BGLR package
-  data(wheat,package="BGLR")
-  X = scale(wheat.X)
-  G = tcrossprod(X)/ncol(X)    # Genomic relationship matrix
-  y = wheat.Y[,1]              # Response variable
+  data(wheat.E1) 
+  data(wheat.G) # Genomic relationship matrix
+  y = tapply(Y[,"YLD"],Y[,"gid"],mean)  # Response variable
+  index <- intersect(rownames(G),names(y))
+  G = G[index,index]
+  y = as.vector(y[index])
 
   # Training and testing sets
-  set.seed(1234)
-  n = length(y)
-  pTST = 0.3      # percentage to predict
-  tst = sample(1:n,ceiling(pTST*n))
-  trn = (1:n)[-tst]
+  tst = sample(seq_along(y),ceiling(0.3*length(y)))
+  trn = (seq_along(y))[-tst]
 
-  # Calculate heritability
-  fm = BGLR::BGLR(y,ETA=list(list(K=G,model="RKHS")),nIter=10000,burnIn=3000,verbose=FALSE)
-  varU = fm$ETA[[1]]$varU
-  varE = fm$varE
-  h2 = varU/(varU + varE)
-
+  # Calculate heritability using all data
+  fm = solveMixed(y,K=G)
+  h2 = fm$varU/(fm$varU + fm$varE)
+  
   # Sparse family index
-  fm = SFI(G,y,h2,trn,tst)
+  fm = SFI(y,K=G,h2=h2,trn=trn,tst=tst)
+  
+  #---------------------------------------------------
+  # Predicting a testing set using a value of lambda
+  # obtained from cross-validation in a traning set
+  #---------------------------------------------------
+  # Run the cross validation in training set
+  fm1 = SFI_CV(y,K=G,h2=h2,trn.CV=trn)
+  lambda = summary(fm1)$optCOR["mean","lambda"]
+  
+  # Fit the index with the obtained lambda
+  fm2 = SFI(y,K=G,h2=h2,trn=trn,tst=tst,lambda=lambda)
+  summary(fm2)$accuracy        # Testing set accuracy
 
-  yHat = fitted(fm)      # Predicted values for each SFI
-  corTST = cor(y[tst],yHat)[1,]  # Testing set accuracy or
-  tmp = summary(fm)
-  corTST = tmp$correlation
-  tmp$opt                # Optimal accuracy
-  dat = data.frame(df=tmp$df,logLambda=-log(tmp$lambda),corTST)
-  plot(corTST ~ logLambda, data=dat[dat$df>1,]) # Accuracy along the regularization parameter
-  plot(fm)                 # Same plot as above
-  plot(fm,py="MSE")        # MSE vs regularization
-  plot(fm,G=G)             # Individual's training subsets for the optimal index
-  plot(fm,G=G,df=10)       # Individual's training subsets
-  plot(fm,path=TRUE)       # Coefficients path plot
-  plot(fm,path=TRUE,G=G)   # Coefficients path plot showing kinship
+  # Compare the accuracy with that of the non-sparse index
+  fm3 = SFI(y,K=G,h2=h2,trn=trn,tst=tst,lambda=0)
+  summary(fm3)$accuracy
+  
+  \dontrun{
+  # Obtain an 'optimal' lambda by repeating the CV several times
+  fm12 = SFI_CV(y,K=G,h2=h2,trn.CV=trn,nCV=10)
+  plot(fm12,fm1)
   }
 }
 \references{
@@ -159,7 +202,6 @@ and \code{Xty} equal to
 \item \insertRef{Friedman2007}{SFSI}
 \item \insertRef{Hoerl1970}{SFSI}
 \item \insertRef{Lush1947}{SFSI}
-\item \insertRef{Perez2014}{SFSI}
 \item \insertRef{Tibshirani1996}{SFSI}
 \item \insertRef{VanRaden2008}{SFSI}
 \item \insertRef{Zou2005}{SFSI}

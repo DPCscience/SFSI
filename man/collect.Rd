@@ -10,49 +10,36 @@ collect(prefix = "")
 \item{prefix}{Prefix that was added to the output files name, this may include a path}
 }
 \value{
-An object of the class 'SFI' for which methods \code{fitted}, \code{predict}, \code{plot} and \code{summary} exist
+An object of the class 'SFI' for which methods \code{fitted}, \code{plot} and \code{summary} exist
 }
 \description{
 Collects all outputs saved at the provided \code{saveAt} parameter from the SFI analysis when testing data was splited
 according to \code{subset} parameter.
 }
 \examples{
-  \dontrun{
   require(SFSI)
-  # Read data from BGLR package
-  data(wheat,package="BGLR")
-  X = scale(wheat.X)
-  G = tcrossprod(X)/ncol(X)    # Genomic relationship matrix
-  y = wheat.Y[,1]              # Response variable
-  h2 = 0.5                     # Heritability (rough estimate)
-
-  # Training and testing sets
-  set.seed(1234)
-  n = length(y)
-  pTST = 0.3      # percentage to predict
-  tst = sample(1:n,floor(pTST*n))
-  trn = (1:n)[-tst]
-
+  data(wheat.E1) 
+  data(wheat.G) # Genomic relationship matrix
+  y = tapply(Y[,"YLD"],Y[,"gid"],mean)  # Response variable
+  index <- intersect(rownames(G),names(y))
+  G = G[index,index]
+  y = as.vector(y[index])
+  
   prefix <- "testSFI"
-  # Run the analysis into 5 subsets and save them at a given prefix
-  fm <- SFI(G,y,h2,trn,tst,subset=c(1,5),saveAt=prefix,mc.cores=5)
-  fm <- SFI(G,y,h2,trn,tst,subset=c(2,5),saveAt=prefix,mc.cores=5)
-  fm <- SFI(G,y,h2,trn,tst,subset=c(3,5),saveAt=prefix,mc.cores=5)
-  fm <- SFI(G,y,h2,trn,tst,subset=c(4,5),saveAt=prefix,mc.cores=5)
-  fm <- SFI(G,y,h2,trn,tst,subset=c(5,5),saveAt=prefix,mc.cores=5)
+  
+  # Run the analysis into 4 subsets and save them at a given prefix
+  fm <- SFI(y,K=G,tst=1:400,trn=401:length(y),subset=c(1,4),saveAt=prefix)
+  fm <- SFI(y,K=G,tst=1:400,trn=401:length(y),subset=c(2,4),saveAt=prefix)
+  fm <- SFI(y,K=G,tst=1:400,trn=401:length(y),subset=c(3,4),saveAt=prefix)
+  fm <- SFI(y,K=G,tst=1:400,trn=401:length(y),subset=c(4,4),saveAt=prefix)
 
   # Collect all results after completion
   fm <- collect(prefix)
-  plot(fm)
+  
   unlink(paste0(prefix,"*.RData"))   # Remove files
   unlink(paste0(prefix,"*.bin"))     # Remove files
-  }
 }
-\references{
-\itemize{
-\item \insertRef{Perez2014}{SFSI}
-}
-}
+
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
 }

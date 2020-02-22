@@ -38,6 +38,7 @@ List with the following elements:
   \item \code{df}: degrees of freedom, number of non-zero predictors at each solution.
   \item \code{sdx}: vector of standard deviation of predictors.
 }
+The returned object is of the class 'SSI' for which methods \code{fitted} exist. Function \code{plotPath} can be also used
 }
 \description{
 Computes the entire LASSO solution for the regression coefficients, starting from zero, to the
@@ -86,7 +87,22 @@ is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} column of the mat
 \ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}
 }
 \examples{
-  # See examples from 'SSI' function (see help(SSI))
+  require(SFSI)
+  data(wheat.E1) 
+  y = as.vector(Y[,"YLD"])  # Response variable
+  X = scale(WL[[9]])        # Predictors
+
+  # Training and testing sets
+  tst = sample(seq_along(y),ceiling(0.3*length(y)))
+  trn = seq_along(y)[-tst]
+
+  # Calculate covariances in training set
+  XtX = var(X[trn,])
+  Xty = cov(y[trn],X[trn,])
+  
+  # Run the penalized regression
+  fm = lars2(XtX,Xty)  
+  fm = lars2(XtX,Xty,method="LAR-LASSO")  
 }
 \references{
 \itemize{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/R_utils_wC.R
 \name{cov2dist}
 \alias{cov2dist}
-\title{cov2dist function}
+\title{Conversion of covariance to distance matrix}
 \usage{
 cov2dist(XtX, void = FALSE)
 }
@@ -43,27 +43,26 @@ while in the diagonal, the distance between one variable with itself is
 \ifelse{html}{\out{d<sup>2</sup>(X<sub>i</sub>,X<sub>i</sub>) = 0}}{\eqn{d^2(X_i,X_i)=0}{d^2(X_i,X_i) = 0}}
 }
 \examples{
-set.seed(1234)
-require(SFSI)
-# Simulate matrix
-n = 100; p=10
-X = scale(matrix(rnorm(n*p),ncol=p))
+  require(SFSI)
+  # Simulate matrix
+  n = 100; p=10
+  X = scale(matrix(rnorm(n*p),ncol=p))
 
-# Distance matrix from a cross-product
-COV = crossprod(X)   # Cross-product X'X
-cov2dist(COV)
-# it must equal (but faster) to:
-as.matrix(dist(t(X)))^2
+  # Distance matrix from a cross-product
+  COV = crossprod(X)   # Cross-product X'X
+  cov2dist(COV)
+  # it must equal (but faster) to:
+  as.matrix(dist(t(X)))^2
 
-# Distance matrix from a variance-covariance matrix
-COV = cov(X)   # Variance matrix of X
-(n-1)*cov2dist(COV)
-# it must equal (but faster) to:
-as.matrix(dist(t(X)))^2
+  # Distance matrix from a variance-covariance matrix
+  COV = cov(X)   # Variance matrix of X
+  (n-1)*cov2dist(COV)
+  # it must equal (but faster) to:
+  as.matrix(dist(t(X)))^2
 
-# Using void=TRUE
-cov2dist(COV,void=TRUE)
-(n-1)*COV   # notice that COV was modified
+  # Using void=TRUE
+  cov2dist(COV,void=TRUE)
+  (n-1)*COV   # notice that COV was modified
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
