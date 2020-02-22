@@ -4,6 +4,7 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
 {
   method <- match.arg(method)
 
+  Xty <- as.vector(Xty)
   p <- length(Xty)
   if(length(XtX) != p^2)
     stop("Incompatible dimensions between 'XtX' and 'Xty'")
@@ -19,7 +20,7 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
 
   if(scale){
     sdx <- sqrt(diag(XtX))
-    XtX <- scale_cov(XtX)
+    XtX <- scale_cov(XtX)  # Equal to XtX=cov2cor(XtX) but faster
     Xty <- Xty/sdx
   }else{
     sdx <- rep(1,p)

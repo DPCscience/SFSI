@@ -1,40 +1,75 @@
+# X = Z = indexK = h2 = subset = lambda = saveAt = name = NULL
+# trn =  tst = seq_along(y); alpha = 1; nLambda = 100, method = "CD1"
+# mc.cores = 5; tol = 1E-4; maxIter = 500; verbose = TRUE
 
-SFI <- function(G,y,h2=0.5,trn=1:length(y),tst=1:length(y),indexG=NULL,subset=NULL,
-    kernel=NULL,lambda=NULL,nLambda=100,method=c("CD1","CD2"),alpha=1,name=NULL,
-    mc.cores=getOption("mc.cores", 2L),tol=1E-5,maxIter=800,saveAt=NULL,verbose=TRUE)
+SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
+         h2 = NULL, trn = seq_along(y), tst = seq_along(y), subset = NULL,
+         alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
+         tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
+         mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
 {
   method <- match.arg(method)
 
-  nTRN <- length(trn);  nTST <- length(tst)
-  if(is.character(G)){
-      G <- readBinary(G,indexRow=indexG,indexCol=indexG)
+  n <- length(y);  nTRN <- length(trn);  nTST <- length(tst)
+  if(is.character(K)){
+      K <- readBinary(K,indexRow=indexK,indexCol=indexK)
+  }
+  if(!is.double(K)) K <- apply(K,2,as.double)
+
+  if(is.null(X))   # Design matrix for fixed effects including the intercept
+  {
+    X <- model.matrix(~1,data=data.frame(rep(1,n)))
+  }else{
+    if(is.vector(X)){
+      X <- stats::model.matrix(~X)
+      if(ncol(X)>2)  colnames(X)[-1] <- substr(colnames(X)[-1],2,nchar(colnames(X)[-1]))
+    }
   }
 
-  if(!is.matrix(G) | (length(G) != length(y)^2))
-    stop("Object 'G' must be a squared matrix with number of rows (and columns) equal to the number of elements in 'y'")
-
-  if(!is.double(G)) G <- apply(G,2,as.double)
-
-  RHS <- G[trn,tst,drop=FALSE]
-  G <- G[trn,trn]
-
-  for(i in 1:nTRN)  G[i,i] <- G[i,i] + (1-h2)/h2
-
-  if(!is.null(kernel)){
-    if(is.list(kernel) & is.null(kernel$kernel)) stop("Parameter 'kernel' must be a 'list' type object")
-    kernel2(G,kernel,void=TRUE)
+  if(!is.null(Z)){
+    if(!is.matrix(Z)) stop("Object 'Z' must be a matrix with nrow(Z)=n and ncol(Z)=nrow(K)\n")
+    K <- Z%*%K%*%t(Z)
   }
+
+  if(!is.matrix(K) | (length(K) != n^2))
+    stop("Product Z %*% K %*% t(Z) must be a squared matrix with number of rows",
+     "\n(and columns) equal to the number of elements in 'y'")
+
+  RHS <- K[trn,tst,drop=FALSE]
+  K <- K[trn,trn]
+
+  if(is.null(h2))
+  {
+    # Fit LMM to get variance components and estimate fixed effects as GLS
+    fm <- solveMixed(y[trn],X=X[trn,,drop=FALSE],K=K)
+    if(fm$convergence){
+      varU <- fm$varU
+      varE <- fm$varE
+      h2 <- varU/(varU + varE)
+      b <- fm$b
+    }else stop("Convergence was not reached in the 'EMMA' algorithm. \n\t",
+           "Please provide a heritability estimate in 'h2' parameter")
+  }else{   # Only estimate fixed effects as GLS
+    varU <- varE <- NULL
+    if(is.null(b)){
+      b <- solveMixed(y[trn],X=X[trn,,drop=FALSE],K=K,BLUP=FALSE,h2=h2)$b
+    }else{
+      if(length(b) != ncol(X)) stop("The length of 'b' must be the same as the number of columns of 'X'\n")
+    }
+  }
+  if(h2 < 0.001) warning("The 'heritability' is too small. Results may be affected",immediate.=TRUE)
+  Xb <- drop(X%*%b)
 
   # Standardizing
-  sdx <- sqrt(diag(G))
-  scale_cov(G,void=TRUE)
+  for(i in 1:nTRN)  K[i,i] <- K[i,i] + (1-h2)/h2
+  sdx <- sqrt(diag(K))
+  scale_cov(K,void=TRUE)   # Equal to K=cov2cor(K) but faster
   RHS <- apply(RHS,2,function(x)x/sdx)
 
   if(is.null(lambda)){
     if(method == "CD1"){
-        Cmax <- ifelse(alpha>0,max(abs(RHS)/alpha),5)
-        lambda <- exp(seq(log(Cmax),log(1E-5),length=nLambda))
-        lambda[nLambda] <- 0
+        Cmax <- ifelse(alpha > .Machine$double.eps,max(abs(RHS)/alpha),5)
+        lambda <- exp(seq(log(Cmax),log(.Machine$double.eps^0.5),length=nLambda))
     }
   }else{
     if(is.matrix(lambda)){
@@ -42,7 +77,7 @@ SFI <- function(G,y,h2=0.5,trn=1:length(y),tst=1:length(y),indexG=NULL,subset=NU
     }
   }
 
-  if(is.null(name)) name <- paste(c(method,substr(kernel$kernel,1,2)),collapse="_")
+  name <- ifelse(is.null(name),method,name)
 
   # Split the testing set into subsets. Only the subset provided will be fitted
   if(!is.null(subset)){
@@ -55,7 +90,8 @@ SFI <- function(G,y,h2=0.5,trn=1:length(y),tst=1:length(y),indexG=NULL,subset=NU
      RHS <- RHS[,index,drop=FALSE]
   }else tmp <- ""
 
-  if(verbose) cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",length(trn)," individuals\n",sep="")
+  if(verbose)
+    cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",nTRN," individuals\n",sep="")
 
   compApply <- function(chunk)
   {
@@ -64,10 +100,10 @@ SFI <- function(G,y,h2=0.5,trn=1:length(y),tst=1:length(y),indexG=NULL,subset=NU
       lambda0 <- lambda[chunk,]
     }else lambda0 <- lambda
 
-    fm <- solveEN(G,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
+    fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
                   alpha=alpha,tol=tol,maxIter=maxIter)
 
-    # Returning betas to their original scale by scaling them by their SD
+    # Return betas to the original scale by dividing by sdx
     B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)
 
     if(verbose){
@@ -91,15 +127,14 @@ SFI <- function(G,y,h2=0.5,trn=1:length(y),tst=1:length(y),indexG=NULL,subset=NU
   }
 
   if(sum(tst != unlist(lapply(out,function(x)x$tst)))>0){
-    stop("Matching error. Something went wrong during the analysis.")
+    stop("Some sub-processes failed. Something went wrong during the analysis.")
   }
 
-  out <- list(method=method, kernel=kernel, name=name, y=y, h2=h2,
-              trn=trn,tst=tst, alpha=alpha,
-              df=do.call("rbind",lapply(out,function(x)x$df)),
-              lambda=do.call("rbind",lapply(out,function(x)x$lambda)),
-              BETA=lapply(out,function(x) x$B)
-            )
+  out <- list(method=method, name=name, y=y, Xb=Xb, b=b, varU=varU,
+              varE=varE, h2=h2, trn=trn, tst=tst, alpha=alpha,
+              df = do.call("rbind",lapply(out,function(x)x$df)),
+              lambda = do.call("rbind",lapply(out,function(x)x$lambda)),
+              BETA = lapply(out,function(x) x$B))
   class(out) <- "SFI"
 
   # Save outputs if 'saveAt' is not NULL

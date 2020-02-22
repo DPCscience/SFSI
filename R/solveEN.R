@@ -1,6 +1,6 @@
 
-solveEN <- function(XtX,Xty,lambda=NULL,nLambda=100,alpha=1,scale=TRUE,
-  tol=1E-5,maxIter=1000,verbose=FALSE)
+solveEN <- function(XtX, Xty, alpha = 1, lambda = NULL, nLambda = 100,
+        scale = TRUE, tol = 1E-5, maxIter = 1000, verbose = FALSE)
 {
     p <- length(Xty)
     if(length(XtX) != p^2)
@@ -16,22 +16,21 @@ solveEN <- function(XtX,Xty,lambda=NULL,nLambda=100,alpha=1,scale=TRUE,
     if(scale)
     {
       sdx <- sqrt(diag(XtX))
-      XtX <- scale_cov(XtX)
+      XtX <- scale_cov(XtX)  # Equal to XtX=cov2cor(XtX) but faster
       Xty <- Xty/sdx
     }else{
       sdx <- rep(1,p)
     }
 
     if(is.null(lambda)){
-      Cmax <- ifelse(alpha>0, max(abs(Xty)/alpha), 5)
-      Cmax <- ifelse(Cmax <= .Machine$double.eps,1E-5,Cmax)
-      lambda <- exp(seq(log(Cmax),log(1E-5),length=nLambda))
-      lambda[nLambda] <- 0
+      Cmax <- ifelse(alpha > .Machine$double.eps, max(abs(Xty)/alpha), 5)
+      lambda <- exp(seq(log(Cmax),log(.Machine$double.eps^0.5),length=nLambda))
     }
     nLambda <- length(lambda)
 
-    beta <- .Call('updatebeta_lambda',as.integer(p),XtX,Xty,as.integer(nLambda),
-      as.numeric(lambda),as.numeric(alpha),as.numeric(tol),as.integer(maxIter),verbose)[[1]]
+    beta <- .Call('updatebeta',as.integer(p),XtX,as.vector(Xty),
+               as.integer(nLambda),as.numeric(lambda),as.numeric(alpha),
+               as.numeric(tol),as.integer(maxIter),verbose)[[1]]
 
     if(scale) beta <- scale(beta,FALSE,sdx)
     df <- apply(beta,1,function(x)sum(abs(x)>0))
