@@ -2,6 +2,8 @@
 
 ## Sparse Selection Index (SSI)
 
+See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SSI.pdf) for the sparse selection index.
+
 <div id="Outline" />
 
 ## Outline
