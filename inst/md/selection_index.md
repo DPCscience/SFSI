@@ -213,7 +213,7 @@ SI_CV <- function(x,y,Ux,Uy,covType=c("geno","pheno"),nRep,nFold,nLambda,tol=1E-
       Px <- var(xTRN)
 
       # Estimate regression coefficients
-      fm <- SSI(Px,covariance,method="CD",tol=tol,maxIter=maxIter,nLambda=nLambda)
+      fm <- solveEN(Px,covariance,tol=tol,maxIter=maxIter,nLambda=nLambda)
   
       # Retrieve data from 'df' and 'lambda'
       dfSI <- cbind(dfSI,fm$df)
@@ -256,8 +256,7 @@ dat <- rbind(
 
 # Plot the average accuracy (in testing set) across all fold-replications
 ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + 
-   geom_line(size=0.8)
-
+   geom_line(size=0.8) + theme_bw()
 ```
 
 <p align="center">
@@ -276,8 +275,7 @@ dat <- rbind(
 dat2 <- aggregate(accuracy~SI+sp,dat,mean)
 rg <- range(dat$accuracy)
 ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
-  facet_wrap(~sp,scales="free_y") + geom_boxplot(width=0.5) 
-  
+  facet_wrap(~sp,scales="free_y") + geom_boxplot(width=0.5) + theme_bw()
 ```
 
 <p align="center">
@@ -360,7 +358,7 @@ h2xL <- rbeta(p,2,10)
 library(ggpubr)
 makePlot <- function(h2xy,h2x,out1,out2)
 {
-  thm0 <- theme(plot.title = element_text(hjust = 0.5))
+  thm0 <- theme(plot.title = element_text(hjust = 0.5)) + theme_bw()
   
   # Histogram of h2 and genetic correlation
   dat <- rbind(data.frame(comp="h2",x=h2x),data.frame(comp="r",x=h2xy^2))
