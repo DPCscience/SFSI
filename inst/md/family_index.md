@@ -209,7 +209,7 @@ trn <- (seq_along(y))[-tst]
 
 # Cross-validation in training data to get a value of lambda
 fm1 <- SFI_CV(y,K=G,trn.CV=trn,nFolds=5,mc.cores=4,seed=123,name="CV5")
-lambda0 <- summary(fm1)$optMSE['mean','lambda']
+lambda0 <- summary(fm1)$optCOR['mean','lambda']
 
 # Predict testing data using lambda obtained from cross-validation
 yNA <- y
@@ -234,7 +234,7 @@ cross-validations to run are the length of the vector.
 fm2 <- SFI_CV(y,K=G,trn.CV=trn,nFolds=5,mc.cores=4,nCV=5,name="CV5x5")
 
 # Lambda obtained by averaging all fold/partitions
-lambda0 <- summary(fm2)$optMSE['mean','lambda']             
+lambda0 <- summary(fm2)$optCOR['mean','lambda']             
 
 fm <- SFI(yNA,K=G,trn=trn,tst=tst,lambda=lambda0)
 cor(y[tst],fitted(fm))
@@ -245,7 +245,7 @@ This CV is performed when setting `nFolds='n'`. This cross-validation might take
 
 ```r
 fm3 <- SFI_CV(y,K=G,trn.CV=trn,nFolds='n',mc.cores=4,name="LOO")
-lambda0 <- summary(fm3)$optMSE['mean','lambda']
+lambda0 <- summary(fm3)$optCOR['mean','lambda']
 
 # Comparison of the profile of each CV
 plot(fm1,fm2,fm3,py="MSE")
@@ -255,6 +255,14 @@ plot(fm1,fm2,fm3)
 <p align="center">
 <img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_comparison_MSE.png" width="390">
 </p>
+
+
+***4.1 Network plot of individuals in testing and training***
+
+The above cross-validation can be done using the 'SFI_CV' function which divide data into a number of folds provided in `nFolds` parameter using the specified `seed` parameter.
+
+```r
+```
 
 [Back to Outline](#Outline)
 
