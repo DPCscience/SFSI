@@ -13,7 +13,7 @@ Predictive ability of both kinship-based BLUP and SFI can be then compared using
   * [1. Data](#data)    
   * [2. Equivalence of G-BLUP and non-Sparse Family Index](#GBLUP&FI)
   * [3. Non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
-  * [4. Predicting testing individuals using a trainig set](#predictSFI)
+  * [4. Obtaining a value of lambda using cross-validation](#CV_SFI)
   * [5. Parallel computing for large datasets](#parallelizing)
   * [6. Working with binary files](#binaryFiles)
 
@@ -198,7 +198,7 @@ plot(fm3,fm2)
 
 -------------------------------------------------------------------------------------------
 
-<div id="predictSFI" />
+<div id="CV_SFI" />
 
 **4. Predicting values for a testing set using a training set**
 
@@ -237,7 +237,7 @@ cross-validations to run are the length of the vector.
 ```r
 fm2 <- SFI_CV(y,K=G,trn.CV=trn,nFolds=5,mc.cores=4,nCV=5,name="CV5x5")
 
-# Lambda obtained by averaging all fold/partitions
+# Lambda obtained across all fold/partitions
 lambda0 <- summary(fm2)$optCOR['mean','lambda']             
 
 fm <- SFI(yNA,K=G,trn=trn,tst=tst,lambda=lambda0)
@@ -251,6 +251,9 @@ This CV is performed when setting `nFolds='n'`. This cross-validation might take
 fm3 <- SFI_CV(y,K=G,trn.CV=trn,nFolds='n',mc.cores=4,name="LOO")
 lambda0 <- summary(fm3)$optCOR['mean','lambda']
 
+fm <- SFI(yNA,K=G,trn=trn,tst=tst,lambda=lambda0)
+cor(y[tst],fitted(fm))
+
 # Comparison of the profile of each CV
 plot(fm1,fm2,fm3,py="MSE")
 plot(fm1,fm2,fm3)
@@ -263,22 +266,25 @@ plot(fm1,fm2,fm3)
 
 ***4.1 Network plot of individuals in testing and training***
 
-The SFI gives for each individuals being predicted (testing set), an individualized set consisting of a reduced number of individuals (from training set) that contributes to its breeding value prediction. Function `plotNet` gives the representation of the conections between (connected by lines) that resulted with non-zero regression coefficient in the optimal
+The SFI gives for each individuals being predicted (testing set), an individualized set consisting of a reduced number of individuals (from training set) that contributes to its breeding value prediction. Function `plotNet` gives the representation of the conections (using lines) between testing and individuals in training that resulted with non-zero regression coefficient in the optimal SFI.
 
 ```r
-# Basic setting
-       plotNet(fm,K=G)
-       plotNet(fm,K=G,bg.col="white",line.col="gray25")
+plotNet(fm,K=G,bg.col="white",line.col="gray25")
        
-       # Passing a matrix of coeeficients
-       B=as.matrix(coef(fm,df=15))
-       plotNet(fm,B=B,K=G,curve=TRUE,group.size=c(3.5,1.5,1))
+# Passing a matrix of coefficients
+B <- as.matrix(coef(fm))
+tst0 <- fm$tst[1:15]   # A subset of the testing set
+plotNet(fm,B=B,K=G,tst=tst0,curve=TRUE,group.size=c(3.5,1.5,1))
        
-       # Using Spectral Value Decomposition and grouping
-       EVD <- eigen(G)
-       gp <- data.frame(group=kmeans(EVD$vectors[,1:2],centers=5)$cluster)
-       plotNet(fm,curve=TRUE,group=gp,U=EVD$vectors,d=EVD$values)
+# Using Spectral Value Decomposition and grouping
+EVD <- eigen(G)
+gp <- data.frame(group=kmeans(EVD$vectors[,1:2],centers=5)$cluster)
+plotNet(fm,tst=tst0,curve=TRUE,group=gp,U=EVD$vectors,d=EVD$values)
 ```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Network_plot_SFI.png" width="390">
+</p>
 
 [Back to Outline](#Outline)
 
