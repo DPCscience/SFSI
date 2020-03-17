@@ -9,6 +9,8 @@
 \usepackage{blindtext}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{sidecap}
+\usepackage[round]{natbib}
 \hypersetup{colorlinks,
             citecolor=blue,
             filecolor=blue,
@@ -30,9 +32,10 @@
   {xshift=1.5em,yshift=-\tcboxedtitleheight/2},
   boxed title style={size=small,colback=white},#1}
 
-        
+\sidecaptionvpos{figure}{c}
+
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+\bibliographystyle{chicago}
 
 \begin{table}[!htbp]
 \begin{center}
@@ -52,26 +55,27 @@ Michigan State University \\
 \hrule height 1mm 
 \end{center}
 \end{table}
-\vspace{5mm}
+
+\tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Family index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A \textbf{family selection index} is used to predict the breeding value of individuals collecting information from relatives. The borrowing of information relies in the use of a linear mixed model that decomposes phenotypic observations, $\boldsymbol{y}=(y_1,…,y_n)'$,  as the sum of the population mean ($\mu$), breeding values, $\boldsymbol{u}=(u_1,…,u_n)'$, and environmental deviations, $\boldsymbol{e}=(e_1,…,e_n)'$,  as 
+A \textbf{family selection index} is used to predict the breeding value of a \textbf{target trait} ($y_i$) of individuals collecting information from their relatives. The borrowing of information relies in the use of a linear mixed model that decomposes the target trait's phenotypic observations, $\boldsymbol{y}=(y_1,…,y_n)'$,  as the sum of the population mean ($\mu$), breeding values, $\boldsymbol{u}=(u_1,…,u_n)'$, and environmental deviations, $\boldsymbol{e}=(e_1,…,e_n)'$,  as 
 \begin{equation}
 \label{eqn:genmod}
 y_i=\mu+u_i+e_i	
 \end{equation}
 
-Both $\boldsymbol{u}$ and $\boldsymbol{e}$ are assumed to be normally distributed with null means and $var(\boldsymbol{u})=\sigma_u^2 \textbf{G}$, $var(\boldsymbol{e})=\sigma_e^2 \textbf{I}$, and $cov(\boldsymbol{u},\boldsymbol{e}')=\textbf{0}$, where $\sigma_u^2$ and $\sigma_e^2$ are the common genetic and residual variances, respectively; $\textbf{G}$ is the \textbf{genetic relationship matrix} and $\textbf{I}$ is an identity matrix. In the family index all the available phenotypic observations (as deviations from the population mean) contribute (to a different extent) to the predicted breeding value of each selection candidate as
+Both $\boldsymbol{u}$ and $\boldsymbol{e}$ are assumed to be normally distributed with null means and $\text{var}(\boldsymbol{u})=\sigma_u^2 \textbf{G}$, $\text{var}(\boldsymbol{e})=\sigma_e^2 \textbf{I}$, and $\text{cov}(\boldsymbol{u},\boldsymbol{e}')=\textbf{0}$, where $\sigma_u^2$ and $\sigma_e^2$ are the common genetic and residual variances, respectively; $\textbf{G}$ is the \textbf{genetic relationship matrix} and $\textbf{I}$ is an identity matrix. In the family index all the available phenotypic observations (as deviations from the population mean) contribute (to a different extent) to the predicted breeding value of each selection candidate as
 
 \begin{equation}
 \label{eqn:predFI}
 \mathcal{I}_i=\boldsymbol{\beta}_i' (\boldsymbol{y}-\mu\textbf{1})
 \end{equation}
 
-The weights $\boldsymbol{\beta}_i=(\beta_{i1},…,\beta_{in})'$ are chosen such that the mean square error (MSE) of prediction, $\mathbb{E}(u_i-\mathcal{I}_i )^2$, is minimum. This is, solutions $\hat{\boldsymbol{\beta}}_i$ are found by solving: 
+The weights $\boldsymbol{\beta}_i=(\beta_{i1},…,\beta_{in})'$ are chosen such that the mean square error (MSE) of prediction is minimum. This is, solutions $\hat{\boldsymbol{\beta}}_i$ are found by solving: 
 
 \begin{equation*}
 \hat{\boldsymbol{\beta}}_i = \underset{\beta}{\text{arg min}}\frac{1}{2}\mathbb{E}\left[u_i-\boldsymbol{\beta}_i' (\boldsymbol{y}-\mu\textbf{1})
@@ -85,53 +89,67 @@ Given the assumptions given in model \eqref{eqn:genmod}, the above problem is eq
 \hat{\boldsymbol{\beta}}_i = \underset{\beta}{\text{arg min}}\left[-\boldsymbol{\beta}_i' \textbf{G}_i + \frac{1}{2}\boldsymbol{\beta}_i'(\textbf{G}+\lambda_0\textbf{I})\boldsymbol{\beta}_i
 \right]
 \end{equation}
-
 where $\lambda_0=\sigma_e^2/\sigma_u^2$ and $\boldsymbol{G}_i$ corresponds to the $i^\text{th}$ column of the genetic relationship matrix. The solution to this optimization problem is
 \begin{equation}
-\label{eqn:solNSFI}
+\label{eqn:betaNSFI}
 \hat{\boldsymbol{\beta}}_i = \left( \textbf{G} + \lambda_0 \textbf{I}\right)^{-1} \textbf{G}_i
 \end{equation}
 
-Variance components $\sigma_e^2$, $\sigma_u^2$, and $\textbf{G}$ are assumed to be accurately estimated.  With $\mu$ known, this family index corresponds to the selection index developed by Smith (Smith, 1936) and Hazel (Hazel, 1943). When the population mean is replaced by its least square estimate $\hat{\mu}$,  the resulting index is the \textbf{kinship-based BLUP} found by Henderson (Henderson, 1963). Therefore, there is an equivalence between the family index and the kinship-based BLUP when the mean is null.
+Variance components $\sigma_e^2$, $\sigma_u^2$, and $\textbf{G}$ are assumed to be accurately estimated.  With $\mu$ known, this family index corresponds to the \textbf{selection index} developed by \citet{Smith1936} and \citet{Hazel1943}. When the population mean is replaced by its least square estimate $\hat{\mu}$,  the resulting index is the \textbf{kinship-based BLUP} found by \citet{Henderson1963}. Therefore, there is an equivalence between the family index and the kinship-based BLUP when the mean is null.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sparse family index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In the \textbf{sparse family index} (SFI), some of the regression coefficients become zero and the most predictive ones are given a non-zero value. This sparsity feature is achieved by adding a penalization factor on the coefficients $\boldsymbol{\beta}_i$ in the optimization problem in \eqref{eqn:NSFI}, as follows: 
+In the \textbf{sparse family index} (\textbf{SFI}), some of the regression coefficients become zero and the most predictive ones are given a non-zero value. This sparsity feature is achieved by adding a penalization factor on the coefficients $\boldsymbol{\beta}_i$ in the optimization problem in \eqref{eqn:NSFI}, as follows: 
 
 \begin{equation}
 \label{eqn:SFI}
 \hat{\boldsymbol{\beta}}_i = \underset{\beta}{\text{arg min}}\left[-\boldsymbol{\beta}_i' \textbf{G}_i + \frac{1}{2}\boldsymbol{\beta}_i'(\textbf{G}+\lambda_0\textbf{I})\boldsymbol{\beta}_i + \lambda\cdot J(\boldsymbol{\beta}_i)
 \right]
 \end{equation}
-
-where $\lambda$ and $J(\boldsymbol{\beta}_i)$ are, respectively, a penalty parameter and a penalty function. We considered a penalty function as 
+where $\lambda$ is a penalty parameter and $J(\boldsymbol{\beta}_i)$ is a penalty function. Commonly used penalties include the L2 ($||\boldsymbol{\beta}_i||^2_2=\sum_{j=1}^n\beta_{ij}^2$) and L1 ($||\boldsymbol{\beta}_i||_1=\sum_{j=1}^n|\beta_{ij}|$) norms \citep{Fu1998a} either alone or in a combination of both. We considered a penalty function as 
 \begin{equation*}
 J(\boldsymbol{\beta}_i)=\frac{1}{2} (1-\alpha) \sum_{j=1}^n\beta_{ij}^2 + \alpha \sum_{j=1}^n|\beta_{ij}|
 \end{equation*}
-where $\alpha$ is a weighting factor. This penalty is used in an  \textbf{elastic-net-type} regression (Zou \& Hastie, 2005) that combines the shrinkage-inducing feature of a \textbf{ridge-regression} (Hoerl \& Kennard, 1970), that uses the L2-norm: $J(\boldsymbol{\beta}_i)=\frac{1}{2} \sum_{j=1}^n\beta_{ij}^2$ , and the variable selection feature of a  \textbf{LASSO} regression (Tibshirani, 1996), that uses the L1-norm: $J(\boldsymbol{\beta}_i)=\sum_{j=1}^n|\beta_{ij}|$ . The ridge-regression and LASSO types are special cases when $\alpha=0$ and $\alpha=1$, respectively. With no penalization ($\lambda=0$), the solution for \eqref{eqn:SFI} is equivalent to that of the (non-sparse) kinship-based BLUP in \eqref{eqn:solNSFI}.
+where $\alpha$ is a weighting factor. This penalty is used in an  \textbf{elastic-net-type} regression \citep{Zou2005} that combines the shrinkage-inducing feature of a \textbf{ridge-regression} \citep{Hoerl1970}, that uses the L2-norm alone, and the variable selection feature of a  \textbf{LASSO} regression \citep{Tibshirani1996}, that uses the L1-norm alone. The ridge-regression and LASSO types are special cases when $\alpha=0$ and $\alpha=1$, respectively. With no penalization ($\lambda=0$), the solution for \eqref{eqn:SFI} is equivalent to that of the (non-sparse) kinship-based BLUP in \eqref{eqn:betaNSFI}.
 
 \vspace{5mm}
 
-A closed-form solution for the regression coefficients can be found only when $\alpha=0$ (Hastie et al., 2009) (i.e., a ridge-regression-type SFI). In this case, the solution is $\hat{\boldsymbol{\beta}}_i = \left[ \textbf{G} + (\lambda_0+\lambda) \textbf{I}\right]^{-1} \textbf{G}_i
-$; however, for $0<\alpha\leq1$ solutions are obtained using iterative algorithms such as \textbf{least angle regression} (Efron et al., 2004) or \textbf{coordinate descent} (Friedman et al., 2007) for different values of the parameters $\alpha$ and $\lambda$. These combinations of the values of $\alpha$  and $\lambda$  will result in different SFIs from which an optimal index can be obtained such as the prediction accuracy is maximum.
+A closed-form solution for the regression coefficients can be found only when $\alpha=0$ \citep{Hastie2009a} (i.e., an L2-penalized SFI). In this case, the solution is $\hat{\boldsymbol{\beta}}_i = \left[ \textbf{G} + (\lambda_0+\lambda) \textbf{I}\right]^{-1} \textbf{G}_i
+$; however, for $0<\alpha\leq1$ solutions are obtained using iterative algorithms such as \textbf{least angle regression} \citep{Efron2004} or \textbf{coordinate descent} \citep{Friedman2007} for different values of the parameters $\alpha$ and $\lambda$. These combinations of the values of $\alpha$  and $\lambda$  will result in different SFIs from which an optimal index can be obtained such as the prediction accuracy is maximum.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Accuracy of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The accuracy of the index is defined as the correlation between the index ($\mathcal{I}_i$) and the breeding values ($u_i$) and can be derived from path coefficients as 
+The accuracy of the index is defined as the correlation between the index ($\mathcal{I}_i$) and the breeding values ($u_i$) and can be derived from path coefficients \citep{Dekkers2007} as 
 \begin{equation*}
-cor(\mathcal{I}_i,u_i)=cor(\mathcal{I}_i,y_i)/h
+\text{cor}(\mathcal{I}_i,u_i)=\text{cor}(\mathcal{I}_i,y_i)/h
 \end{equation*}
-where $h=cor(y_i,u_i)$ is the correlation between phenotypic and breeding values, and it is equivalent to the square root of the heritability of the trait, defined as 
-\begin{equation*}
-h^2=\frac{\sigma^2_u}{\sigma^2_u +\sigma^2_e}
-\end{equation*}
+where $h=\text{cor}(y_i,u_i)$ is the correlation between phenotypic and breeding values, and it is equivalent to the square root of the heritability of the trait.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Genomic relationship matrix and heritability}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A genomic relationship matrix can be calculated using marker information as in \citet{VanRaden2008} using marker information, $\textbf{M}=\{m_{ij}\}$, as $\textbf{G}=\textbf{X}\textbf{X}'/p$, where $p$ is the number of markers and $\textbf{X}=\{(m_{ij}-\bar{m}_j)/\text{sd}_{m_j}\}$ is the matrix of centered and standardized markers obtained by subtracting from each marker entry, $m_{ij}$, the mean of each column, $\bar{m}_j$, and scaling it by the standard deviation of the column, $\text{sd}_{m_j}$.
+
+\vspace{5mm}
+The estimated $\textbf{G}$ matrix can be used to fit to the trait phenotypes the linear model in \eqref{eqn:genmod}. Then the heritability is estimated from the estimated genetic and residual variances, $\sigma^2_u$ and $\sigma^2_e$, as	
+\begin{equation}
+\label{eqn:h2}
+h^2=\frac{\sigma^2_u}{\sigma^2_u +\sigma^2_e}
+\end{equation}
+
+Parameter $\lambda_0$ in \eqref{eqn:NSFI} and \eqref{eqn:SFI} can be expressed in terms of the heritability as 
+\begin{equation}
+\label{eqn:lambda0}
+\lambda_0=\frac{1-h^2}{h^2}
+\end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Cross validation}
@@ -139,44 +157,69 @@ h^2=\frac{\sigma^2_u}{\sigma^2_u +\sigma^2_e}
 
 Two types of cross-validation (CV) will be used: (i) training-testing (TRN-TST) partitions to avoid bias in the estimation in the accuracy of the index and (ii) $k$-folds cross-validation to obtain a point estimate of the penalization parameter $\lambda$. 
 
-\begin{itemize}
-\item \textbf{Training-testing partitions}.  
-The accuracy of the index is evaluated as follows: (i) data is split into training 
-and testing sets, (ii) a grid of different values of $\lambda$ (in equation \eqref{eqn:SFI}) within the range of possible values is obtained, (iii) regression coefficients are obtained for each individual in the testing set using information from training data, for each value of $\lambda$, (iv) an index is calculated 
-for each value of $\lambda$ for all individuals in the testing set as a linear combination of the observed values in training set (see equation \eqref{eqn:predFI}), and (v) the prediction accuracy is calculated for all the indices fitted in the testing set. This TRN-TST procedure is repeated to calculate standard deviations.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Training-testing partitions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+The accuracy of the index is evaluated as follows: (a) data is split into training 
+and testing sets where matrix $\textbf{G}$ is separated into sub-matrices $\textbf{G}_{TRN,TRN}$ and $\textbf{G}_{TRN,TST}$, (b) a grid of different values of $\lambda$ (in equation \eqref{eqn:SFI}) within the range of possible values is obtained, (c) regression coefficients are obtained for each individual $i$ in the testing set using $\textbf{G}_{TRN,TST(i)}$ and information from training data ($\textbf{G}_{TRN,TRN}$), for each value of $\lambda$, (d) an index is calculated 
+for each value of $\lambda$ for all individuals in the testing set as a linear combination of the observed values in training set (see equation \eqref{eqn:predFI}), and (e) the prediction accuracy is calculated for all the indices fitted in the testing set. This TRN-TST procedure is repeated to calculate standard deviations.
 
-\item \textbf{$k$-folds CV}.  
-A value of $\lambda$ is estimated using only data from training set as follows: (i) training data is further partitioned into $k$ subsets (called \textit{folds}), (ii) an SFI is calculated within each fold using the remaining $k-1$ folds to train the model for a grid of different values of $\lambda$ within the range of possible values, (iii) the optimal $\lambda$ is chosen such that the averaged (across all $k$ folds) SFI has the biggest correlation between observed and predicted values, and (iv) this optimal penalization is used along with the whole training data to calculate the optimal SFI for the testing data. An optimal value for $\lambda$ can be also chosen in step (iii) such that the cross-validated MSE is minimum. The $k$-folds partition can be repeated many times to obtain an optimal $\lambda$ averaging across folds and partitions.
-\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{$k$-folds CV}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+A value of $\lambda$ is estimated using only data from training set as follows: (a) training data is further partitioned into $k$ subsets (called \textit{folds}), (b) an SFI is calculated within each fold using the remaining $k-1$ folds to train the model for a grid of different values of $\lambda$ within the range of possible values, (c) the optimal $\lambda$ is chosen such that the averaged (across all $k$ folds) SFI has the biggest correlation between observed and predicted values, and (d) this optimal penalization is used along with the whole training data to calculate the optimal SFI for the testing data. An optimal value for $\lambda$ can be also chosen in step (c) such that the cross-validated MSE is minimum. The $k$-folds partition can be repeated many times to obtain an optimal $\lambda$ averaging across folds and partitions.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experimental data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The data set consists of 58,798 wheat lines from CIMMYT's Global Wheat Program. Lines were evaluated at the main experimental station in 
+The data set consists of 58,798 wheat lines from the Global Wheat Program of CIMMYT (International Maize and Wheat Improvement Center). Lines were evaluated at the experimental station in 
 Ciudad Obregon, Mexico, under several environmental conditions representing a combination of planting system (bed vs flat, the later referred to as melgas), 
-number of irrigations (2, 5 irrigations or drip irrigation), and sowing date (optimum, late or early planting); during five cycles between 2009 and 2013. 
-The first cycle (09-10) was sown in late 2009 and harvested in 2010, the second cycle (10-11) was planted in late 2010 and harvested early 2011; 
-and so on. Several trials were established in an $\alpha$-lattice design with three replicates into (incomplete) blocks. 
-Total grain yield ($ton\;ha^{-1}$) after maturity was collected at each plot. Mixed models including effects of the mean (fixed), 
+number of irrigations (2, 5 or drip irrigation), and sowing date (optimum, late or early planting); during five cycles between 2009 and 2013. Several trials were established in an $\alpha$-lattice design with three replicates into incomplete blocks. 
+
+\vspace{5mm}
+
+Total grain yield (GY, $\text{ton\;ha}^{-1}$) after maturity was collected at each plot. Mixed models including effects of the mean (fixed), 
 trial (random), replicate within trial (random), incomplete block within trial and replicate (random), and genotype (random) were fitted
 within environment. Grain yield records are reported as adjusted means obtained from removing effects from trial, replicate and block. 
 Only a subset of 29,484 genotypes were genotyped using GBS (Genotyping-by-sequencing) technology followed by SNP 
 calling for 42,706 markers. Quality control was applied by removing SNP markers with minor allele frequency larger lower
  than 5\% and with more than 80\% of missing values. The leftover 9,045 SNP markers that passed quality control were imputed 
  using observed data. Finally, only phenotypic information genotypes with marker information within environment were kept for analyses. 
+ 
+ \begin{table}[!htb]
+  \caption{Number of available observations and average grain yield, by environmental condition}
+  \begin{center}
+  \begin{tabular}{cccccc}
+  \hline
+  \multicolumn{2}{c}{\textbf{Planting conditions}}  & \textbf{Number of} & \textbf{} & \textbf{} & \textbf{Average (sd)} \\
+  \textbf{Date}    & \textbf{System}  & \textbf{irrigations} & \textbf{Name} & \textbf{n} & \textbf{GY ($\text{ton ha}^{-1}$)} \\
+  \hline
+ Optimum   & Bed   & 2  &  B2I\_OBR	& 3,732 & 4.53 (0.261) \\
+ Optimum   & Bed   & 5  &  B5I\_OBR 	& 29,473 & 7.12 (0.372) \\
+ Optimum   & Flat   & 5  &  MEL\_OBR 	& 4,403 & 5.76 (0.304) \\
+ Late          & Bed   & 5  &  LTH\_OBR 	& 4,404 & 3.83 (0.375) \\
+ Optimum  & Bed   & drip  &  DRB\_OBR 	& 3,763 & 2.74 (0.275) \\
+ Early         & Bed   & 5  &  EHT\_OBR 	& 2,040 & 6.16 (0.525) \\
+ \hline
+  \end{tabular}
+  \end{center}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
 
+The above described data will be used to implement sparse family indices methodology for grain yield. Analyses will be implemented in \texttt{R} software using the \texttt{SFSI} R-package. Regression coefficients (in \eqref{eqn:SFI}) are separately calculated for the $i^\text{th}$ individual ($i=1,...,n_{TST}$) using $\textbf{G}_{TRN,TST(i)}$ and $\textbf{G}_{TRN,TRN}+\lambda_0 \textbf{I}$ as inputs as in \citet{Lopez-Cruz2019} for a penalized selection index.
+
 \subsection{Data preparation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Both phenotypic and marker data can be downloaded from CIMMYT's repository at \url{http://genomics.cimmyt.org/wheat_50k/PG} (accessed January, 28, 2020). File \path{G80_42706_29489_correctedgid.RData} contains the marker information and \path{Blups_condition_group_random.csv} contains the adjusted phenotypes for all environmental conditions. Box 1 below shows how to prepare data for a single environment which will be used in latter analyses.
+Both phenotypic and marker data can be downloaded from CIMMYT's repository at the site \url{http://genomics.cimmyt.org/wheat_50k/PG}. The file \path{G80_42706_29489_correctedgid.RData} contains the marker information and the csv file \path{Blups_condition_group_random.csv} contains the adjusted phenotypes for all environmental conditions. \textbf{Box 1} below shows how to prepare data only for the environment \textit{EHT\_OBR} containing $n=2,040$ genotypes, and hereinafter analyses will be with reference to this environment.
 
 \vspace{5mm}
 
-\begin{mybox}[title=Box 1. Data preparation]
+\begin{mybox}[title=\textbf{Box 1}. Data preparation]
 \begin{footnotesize}
 \begin{verbatim}
 rm(list = ls())
@@ -196,47 +239,35 @@ trait <- c("B2I_OBR","B5I_OBR","DRB_OBR","EHT_OBR","LHT_OBR","MEL_OBR")[4]
 Y <- Y[!is.na(Y[,trait]),trait,drop=FALSE]
 common <- intersect(rownames(X),rownames(Y))
 X <- X[common,]
-Y <- Y[common, , drop=FALSE]
+y <- as.vector(scale(Y[common, ]))
 
 # Calculate G matrix
 X <- scale(X)
 G <- tcrossprod(X)/ncol(X)
 
 dir.create("data", recursive=TRUE)
-save(G,file="data/G.RData")
-save(Y,file="data/PHENO.RData")
+save(y,G,file="data/geno_pheno.RData")
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
-
-\vspace{5mm}
-
-In the example shown above, the preparation was made for the environment \textit{EHT\_OBR} containing $n=2,040$ genotypes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Heritability and variance components}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Heritability can be calculated from the whole data by fitting the model \eqref{eqn:genmod}. Code below illustrates how to fit this model using the function \texttt{solveMixed} from package \texttt{SFSI}.
+Heritability can be calculated from the whole data by fitting the model \eqref{eqn:genmod}. Code in \textbf{Box 2} below illustrates how to fit this model using the \texttt{solveMixed} function from \texttt{SFSI} package.
 
 \vspace{5mm}
 
-\begin{mybox}[title=Box 2. Variance components calculation]
+\begin{mybox}[title=\textbf{Box 2}. Variance components]
 \begin{footnotesize}
 \begin{verbatim}
 library(SFSI)
-setwd("/mnt/research/quantgen/projects/PFI/pipeline")
 
-# Load data 
-load("data/G.RData")
-load("data/PHENO.RData")
-y <- as.vector(scale(Y[,1]))
+load("data/geno_pheno.RData")   # Load data 
 
-# Fit model
-fm0 <- solveMixed(y,K=G)
-fm0$varU
-fm0$varE
-fm0$h2
+fm0 <- solveMixed(y,K=G)     # Fit model
+c(fm0$varU,fm0$varE,fm0$h2)
 
 dir.create("output", recursive=TRUE)
 save(fm0,file="output/varComps.RData")
@@ -244,88 +275,111 @@ save(fm0,file="output/varComps.RData")
 \end{footnotesize}
 \end{mybox}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Accuracy of the SFI along the penalization parameter}
+\subsection{Training-testing partitions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Box 3a below illustrates how to fit the SFI using a TRN-TST procedure where data is split to contain 70\% of the data in the training set and the remaining 30\% in the testing set. Likewise, the kinship-based BLUP using genomic data model (G-BLUP) is fitted for comparison. The number of TRN-TST partitions can be set by the variable \texttt{nPart}.
+Code in \textbf{Box 3} below illustrates how to create partitions splitting data into TRN and TST sets. In this example, $70\%$ of the data ($n_{TRN}= 1,428$ observations) will be randomly assigned to the training set and the remaining $30\%$ ($n_{TST}= 612$) to the testing set.
 
 \vspace{5mm}
 
-In this example containing $n=2,040$ individuals, $n_{TRN}=1,428$ are assigned to the training set to predict the remaining $n_{TST}=612$ individuals in the testing set.
+The output will be a matrix with \texttt{nPart} columns and in rows containing indices indicating the $612$ observations that are assigned to testing sets. The object will be saved in the file \texttt{partitions.RData} and will be used for later analyses.
 
 \vspace{5mm}
 
-\begin{mybox}[title=Box 3a. Accuracy of prediction]
+\begin{mybox}[title=\textbf{Box 3}. Create testing set partitions]
 \begin{footnotesize}
 \begin{verbatim}
-load("output/varComps.RData")
-
-# Number of elements in TST set
-nTST <- ceiling(0.3*length(y))
-
-# Create a vector of seeds for randomization to create folds
-nPart <- 5
+nPart <- 5        # Number of partitions
 seeds <- round(seq(1E3, .Machine$integer.max, length = nPart))
-partitions <- matrix(NA,nrow=nTST,ncol=nPart)
+load("data/geno_pheno.RData")	   # Load data 
+nTST <- ceiling(0.3*length(y))		   # Number of elements in TST set
 
-# Objects to store results
-accGBLUP <- accSFI <- lambda <- df <- mu <- h2 <- c()
+partitions <- matrix(NA,nrow=nTST,ncol=nPart)     # Object to store partitions
 
-# Fit model
-for(k in seq_along(seeds))
-{
-    cat("  partition = ",k,"\n")
-    set.seed(seeds[k])
-    tst <- sample(1:length(y),nTST,replace=FALSE)
-    partitions[,k] <- tst
+for(k in 1:nPart)
+{   set.seed(seeds[k])
+    partitions[,k] <- sample(1:length(y),nTST,replace=FALSE)
+}
+save(partitions,file="output/partitions.RData")
+\end{verbatim}
+\end{footnotesize}
+\end{mybox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Fitting the sparse family index}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Code in \textbf{Box 4a} below illustrates how to fit the SFI using the partitions above created. The SFI is calculated usng the \texttt{SFI} function for \texttt{nLambda=100} values of $\lambda$. The G-BLUP model is fitted for comparison using the  \texttt{solveMixed} function. 
+
+\vspace{5mm}
+Estimates $\hat{\mu}$ and $\hat{h}^2$ obtained from the G-BLUP model are passed to the \texttt{SFI}
+function to avoid being computed again thus saving time. The accuracy of both G-BLUP and SFI models is reported and will be stored in object \texttt{accSFI} and saved in the file \texttt{results\_accuracy.RData}.
+
+\vspace{5mm}
+
+\begin{mybox}[title=\textbf{Box 4a}. Accuracy of prediction]
+\begin{footnotesize}
+\begin{verbatim}
+load("data/geno_pheno.RData")   # Load data 
+load("output/varComps.RData");  load("output/partitions.RData")
+
+accSFI <- mu <- h2 <- c()     # Objects to store results
+
+for(k in 1:ncol(partitions))
+{   cat("  partition = ",k,"\n")
+    tst <- partitions[,k]
     trn <- (1:length(y))[-tst]
-    yNA <- y
-    yNA[tst] <- NA
+    yNA <- y;   yNA[tst] <- NA
     
+    # G-BLUP model
     fm1 <- solveMixed(yNA,K=G)
-    accGBLUP[k] <- cor(fm1$u[tst],y[tst])/sqrt(fm0$h2)
     mu[k] <- fm1$b
     h2[k] <- fm1$h2
 
-    fm2 <- SFI(y,K=G,b=mu[k],h2=h2[k],trn=trn,tst=tst,mc.cores=10)
-    accSFI <- rbind(accSFI,summary(fm2)$accuracy/sqrt(fm0$h2))
-    lambda <- rbind(lambda,summary(fm2)$lambda)
-    df <- rbind(df,summary(fm2)$df)
+    # Sparse FI
+    fm2 <- SFI(y,K=G,b=mu[k],h2=h2[k],trn=trn,tst=tst,mc.cores=10,nLambda=100)
+    fm3 <- summary(fm2)
+        
+    accuracy <- c(cor(fm1$u[tst],y[tst]),fm3$accuracy)/sqrt(fm0$h2)
+    lambda <- c(min(fm3$lambda),fm3$lambda)
+    df <- c(max(fm3$df),fm3$df)
+    namesSFI <- c("GBLUP",paste0("SFI_",1:length(fm3$lambda)))
+    accSFI <- rbind(accSFI,data.frame(rep=k,SFI=namesSFI,accuracy,lambda,df))
 }
-save(mu,h2,accGBLUP,accSFI,lambda,df,partitions,file="output/results_accuracy.RData")
+save(mu,h2,accSFI,file="output/results_accuracy.RData")
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
 
 \vspace{5mm}
 
-After performing the above analysis, code in Box 3b below can be used to create a plot depicting the evolution of accuracy over values of penalization. Large values of $\lambda$ (corresponding to small values of $-log(\lambda)$) allow small number of individuals in training data to contribute (i.e., their corresponding weights are nonzero, $\beta_{ij}\neq 0$) to each individual family index in testing data, $\mathcal{I}_i=\boldsymbol{\beta}_i' (\boldsymbol{y}_{TRN}-\mu\textbf{1})$, $i=1,...,n_{TST}$, resulting in a more sparse index. As the parameter $\lambda$ is relaxed toward zero (i.e., $-log(\lambda)$ is increasing) individuals from training set pass from having a null regression coefficient to have a non-zero coefficient that contributes to the index. The accuracy of the G-BLUP is also shown at the rightmost side in the same plot as it is equivalent to the SFI when $\lambda=0$. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Accuracy of the SFI along the penalization parameter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+After performing the above analysis, code in \textbf{Box 4b} below can be used to create a plot depicting the evolution of accuracy over values of penalization. Large values of $\lambda$ (corresponding to small values of $-\text{log}(\lambda)$) allow small number of individuals in training data to contribute (i.e., their corresponding weights are nonzero, $\beta_{ij}\neq 0$) to each individual family index in testing data, resulting in a more sparse index. As the parameter $\lambda$ is relaxed toward zero (i.e., $-\text{log}(\lambda)$ is increasing) individuals from training set pass from having a null regression coefficient to have a non-zero coefficient that contributes to the index. The accuracy of the G-BLUP is also shown at the rightmost side in the same plot as it is equivalent to the SFI when $\lambda=0$. 
 
 \vspace{5mm}
 
-\begin{mybox}[title=Box 3b. Accuracy of prediction (cont ...)]
+\begin{mybox}[title=\textbf{Box 4b}. Effect of penalization on the accuracy]
 \begin{footnotesize}
 \begin{verbatim}
 library(ggplot2)
 load("output/results_accuracy.RData")
 
-dat1 <- data.frame("SFI",colMeans(df),colMeans(lambda),colMeans(accSFI),apply(accSFI,2,sd))
-dat2 <- data.frame("GBLUP",max(dat1[,2]),min(dat1[,3]),mean(accGBLUP),sd(accGBLUP))
-names(dat1) <- names(dat2) <- c("Model","df","lambda","Accuracy","sd")
-dat1$se <-  qnorm(0.975)*dat1$sd/sqrt(length(accGBLUP))
-dat2$se <-  qnorm(0.975)*dat2$sd/sqrt(length(accGBLUP))
-
-datOpt <- dat1[which.max(dat1$Accuracy),]
-ggplot(dat1[dat1$df>3,],aes(-log(lambda),Accuracy,color=Model)) + 
-   geom_hline(yintercept=mean(accGBLUP), linetype="dashed") + 
-   geom_line(size=1.1) + theme_bw() +
-   geom_errorbar(data=dat2,aes(ymin=Accuracy-se, ymax=Accuracy+se),color=1) +
-   geom_errorbar(data=datOpt,aes(ymin=Accuracy-se, ymax=Accuracy+se),color=1) +
-   geom_point(data=datOpt,aes(-log(lambda),Accuracy),size=2.5) +
-   geom_point(data=dat2,aes(-log(lambda),Accuracy),size=2.5) 
-
+dat <- data.frame(do.call(rbind,lapply(split(accSFI,accSFI$SFI),function(x){
+	 c(apply(x[,-c(1:2)],2,mean),se=qnorm(0.975)*sd(x$accuracy)/sqrt(nrow(x)))
+})))
+dat$Model <- unlist(lapply(strsplit(rownames(dat),"_"),function(x)x[1]))
+ 
+dat2 <- rbind(dat["GBLUP",],dat[which.max(dat$accuracy),] )
+ ggplot(dat[dat$df>3,],aes(-log(lambda),accuracy)) + 
+   geom_hline(yintercept=dat["GBLUP",]$accuracy, linetype="dashed") + 
+   geom_line(aes(color=Model),size=1.1) + theme_bw() +
+   geom_errorbar(data=dat2,aes(ymin=accuracy-se,ymax=accuracy+se),width=0.35) +
+   geom_point(data=dat2,aes(color=Model),size=2.5) 
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
@@ -334,35 +388,31 @@ ggplot(dat1[dat1$df>3,],aes(-log(lambda),Accuracy,color=Model)) +
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.85\textwidth]{Figure1}
+  \includegraphics[width=0.75\textwidth]{FigureSFI_1}
   \caption{\small{Prediction accuracy (average across 50 TRN-TST partitions) of the SFI versus the penalization parameter $\lambda$ (logarithm scale). Vertical bars represent the 95\% confidence interval for the SFI with highest accuracy and for the G-BLUP model}}
-  \label{fig:accSFI}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Estimation of the penalization parameter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Code in Box 4a below can be used to implement $k$-folds CV to get an estimate of the parameter $\lambda$. The CV is performed using \texttt{SFI\_CV} within each TRN-TST partition previously created and saved in object \texttt{partitions}. The number of folds can be set by the variable \texttt{nFolds}.
+Code in \textbf{Box 5} below can be used to implement $k$-folds CV to get an 'optimal' value of  $\lambda$ and then used it to fit the SFI for testing data. The CV is performed using the \texttt{SFI\_CV} function within each TRN-TST partition. A single CV repetition of 5-folds will be performed but this can be set by changing \texttt{nCV} and \texttt{nFolds} parameters. The choosing of $\lambda$ is done by the two criteria: (a) maximizing the correlation between observed and predicted values, and (b) minimizing the MSE, both in the training set.
 
 \vspace{5mm}
 
-The choosing of $\lambda$ is done by the two criteria: maximizing the correlation between observed and predicted values, and minimizing the MSE, both in the training set.
-
-\vspace{5mm}
-
-\begin{mybox}[title=Box 4a. Accuracy of prediction]
+\begin{mybox}[title=\textbf{Box 5}. Optimal value of lambda via CV]
 \begin{footnotesize}
 \begin{verbatim}
-load("output/results_accuracy.RData")
+# Load data 
+load("data/geno_pheno.RData");   load("output/varComps.RData")
+load("output/partitions.RData");     load("output/results_accuracy.RData")
 
 # Objects to store results
-accSFI_CV  <- lambdaCV <- matrix(NA,ncol=2,nrow=ncol(partitions))
-dfCV1 <- dfCV2 <- c()
+lambdaCV <- matrix(NA,ncol=2,nrow=ncol(partitions))
+accSFI_CV <- dfCOR <- dfMSE <- c()   
 
-# Fit model
 for(k in 1:ncol(partitions))
-{
+{   cat("  partition = ",k,"\n")
     tst <- partitions[,k]
     trn <- (1:length(y))[-tst]
     
@@ -370,18 +420,17 @@ for(k in 1:ncol(partitions))
     fm1 <- SFI_CV(y,K=G,trn.CV=trn,mc.cores=10,nFolds=5,nCV=1)
     lambdaCV[k,1] <- summary(fm1)$optCOR["mean","lambda"]
     lambdaCV[k,2] <- summary(fm1)$optMSE["mean","lambda"]
-
-    # Fit SFI with lambda estimated using 'correlation' criteria
-    fm2 <- SFI(y,K=G,b=mu[k],h2=h2[k],trn=trn,tst=tst,lambda=lambdaCV[k,1])
-    accSFI_CV[k,1] <- summary(fm2)$accuracy/sqrt(fm0$h2)
-    dfCV1 <- cbind(dfCV1,drop(fm2$df))
     
-    # Fit SFI with lambda estimated using 'MSE' criteria
-    fm2 <- SFI(y,K=G,b=mu[k],h2=h2[k],trn=trn,tst=tst,lambda=lambdaCV[k,2])
-    accSFI_CV[k,2] <- summary(fm2)$accuracy/sqrt(fm0$h2)
-    dfCV2 <- cbind(dfCV2,drop(fm2$df))
+    # Fit SFI with lambda estimated using both criteria
+    fm2 <- SFI(y,K=G,b=mu[k],h2=h2[k],trn=trn,tst=tst,lambda=lambdaCV[k,1])     
+    fm3 <- SFI(y,K=G,b=mu[k],h2=h2[k],trn=trn,tst=tst,lambda=lambdaCV[k,2])
+    
+    acc <- c(SFI_COR=summary(fm2)$accuracy,SFI_MSE=summary(fm2)$accuracy)
+    accSFI_CV <- rbind(accSFI_CV,acc/sqrt(fm0$h2))
+    dfCOR <- cbind(dfCOR,fm2$df)
+    dfMSE <- cbind(dfMSE,fm3$df)
 }
-save(accSFI_CV,lambdaCV,dfCV1,dfCV2,file="output/results_accuracyCV.RData")
+save(accSFI_CV,lambdaCV,dfCOR,dfMSE,file="output/results_accuracyCV.RData")
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
@@ -389,36 +438,37 @@ save(accSFI_CV,lambdaCV,dfCV1,dfCV2,file="output/results_accuracyCV.RData")
 % -----------------------------------------------------------------------------------------
 \vspace{5mm}
 
-After running the above analysis, code in Box 4b below can be used to create a plot where the accuracy of the SFI obtained by both criteria are compared with that of the non-sparse SFI (G-BLUP).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Optimal sparse family index vs G-BLUP}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+After running the above analysis, code in \textbf{Box 6} below can be used to create a bar plot comparing the accuracy of the optimal SFI obtained by both criteria with that of the G-BLUP.
 
 \vspace{5mm}
 
-\begin{mybox}[title=Box 4b. Estimation of an optimal penalization (cont ...)]
+\begin{mybox}[title=\textbf{Box 6}. Accuracy comparison]
 \begin{footnotesize}
 \begin{verbatim}
 load("output/results_accuracy.RData")
 load("output/results_accuracyCV.RData")
 
-dat1 <- data.frame(mod="SFI_COR",Accuracy=mean(accSFI_CV[,1]),sd=sd(accSFI_CV[,1]))
-dat2 <- data.frame(mod="SFI_MSE",Accuracy=mean(accSFI_CV[,2]),sd=sd(accSFI_CV[,2]))
-dat3 <- data.frame(mod="GBLUP",Accuracy=mean(accGBLUP),sd=sd(accGBLUP))
-dat <- rbind(dat1,dat2,dat3)
-dat$se <-  qnorm(0.975)*dat$sd/sqrt(length(accGBLUP))
+dat <- data.frame(GBLUP=accSFI[accSFI$SFI=="GBLUP",]$acc,accSFI_CV)
+dat <- data.frame(Model=names(dat),accuracy=apply(dat,2,mean),sd=apply(dat,2,sd))
+dat$se <-  qnorm(0.975)*dat$sd/sqrt(nrow(accSFI_CV))
 
-ggplot(dat,aes(mod,Accuracy)) +  theme_bw() + labs(x="") +
-   geom_bar(stat="identity",width=0.5,fill="orange") +
-   geom_errorbar(aes(ymin=Accuracy-se, ymax=Accuracy+se), width=0.2) +
-   geom_text(aes(label=sprintf("%.3f", Accuracy),y=(Accuracy-se)*0.8)) 
+ggplot(dat,aes(Model,accuracy)) + theme_bw() + labs(x="") +
+   geom_bar(stat="identity",width=0.5,fill="orange") + 
+   geom_errorbar(aes(ymin=accuracy-se, ymax=accuracy+se), width=0.2) +
+   geom_text(aes(label=sprintf("%.3f", accuracy)),y=min(dat$accuracy)*0.8)
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
 
-\begin{figure}[htb]
+\begin{SCfigure}
   \centering
-  \includegraphics[width=0.8\textwidth]{Figure2}
-  \caption{\small{Prediction accuracy (average across 50 TRN-TST partitions) for the cross-validated SFI (using both correlation and MSE criteria) and for the G-BLUP model}}
-  \label{fig:accSFI}
-\end{figure}
+  \includegraphics[width=0.55\textwidth]{FigureSFI_2}
+  \caption{\small{Prediction accuracy (average across 50 TRN-TST partitions) for the optimal SFI (using both correlation and MSE criteria) and for the G-BLUP model. Vertical bars represent the $95\%$ confidence interval for the mean}}
+\end{SCfigure}
 
 \vspace{5mm}
 
@@ -426,69 +476,66 @@ ggplot(dat,aes(mod,Accuracy)) +  theme_bw() + labs(x="") +
 \subsection{Sparsity of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The value of $\lambda$ define the sparsity level of the SFI, i.e., the number of predictors with non-zero coefficient in the index . Although performing similar in accuracy, each cross-validation criteria yielded different values of $\lambda$, thus one criteria result  in a more sparse index than the other. Code in Box 5 below can be used to create a plot showing the distribution of the number of predictors supporting the index $\mathcal{I}_i$ of each of the $n_{TST}$ individuals in the testing set across all partitions.
+Each cross-validation criteria yielded different values of $\lambda$, thus one criteria result  in a more sparse index than the other. Code in \textbf{Box 7} below creates a plot showing the distribution of the number of predictors supporting the index $\mathcal{I}_i$, $i=1,...,n_{TST}$, across all partitions.
 
 \vspace{5mm}
 
-\begin{mybox}[title=Box 5. Sparsity of the optimal index]
+\begin{mybox}[title=\textbf{Box 7}. Sparsity of the optimal index]
 \begin{footnotesize}
 \begin{verbatim}
 load("output/results_accuracyCV.RData")
 
-df <- c(as.vector(dfCV1),as.vector(dfCV2))
-criteria <- c(rep("Correlation",length(dfCV1)),rep("MSE",length(dfCV2)))
-dat <- data.frame(criteria,df)
+dat <- cbind(SFI_COR=as.vector(dfCOR),SFI_MSE=as.vector(dfMSE))
+dat <- data.frame(reshape::melt(dat))
 
-bw <- round(diff(range(df))/40)
-
-ggplot(data=dat, aes(df,fill=criteria)) +
-    geom_histogram(aes(y=stat(count)/length(dfCV1)),color="gray45",alpha=0.5,
-         binwidth=bw,position="identity") +
-    theme_bw() + labs(x = "Number of active predictors",y="Frequency")
-\end{verbatim}
-\end{footnotesize}
-\end{mybox}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.85\textwidth]{Figure3}
-  \caption{\small{Distribution of the number of active predictor in the SFI (across 50 TRN-TST partitions) for each criteria: (1) maximizing correlation between predicted and observed values and (2) minimizing the MSE}}
-  \label{fig:histdf}
-\end{figure}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Individualized training sets}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Estimating the regression coefficients independently for each individual in the testing set (equation \eqref{eqn:SFI}) yields subset of predictor that are specific each individual from testing set. Code below in Box 6 can be run to create a network plot showing for each individual being predicted, the subset of predictors supporting the SFI. This plot can be made through the function \texttt{plotNet} included in the \texttt{SFSI} package. 
-
-\vspace{5mm}
-
-\begin{mybox}[title=Box 6. Individualized training sets]
-\begin{footnotesize}
-\begin{verbatim}
-load("output/results_accuracy.RData")
-load("output/results_accuracyCV.RData")
-
-part <- which.min(apply(dfCV1,2,mean))
-tst <- partitions[,part]
-trn <- (1:length(y))[-tst]
-
-# Fit SFI with lambda estimated using 'correlation' criteria
-fm1 <- SFI(y,K=G,trn=trn,tst=tst,lambda=lambdaCV[part,1])
-
-plotNet(fm1,K=G,tst=fm1$tst[1:8],curve=TRUE)
+bw <- round(diff(range(dat$value))/40)
+ggplot(data=dat, aes(value,stat(count)/length(dfCOR),fill=X2)) +  theme_bw() +
+    geom_histogram(color="gray45",alpha=0.5,binwidth=bw,position="identity") +
+    labs(x = "Number of active predictors",y="Frequency",fill="") 
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.85\textwidth]{Figure4}
-  \caption{\small{Top two principal components of the genomic relationship matrix, G.  Each point represent individuals separated into training ($n_{TRN}=1,428$) and testing ($n_{TST}=612$) sets. Orange points represent a sample of individuals from testing set which are connected by lines to individuals from training set whose regression coefficients in the optimum SFI are non-zero (active). Individuals in training set with a null coefficient do not contribute to the index (non-active)}}
-  \label{fig:histdf}
+  \includegraphics[width=0.67\textwidth]{FigureSFI_3}
+  \caption{\small{Distribution of the number of active predictor in the SFI (across 50 partitions) for each criteria: (1) maximizing correlation between predicted and observed values and (2) minimizing the MSE}}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Individualized training sets}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Estimating the regression coefficients independently for each individual in the testing set (equation \eqref{eqn:SFI}) yields subset of predictor that are specific each individual from testing set. Code below in \textbf{Box 8} can be run to create a network plot showing (for a single TRN-TST partition) for each individual being predicted, the subset of predictors supporting the SFI. This plot can be made through the function \texttt{plotNet} included in the \texttt{SFSI} package. 
+
+\vspace{5mm}
+
+\begin{mybox}[title=\textbf{Box 8}. Individualized training sets]
+\begin{footnotesize}
+\begin{verbatim}
+load("output/results_accuracy.RData")
+load("output/results_accuracyCV.RData")
+
+part <- which.min(apply(dfCOR,2,mean))
+tst <- partitions[,part]
+trn <- (1:length(y))[-tst]
+
+# Fit SFI with lambda estimated using 'correlation' criteria
+fm <- SFI(y,K=G,trn=trn,tst=tst,lambda=lambdaCV[part,1])
+
+plotNet(fm,K=G,tst=fm$tst[1:8],curve=TRUE,title=NULL)    # Only for 8 testing individuals
+\end{verbatim}
+\end{footnotesize}
+\end{mybox}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=0.8\textwidth]{FigureSFI_4}
+  \caption{\small{Top two PC of the genomic matrix, $\textbf{G}$.  Each point represents and individual either from training or testing set. Orange points represent a sample of individuals from testing set that are connected by lines to individuals from training set with non-zero regression coefficients in the optimum SFI (active). Individuals in training set with a null coefficient do not contribute to the index (non-active)}}
+\end{figure}
+
+\vspace{5mm}
+\bibliography{references.bib}
 
 \end{document}
 
