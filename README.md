@@ -2,7 +2,16 @@
 
 The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version.
 
-## Family and Selection Indices
+**Package installation from Github**
+
+Installation of SFSI package requires a R-version greater than 3.5.0
+```r
+  install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
+  library(devtools)                                                     #2. load the library
+  install_git('https://github.com/MarcooLopez/SFSI_data')               #3. install SFSI from GitHub
+```
+
+### Family and Selection Indices
 
 Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usually done using indirect information:
 1. Correlated traits measured in the same candidates
@@ -60,14 +69,6 @@ If ![](https://latex.codecogs.com/gif.latex?%5Calpha%3E0), no closed form soluti
 Depending of the type of information used as predictors ***x*** (either correlated traits measured in the same candidates or measurements on the same trait collected on related individuals), the problem can be seen either as a Selection or a Family Index. 
 The penalized indices can be solved using the package 'SFSI' that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
-**Package installation from Github**
-
-Installation of SFSI package requires a R-version greater than 3.5.0
-```r
-  install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
-  library(devtools)                                                     #2. load the library
-  install_git('https://github.com/MarcooLopez/SFSI_data')               #3. install SFSI from GitHub
-```
-
+### Documentation
 * **[Sparse Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
 * **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/family_index.md)**
