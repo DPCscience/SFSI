@@ -76,10 +76,12 @@ that perfectly match those of the G-BLUP model but default values provide suffic
 
 ***2.1. Fitting Kinship-based BLUP using 'solveMixed' function***
 
-Predicted values can be directly retrieved from function `solveMixed` from the 'SFSI' package
+Predicted values can be directly retrieved from function `solveMixed` from the 'SFSI' package. The option `return.Hinv = TRUE` can be used to obtain the regression coefficients.
 
 ```r
-fm <- solveMixed(y,K=G)  
+fm <- solveMixed(y,K=G,return.Hinv=TRUE)  
+B3 <- crossprod(G,fm$Hinv)
+max(B1-B3)   # Regression coefficients comparison
 uHat_GBLUP2 <- fm$u       # Predicted values (in testing set)
 head(out <- data.frame(out,uHat_GBLUP2))
 cor(out)
