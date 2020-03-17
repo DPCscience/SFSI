@@ -7,6 +7,8 @@ In contrast to the kinship-based BLUP, a Sparse Family Index (SFI) estimate the 
 
 Predictive ability of both kinship-based BLUP and SFI can be then compared using their **prediction accuracy** given by the correlation between observed and predicted values.
 
+See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SFI.pdf) about sparse family indices.
+
 <div id="Outline" />
 
 ## Outline
