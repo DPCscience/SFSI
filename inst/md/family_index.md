@@ -241,14 +241,15 @@ cor(y[tst],fitted(fm))
 ```
 
 Another cross-validation is the leave-one-out CV in which each individual is predicted using the remaining `n-1` individuals.
-This CV is performed when setting `nFolds=0`
+This CV is performed when setting `nFolds='n'`. This cross-validation might take long since it involves fitting `n-1` models
 
 ```r
-fm3 <- SFI_CV(y,K=G,trn.CV=trn,nFolds=0,mc.cores=4,name="LOO")
+fm3 <- SFI_CV(y,K=G,trn.CV=trn,nFolds='n',mc.cores=4,name="LOO")
 lambda0 <- summary(fm3)$optMSE['mean','lambda']
 
 # Comparison of the profile of each CV
 plot(fm1,fm2,fm3,py="MSE")
+plot(fm1,fm2,fm3)
 ```
 
 <p align="center">
