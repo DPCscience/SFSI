@@ -124,13 +124,13 @@ for(k in 1:nFolds)
   # G-BLUP
   yNA <- y
   yNA[tst] <- NA
-  fm <- solveMixed(yNA,K=G)  
-  uHat <- fm$u[tst]           # Predicted values (in testing set)
+  fm1 <- solveMixed(yNA,K=G)  
+  uHat <- fm1$u[tst]           # Predicted values (in testing set)
   corGBLUP[k] <- cor(y[tst],uHat)
 
   # Penalized FI
-  fm <- SFI(y,K=G,trn=trn,tst=tst,lambda=lambda,verbose=FALSE)  
-  uHat <- fitted(fm)           # Predicted values (in testing set)
+  fm2 <- SFI(y,b=fm1$b,h2=fm1$h2,K=G,trn=trn,tst=tst,lambda=lambda,verbose=FALSE)  
+  uHat <- fitted(fm2)           # Predicted values (in testing set)
   corSFI[,k] <- drop(cor(y[tst],uHat))
   cat("  -- Done fold=",k,"\n")
 }
@@ -144,10 +144,9 @@ plot(-log(lambda),corSFI,type="l",lwd=2,col=2,ylab="correlation")
 abline(h=corGBLUP,lwd=2,col=3)
 legend("bottomright",legend=c("SFI","GBLUP"),col=c(2,3),pch=20)
 
-# Gain in accuracy of the optimal SFI
+# Gain (in %) in accuracy of the maximum SFI
 index <- which.max(corSFI)
 100*(corSFI[index] - corGBLUP)/corGBLUP
-
 ```
 
 ***3.1 Comparison of performance using 'SFI_CV' function***
@@ -185,10 +184,10 @@ A vector of lambdas is generated internally by the program when `lambda` is not 
 
 ```r
 # Run the SFI without passing lambda but how many
-fm1 <- SFI_CV(y,K=G,nLambda=nLambda,seed=seed,name="SFI",mc.cores=4)
+fm3 <- SFI_CV(y,K=G,nLambda=nLambda,seed=seed,name="SFI",mc.cores=4)
 
 # Plot of the (average) correlation in testing set vs the penalization parameter lambda
-plot(fm1,fm2)
+plot(fm3,fm2)
 ```
 
 [Back to Outline](#Outline)
@@ -224,7 +223,6 @@ cor(y[tst],fitted(fm))
 # Correlation (in testing set) obtained with un-penalized FI (G-BLUP)
 fm2 <- solveMixed(yNA,K=G)
 cor(y[tst],fm2$u[tst])
-
 ```
 
 An estimate of the parameter `lambda` could be also obtained by running repeatedly several cross-validations
@@ -236,15 +234,10 @@ cross-validations to run are the length of the vector.
 fm2 <- SFI_CV(y,K=G,trn.CV=trn,nFolds=5,mc.cores=4,nCV=5,name="CV5x5")
 
 # Lambda obtained by averaging all fold/partitions
-lambda0 <- summary(fm2)$optMSE['mean','lambda']
-
-# Lambda obtained by averaging the ones obtained at each partition
-tmp <- grep("CV",rownames(summary(fm2)$optMSE))
-lambda0 <- mean(summary(fm2)$optMSE[tmp,'lambda'])               
+lambda0 <- summary(fm2)$optMSE['mean','lambda']             
 
 fm <- SFI(yNA,K=G,trn=trn,tst=tst,lambda=lambda0)
 cor(y[tst],fitted(fm))
-
 ```
 
 Another cross-validation is the leave-one-out CV in which each individual is predicted using the remaining `n-1` individuals.
@@ -256,7 +249,6 @@ lambda0 <- summary(fm3)$optMSE['mean','lambda']
 
 # Comparison of the profile of each CV
 plot(fm1,fm2,fm3,py="MSE")
-
 ```
 
 <p align="center">
@@ -321,7 +313,6 @@ abline(v=-log(lambda[indexMax]),lty=2,col=3)
 
 # Remove files
 unlink("out_subset_*.RData")
-
 ```
 
 Results can be automatically saved in the 'working' directory at a provided path and prefix given in the `saveAt` parameter.
@@ -333,7 +324,6 @@ prefix <- "testSFI"      # Prefix (and path) that will be added to the output fi
 for(j in 1:nChunks){
   fm <- SFI(y,K=G,trn=trn,tst=tst,subset=c(j,nChunks),saveAt=prefix,mc.cores=nCores)
 }
-
 ```
 
 Providing `saveAt` parameter will generate `.RData` files where outputs are saved. Regression coefficients
@@ -341,7 +331,6 @@ are separatelly saved as binary (`*.bin`) files. Results of all chunks can be ga
 
 ```r
 fm <- collect(prefix)
-
 ```
 
 Object `fm` does not contain the regression coefficients in memory but a path where they are storaged in disc. Methods `coef`, `summary`, `fitted`, and `plot` will read these files every time they are called
@@ -360,14 +349,12 @@ gp <- data.frame(group = gp)
 plotNet(fm,K=G,df=10,group=gp,TST.col="yellow")
 plotPath(fm)               # Path plot   
 plotPath(fm,K=G)           # Path plot using kinship  
-
 ```
 
 The size and the number of output files might overflow disc memory, thus removing this files after use is advised
 ```r
 unlink(paste0(prefix,"*.RData"))
 unlink(paste0(prefix,"*.bin"))
-
 ```
 [Back to Outline](#Outline)
 
