@@ -1,5 +1,7 @@
 # SFSI
 
+The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version.
+
 ## Family and Selection Indices
 
 Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usually done using indirect information:
