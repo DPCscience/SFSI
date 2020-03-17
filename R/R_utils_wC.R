@@ -295,7 +295,7 @@ plotNet <- function(fm, B, Z = NULL, K, indexK = NULL, subsetG = NULL,
     tmp <-  RSpectra::eigs_sym(K, 2)
     d <- tmp$values
     U <- tmp$vectors
-    expvarPC <- 100*(d^2)/sum(K^2)
+    expvarPC <- 100*d/sum(diag(K))
   }else{
     if(is.null(U)){
       stop("You are providing the eigevalues, but not the eigenvectors")
@@ -574,7 +574,7 @@ plotPath <- function(fm, Z=NULL, K=NULL, indexK = NULL, tst=NULL, title=NULL, ma
   |    ._____| | | |       ._____| | .__| |__.  Marco Lopez-Cruz       |
   |    |_______| |_|       |_______| |_______|  Gustavo de los Campos  |
   |                                                                    |
-  |  Sparse Family and Selection Index. Version 0.1.1 (Feb 20-2020)    |
+  |  Sparse Family and Selection Index. Version 0.2.0 (Mar 16-2020)    |
   |====================================================================|
   ")
 }

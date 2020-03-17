@@ -379,7 +379,7 @@ summary.SFI <- function(object,...)
     if(length(index)==0)
     {
       optCOR <- out[1,]
-      if(nrow(out)>1) optCOR[1,] <- NA
+      #if(nrow(out)>1) optCOR[1,] <- NA
     }else optCOR <- out[index,]
 
     # Detect minimum MSE
@@ -387,7 +387,7 @@ summary.SFI <- function(object,...)
     if(length(index)==0)
     {
       optMSE <- out[1,]
-      if(nrow(out)>1) optMSE[1,] <- NA
+      #if(nrow(out)>1) optMSE[1,] <- NA
     }else optMSE <- out[index,]
 
     do.call(c, list(as.list(out), optCOR=list(optCOR), optMSE=list(optMSE)))

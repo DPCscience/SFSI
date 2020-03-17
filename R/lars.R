@@ -1,27 +1,27 @@
 
-lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
+lars2 <- function(P, cov, method=c("LAR","LAR-LASSO"), maxDF=NULL,
     eps=.Machine$double.eps,scale=TRUE,verbose=FALSE)
 {
   method <- match.arg(method)
 
-  Xty <- as.vector(Xty)
-  p <- length(Xty)
-  if(length(XtX) != p^2)
-    stop("Incompatible dimensions between 'XtX' and 'Xty'")
-  if((sum(dim(XtX))/2)^2 != length(XtX))
-      stop("Object 'XtX' must be a squared matrix. LARS can not be implemented")
+  cov <- as.vector(cov)
+  p <- length(cov)
+  if(length(P) != p^2)
+    stop("Incompatible dimensions between 'P' and 'cov'")
+  if((sum(dim(P))/2)^2 != length(P))
+      stop("Object 'P' must be a squared matrix. LARS can not be implemented")
 
-  if(!is.double(Xty)) Xty <- as.double(Xty)
-  if(!is.double(XtX)) XtX <- apply(XtX,2,as.double)
+  if(!is.double(cov)) cov <- as.double(cov)
+  if(!is.double(P)) P <- apply(P,2,as.double)
 
   im <- inactive <- seq(p)
   Sp <- nchar(p)
   textPrint <- c(" Step","\tSec/Step","\tVariable")
 
   if(scale){
-    sdx <- sqrt(diag(XtX))
-    XtX <- scale_cov(XtX)  # Equal to XtX=cov2cor(XtX) but faster
-    Xty <- Xty/sdx
+    sdx <- sqrt(diag(P))
+    P <- scale_cov(P)  # Equal to P=cov2cor(P) but faster
+    cov <- cov/sdx
   }else{
     sdx <- rep(1,p)
   }
@@ -38,8 +38,8 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
   time <- proc.time()[3]
   while((length(active) < maxDF) & (length(active) < (p-length(ignores))))
   {
-    Cov <- Xty[inactive]
-    Cmax <- max(abs(Cov))
+    covar <- cov[inactive]
+    Cmax <- max(abs(covar))
     if(Cmax < eps*100){
       if(verbose) cat(" Max |corr| = 0; exiting...\n")
       break
@@ -48,12 +48,12 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
     lambda[k] <- Cmax
     if(!any(drops))
     {
-      new <- abs(Cov) >= Cmax-eps
-      Cov <- Cov[!new]
+      new <- abs(covar) >= Cmax-eps
+      covar <- covar[!new]
       new <- inactive[new]
       for(inew in new)
       {
-        R <- upDateR(XtX[inew,inew],R,drop(XtX[inew,active]),eps=eps)
+        R <- upDateR(P[inew,inew],R,drop(P[inew,active]),eps=eps)
         if(attr(R,"rank")==length(active))
         {
           nR <- seq(length(active))
@@ -61,11 +61,11 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
           attr(R,"rank") <- length(active)
           ignores <- c(ignores,inew)
           if(verbose){
-            cat(" LARS Step ",k,":\t Variable", inew,"\tcollinear; dropped for good\n",sep="")
+            cat(" LARS Step ",k,":\t Variable ", inew,"\tcollinear; dropped for good\n",sep="")
           }
         }else{
           active <- c(active,inew)
-          Sign <- c(Sign,sign(Xty[inew]))
+          Sign <- c(Sign,sign(cov[inew]))
           if(verbose){
             cat("--------------------------------------------------------------\n")
             tmp <- proc.time()[3]
@@ -83,8 +83,8 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
     if((length(active) >= (p-length(ignores)))){
         gamhat <- Cmax/A
     }else{
-      a <- drop(w %*% XtX[active, -c(active,ignores),drop=FALSE])
-      gam <- c((Cmax-Cov)/(A-a),(Cmax+Cov)/(A+a))
+      a <- drop(w %*% P[active, -c(active,ignores),drop=FALSE])
+      gam <- c((Cmax-covar)/(A-a),(Cmax+covar)/(A+a))
       gamhat <- min(gam[gam > eps],Cmax/A)
     }
     if(method == "LAR-LASSO")
@@ -100,7 +100,7 @@ lars2 <- function(XtX, Xty, method=c("LAR","LAR-LASSO"), maxDF=NULL,
     }
     beta[k+1,] <- beta[k,]
     beta[k+1,active] <- beta[k+1,active] + gamhat*w
-    Xty <- Xty - gamhat*XtX[,active,drop=FALSE]%*%w
+    cov <- cov - gamhat*P[,active,drop=FALSE]%*%w
     if(method == "LAR-LASSO" && any(drops))
     {
       dropid <- seq(drops)[drops]
