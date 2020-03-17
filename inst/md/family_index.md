@@ -253,13 +253,13 @@ plot(fm1,fm2,fm3)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_comparison_MSE.png" width="390">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_comparison_MSE_SFI.png" width="390">
 </p>
 
 
 ***4.1 Network plot of individuals in testing and training***
 
-The above cross-validation can be done using the 'SFI_CV' function which divide data into a number of folds provided in `nFolds` parameter using the specified `seed` parameter.
+The SFI gives for each individuals being predicted (testing set), an individualized set consisting of a reduced number of individuals (from training set) that contributes to its breeding value prediction. Function `plotNet` gives the representation of the conections between (connected by lines) that resulted with non-zero regression coefficient in the optimal
 
 ```r
 ```
