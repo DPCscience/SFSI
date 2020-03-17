@@ -15,7 +15,7 @@ See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFS
   * [1. Data](#data)    
   * [2. Equivalence of G-BLUP and non-Sparse Family Index](#GBLUP&FI)
   * [3. Non-Sparse (G-BLUP) vs Sparse Family Index](#GBLUPvsSFI)
-  * [4. Obtaining a value of lambda using cross-validation](#CV_SFI)
+  * [4. Estimating lambda using cross-validation](#CV_SFI)
   * [5. Parallel computing for large datasets](#parallelizing)
   * [6. Working with binary files](#binaryFiles)
 
@@ -33,6 +33,7 @@ library(SFSI)
 data(wheat.E3)
 data(wheat.G)
 
+# Obtain means by genotype
 y <- tapply(X=Y$YLD,INDEX=as.character(Y$gid),FUN=mean)
 y <- as.vector(y[rownames(G)])
 
@@ -202,7 +203,7 @@ plot(fm3,fm2)
 
 <div id="CV_SFI" />
 
-**4. Predicting values for a testing set using a training set**
+**4. Estimating a value of lambda using cross-validation**
 
 Breeding values can be predicted for individuals in a testing set using information from a training data.
 An optimal value of the parameter `lambda` can be obtained by cross-validating in training data and then use it to
