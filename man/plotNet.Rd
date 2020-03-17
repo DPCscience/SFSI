@@ -74,7 +74,7 @@ Plot for a set of individuals in a testing set, a network of individuals in trai
   plotNet(fm,K=G)
   plotNet(fm,K=G,bg.col="white",line.col="gray25")
   
-  # Passing a matrix of coeeficients
+  # Passing a matrix of coefficients
   B=as.matrix(coef(fm,df=15))
   plotNet(fm,B=B,K=G,curve=TRUE,group.size=c(3.5,1.5,1))
   
