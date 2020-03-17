@@ -23,9 +23,9 @@ SFI_CV(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
 
 \item{b}{Vector of fixed effects. When \code{b=NULL}, only the intercept is estimated from training data using generalized least squares (default)}
 
-\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \code{G = Z}; otherwise \code{G = Z\%*\%K\%*\%t(Z)} is used}
+\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \ifelse{html}{\out{<b>G</b> = <b>K</b>}}{\eqn{\textbf{G = K}}{G = K}}; otherwise \ifelse{html}{\out{<b>G</b> = <b>Z K Z'</b>}}{\eqn{\textbf{G} = \textbf{Z K Z'}}{G = Z K Z'}} is used}
 
-\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is storaged}
+\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is stored}
 
 \item{indexK}{Vector of integers indicating which columns and rows will be read when \code{K} is the name of a binary file. Default \code{indexK=NULL} will read the whole matrix}
 
@@ -109,11 +109,11 @@ The basic linear mixed model that relates phenotypes with genetic values is of t
 where
 \ifelse{html}{\out{<b>y</b>}}{\eqn{\textbf{y}}{y}} is a vector with the response,
 \ifelse{html}{\out{<b>b</b>}}{\eqn{\textbf{b}}{b}} is the vector of fixed effects,
-\ifelse{html}{\out{<b>g</b>}}{\eqn{\textbf{u}}{u}} is the vector of the genetic values of the genotypes,
+\ifelse{html}{\out{<b>g</b>}}{\eqn{\textbf{g}}{g}} is the vector of the genetic values of the genotypes,
 \ifelse{html}{\out{<b>e</b>}}{\eqn{\textbf{e}}{e}} is the vector of environmental residuals, and
 \ifelse{html}{\out{<b>X</b>}}{\eqn{\textbf{X}}{X}} and \ifelse{html}{\out{<b>Z</b>}}{\eqn{\textbf{Z}}{Z}} are design matrices conecting the fixed and genetic effects with replicates. Genetic values are assumed to follow a Normal distribution as
-\ifelse{html}{\out{<b>g</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>u</sub><b>K</b>)}}{\eqn{\textbf{u}\sim N(\textbf{0},\sigma^2_u\textbf{K})}{u ~ N(0,sigma^2_u K)}}, and environmental terms are assumed
-\ifelse{html}{\out{<b>e</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>e</sub><b>I</b>)}}{\eqn{\textbf{e}\sim N(\textbf{0},\sigma^2_e\textbf{I})}{u ~ N(0,sigma^2_e I)}}.
+\ifelse{html}{\out{<b>g</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>u</sub><b>K</b>)}}{\eqn{\textbf{g}\sim N(\textbf{0},\sigma^2_u\textbf{K})}{g ~ N(0,sigma^2_u K)}}, and environmental terms are assumed
+\ifelse{html}{\out{<b>e</b> ~ N(<b>0</b>,&sigma;<sup>2</sup><sub>e</sub><b>I</b>)}}{\eqn{\textbf{e}\sim N(\textbf{0},\sigma^2_e\textbf{I})}{e ~ N(0,sigma^2_e I)}}.
 
 The resulting vector of genetic values
 \ifelse{html}{\out{<b>u</b> = <b>Z g</b>}}{\eqn{\textbf{u}=\textbf{Z}\textbf{g}}{u = Z g}} will therefore follow 

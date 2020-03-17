@@ -4,13 +4,13 @@
 \alias{lars2}
 \title{Least Angle Regression to solve the LASSO-type problem}
 \usage{
-lars2(XtX, Xty, method = c("LAR", "LAR-LASSO"), maxDF = NULL,
+lars2(P, cov, method = c("LAR", "LAR-LASSO"), maxDF = NULL,
   eps = .Machine$double.eps, scale = TRUE, verbose = FALSE)
 }
 \arguments{
-\item{XtX}{Variance-covariance matrix among predictors}
+\item{P}{Variance-covariance matrix among predictors}
 
-\item{Xty}{Covariance vector between response variable and predictors}
+\item{cov}{Covariance vector between response variable and predictors}
 
 \item{method}{One of:
 \itemize{
@@ -24,9 +24,8 @@ Default \code{maxDF=NULL} will calculate solution for all the predictors}
 
 \item{eps}{An effective zero. Default is the machine precision}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
-(see \code{help(scale_cov)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
-taken from the diagonal of \code{XtX}}
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{P} for variables with unit variance and scale \code{cov} by the standard deviation of the corresponding predictor
+taken from the diagonal of \code{P}}
 
 \item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each lars step}
 }
@@ -61,9 +60,9 @@ is a residual.
 The regression coefficients
 \ifelse{html}{\out{<b>&beta;</b>}}{\eqn{\boldsymbol{\beta}}{beta}}
 are estimated as function of the variance matrix among
-predictors (\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}}) by minimizing the penalized mean squared error function
+predictors (\ifelse{html}{\out{<b>P</b>}}{\eqn{\textbf{P}}{P}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>cov</b>}}{\eqn{\textbf{cov}}{cov}}) by minimizing the penalized mean squared error function
 
-\ifelse{html}{\out{<center>-<b>Xty</b>' <b>&beta;</b> + 1/2 <b>&beta;</b>'(<b>XtX</b>)<b>&beta;</b> + 1/2 &lambda; ||<b>&beta;</b>||<sub>1</sub></center>}}{\deqn{-\textbf{Xty}' \boldsymbol{\beta} + 1/2 \boldsymbol{\beta}'(\textbf{XtX}) \boldsymbol{\beta} + 1/2\lambda||\boldsymbol{\beta}||_1}{-Xty' beta + 1/2 beta'(XtX)beta + 1/2 lambda ||beta||_1}}
+\ifelse{html}{\out{<center>-<b>cov</b>' <b>&beta;</b> + 1/2 <b>&beta;</b>'<b>P</b><b>&beta;</b> + 1/2 &lambda; ||<b>&beta;</b>||<sub>1</sub></center>}}{\deqn{-\textbf{cov}' \boldsymbol{\beta} + 1/2 \boldsymbol{\beta}'\textbf{P} \boldsymbol{\beta} + 1/2\lambda||\boldsymbol{\beta}||_1}{-cov' beta + 1/2 beta' P beta + 1/2 lambda ||beta||_1}}
 
 where \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}}
 is the penalization parameter and
@@ -76,15 +75,15 @@ and the residual
 \ifelse{html}{\out{e<sub>i</sub> = y<sub>i</sub> - <b>x</b>'<sub>i</sub> <b>&beta;</b>}}{\eqn{e_i=y_i-\textbf{x}_i'\boldsymbol{\beta}}{e_i = y_i - x'_i beta}}
 is expressed (up-to a constant) as
 
-\ifelse{html}{\out{<center>r<sub>j</sub> = Xty<sub>j</sub> - <b>XtX</b>'<sub>j</sub> <b>&beta;</b></center>}}{\deqn{r_j=Xty_i-\textbf{XtX}_j'\boldsymbol{\beta}}{r_j = Xty_j - XtX'_j beta}}
+\ifelse{html}{\out{<center>r<sub>j</sub> = cov<sub>j</sub> - <b>P</b>'<sub>j</sub> <b>&beta;</b></center>}}{\deqn{r_j=cov_j-\textbf{P}_j'\boldsymbol{\beta}}{r_j = cov_j - P'_j beta}}
 
 where
-\ifelse{html}{\out{Xty<sub>j</sub>}}{\eqn{Xty_j}{Xty_j}}
+\ifelse{html}{\out{cov<sub>j</sub>}}{\eqn{cov_j}{cov_j}}
 is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} element of
-\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}} and
-\ifelse{html}{\out{<b>XtX</b><sub>j</sub>}}{\eqn{\textbf{XtX}_j}{XtX_j}}
+\ifelse{html}{\out{<b>cov</b>}}{\eqn{\textbf{cov}}{cov}} and
+\ifelse{html}{\out{<b>P</b><sub>j</sub>}}{\eqn{\textbf{P}_j}{P_j}}
 is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} column of the matrix
-\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}
+\ifelse{html}{\out{<b>P</b>}}{\eqn{\textbf{P}}{P}}
 }
 \examples{
   require(SFSI)

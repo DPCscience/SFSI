@@ -4,26 +4,25 @@
 \alias{solveEN}
 \title{Coordinate Descent algorithm to solve the Elastic-Net-type problem}
 \usage{
-solveEN(XtX, Xty, alpha = 1, lambda = NULL, nLambda = 100, 
+solveEN(P, cov, alpha = 1, lambda = NULL, nLambda = 100, 
   scale = TRUE, tol = 1e-05, maxIter = 1000, verbose = FALSE)
 }
 \arguments{
-\item{XtX}{Variance-covariance matrix among predictors}
+\item{P}{Variance-covariance matrix among predictors}
 
-\item{Xty}{Covariance vector between response variable and predictors}
+\item{cov}{Covariance vector between response variable and predictors}
 
 \item{lambda}{Penalization parameter sequence vector. Default is \code{lambda=NULL}, in this case a decreasing grid of
 \code{'nLambda'} lambdas will be generated starting from a maximum equal to
-\ifelse{html}{\out{<center><font face="Courier">max(abs(Xty)/alpha)</font></center>}}{\deqn{\code{max(abs(Xty)/alpha)}}{max(abs(Xty)/alpha)}}
+\ifelse{html}{\out{<center><font face="Courier">max(abs(cov)/alpha)</font></center>}}{\deqn{\code{max(abs(cov)/alpha)}}{max(abs(cov)/alpha)}}
 to a minimum equal to zero. If \code{alpha=0} the grid is generated starting from a maximum equal to 5}
 
 \item{nLambda}{Number of lambdas generated when \code{lambda=NULL}}
 
 \item{alpha}{Numeric between 0 and 1 indicating the weights given to the L1 and L2-penalties}
 
-\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{XtX} for variables with unit variance
-(see \code{help(scale_cov)}) and scale \code{Xty} by the standard deviation of the corresponding predictor
-taken from the diagonal of \code{XtX}}
+\item{scale}{\code{TRUE} or \code{FALSE} to recalculate the matrix \code{P} for variables with unit variance and scale \code{cov} by the standard deviation of the corresponding predictor
+taken from the diagonal of \code{P}}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
@@ -62,9 +61,9 @@ is a residual.
 The regression coefficients
 \ifelse{html}{\out{<b>&beta;</b>}}{\eqn{\boldsymbol{\beta}}{beta}}
 are estimated as function of the variance matrix among
-predictors (\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}}) by minimizing the penalized mean squared error function
+predictors (\ifelse{html}{\out{<b>P</b>}}{\eqn{\textbf{P}}{P}}) and the covariance vector between response and predictors (\ifelse{html}{\out{<b>cov</b>}}{\eqn{\textbf{cov}}{cov}}) by minimizing the penalized mean squared error function
 
-\ifelse{html}{\out{<center>-<b>Xty</b>' <b>&beta;</b> + 1/2 <b>&beta;</b>'(<b>XtX</b>)<b>&beta;</b> + &lambda; J(<b>&beta;</b>)</center>}}{\deqn{-\textbf{Xty}' \boldsymbol{\beta} + 1/2 \boldsymbol{\beta}'(\textbf{XtX}) \boldsymbol{\beta} + \lambda J(\boldsymbol{\beta})}{-Xty' beta + 1/2 beta'(XtX)beta + lambda J(beta)}}
+\ifelse{html}{\out{<center>-<b>cov</b>' <b>&beta;</b> + 1/2 <b>&beta;</b>' <b>P</b> <b>&beta;</b> + &lambda; J(<b>&beta;</b>)</center>}}{\deqn{-\textbf{cov}' \boldsymbol{\beta} + 1/2 \boldsymbol{\beta}'\textbf{P} \boldsymbol{\beta} + \lambda J(\boldsymbol{\beta})}{-cov' beta + 1/2 beta' P beta + lambda J(beta)}}
 
 where \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}{lambda}}
 is the penalization parameter and
@@ -85,15 +84,15 @@ then the ordinary least-squares (OLS) coefficient of
 \ifelse{html}{\out{x<sub>ij</sub>}}{\eqn{x_{ij}}{x_ij}}
 on this residual is (up-to a constant)
 
-\ifelse{html}{\out{<center>&beta;<sub>j</sub><sup>(ols)</sup> = Xty<sub>j</sub> - <b>XtX</b>'<sub>j</sub> <b>&beta;</b> + &beta;<sub>j</sub></center>}}{\deqn{\beta_j^{(ols)}=Xty_i-\textbf{XtX}_j'\boldsymbol{\beta}+\beta_j}{beta_j^ols = Xty_j - XtX'_j beta}}
+\ifelse{html}{\out{<center>&beta;<sub>j</sub><sup>(ols)</sup> = cov<sub>j</sub> - <b>P</b>'<sub>j</sub> <b>&beta;</b> + &beta;<sub>j</sub></center>}}{\deqn{\beta_j^{(ols)}=cov_j-\textbf{P}_j'\boldsymbol{\beta}+\beta_j}{beta_j^ols = cov_j - P'_j beta}}
 
 where
-\ifelse{html}{\out{Xty<sub>j</sub>}}{\eqn{Xty_j}{Xty_j}}
+\ifelse{html}{\out{cov<sub>j</sub>}}{\eqn{cov_j}{cov_j}}
 is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} element of
-\ifelse{html}{\out{<b>Xty</b>}}{\eqn{\textbf{Xty}}{Xty}} and
-\ifelse{html}{\out{<b>XtX</b><sub>j</sub>}}{\eqn{\textbf{XtX}_j}{XtX_j}}
+\ifelse{html}{\out{<b>cov</b>}}{\eqn{\textbf{cov}}{cov}} and
+\ifelse{html}{\out{<b>P</b><sub>j</sub>}}{\eqn{\textbf{P}_j}{P_j}}
 is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} column of the matrix
-\ifelse{html}{\out{<b>XtX</b>}}{\eqn{\textbf{XtX}}{XtX}}.
+\ifelse{html}{\out{<b>P</b>}}{\eqn{\textbf{P}}{P}}.
 
 Coefficients are updated for each \eqn{j=1,...,p}{j=1,...,p} from their current value
 \ifelse{html}{\out{&beta;<sub>j</sub>}}{\eqn{\beta_j}{beta_j}}

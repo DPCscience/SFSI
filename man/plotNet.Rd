@@ -16,9 +16,9 @@ plotNet(fm, B, Z = NULL, K, indexK = NULL, subsetG = NULL,
 
 \item{B}{Matrix of regression coefficients with number of rows and number of columns equal to the length of the vectors provided in \code{fm$tst} and \code{fm$trn}, respectively}
 
-\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \code{G = Z}; otherwise \code{G = Z\%*\%K\%*\%t(Z)} is used}
+\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \ifelse{html}{\out{<b>G</b> = <b>K</b>}}{\eqn{\textbf{G = K}}{G = K}}; otherwise \ifelse{html}{\out{<b>G</b> = <b>Z K Z'</b>}}{\eqn{\textbf{G} = \textbf{Z K Z'}}{G = Z K Z'}} is used}
 
-\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is storaged}
+\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is stored}
 
 \item{indexK}{Vector of integers indicating which columns and rows will be read when \code{K} is the name of a binary file. Default \code{indexK=NULL} will read the whole matrix}
 
@@ -26,9 +26,9 @@ plotNet(fm, B, Z = NULL, K, indexK = NULL, subsetG = NULL,
 
 \item{tst}{Vector of integers indicating which individuals are in testing set and must be contained in \code{fm$tst}. Default \code{tst=NULL} will consider the whole vector \code{fm$tst} to plot}
 
-\item{U}{Matrix of principal components or eigenvectors from a spectral decomposition of \code{G} (see \code{help(eigen)})}
+\item{U}{Matrix with eigenvectors from spectral value decomposition of \ifelse{html}{\out{<b>G</b> = <b>U D U'</b>}}{\eqn{\textbf{G} = \textbf{U D U'}}{G = U D U'}}}
 
-\item{d}{Vector of eigenvalues corresponding to each eigenvector}
+\item{d}{Vector with eigenvalues from spectral value decomposition of \ifelse{html}{\out{<b>G</b> = <b>U D U'</b>}}{\eqn{\textbf{G} = \textbf{U D U'}}{G = U D U'}}}
 
 \item{group}{Object of the 'dataframe' class with one column grouping for the individuals. The rows must match with the rows in \code{G} matrix}
 

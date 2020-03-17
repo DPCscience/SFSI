@@ -10,9 +10,9 @@ plotPath(fm, Z = NULL, K = NULL, indexK = NULL,
 \arguments{
 \item{fm}{An object of the 'SSI' or 'SFI' class}
 
-\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \code{G = K}; otherwise \code{G = Z\%*\%K\%*\%t(Z)} is used}
+\item{Z}{Design matrix for the random effects. When \code{Z=NULL} an identity matrix is considered (default) thus \ifelse{html}{\out{<b>G</b> = <b>K</b>}}{\eqn{\textbf{G = K}}{G = K}}; otherwise \ifelse{html}{\out{<b>G</b> = <b>Z K Z'</b>}}{\eqn{\textbf{G} = \textbf{Z K Z'}}{G = Z K Z'}} is used}
 
-\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is storaged. Only needed when a \code{fm} object of the class 'SFI' is provided}
+\item{K}{Kinship relationships matrix. This can be a name of a binary file where the matrix is stored. Only needed when a \code{fm} object of the class 'SFI' is provided}
 
 \item{indexK}{Vector of integers indicating which columns and rows will be read when \code{K} is the name of a binary file. Default \code{indexK=NULL} will read the whole matrix}
 
