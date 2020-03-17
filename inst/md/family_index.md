@@ -24,7 +24,7 @@ See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFS
 <div id="data" />
 
 ### Data
-Data from CIMMYT’s Global Wheat Program. Replicated records of 1,092 lines that were evaluated for grain yield (GY) at four different environments (E1,E2,E3,E4). Records for YLD are reported as adjusted phenotypes from which trial, replicate and sub-block effects were removed. A total of 2,334 SNPs scored on 807 genotypes was used to obtain the genomic relationship matrix acording to VanRaden (2008). Further details on the data are given in [Lopez-Cruz et al. (2019)](https://www.biorxiv.org/content/10.1101/625251v2) or in the SFSI package documentation by typing `help(Y)` and `help(G)` for the phenotypes and G matrix, respectively.
+Data from CIMMYT’s Global Wheat Program. Replicated records of 1,092 lines that were evaluated for grain yield (GY) at four different environments (E1,E2,E3,E4). Records for YLD are reported as adjusted phenotypes from which trial, replicate and sub-block effects were removed. A total of 2,334 SNPs scored on 807 genotypes was used to obtain a genomic relationship matrix (**G**) acording to VanRaden (2008). Further details on the data are given in [Lopez-Cruz et al. (2019)](https://www.biorxiv.org/content/10.1101/625251v2) or in the SFSI package documentation by typing `help(Y)` and `help(G)` for the phenotypes and **G** matrix, respectively.
 
 **1. Download and prepare data**
 
