@@ -190,6 +190,10 @@ fm3 <- SFI_CV(y,K=G,nLambda=nLambda,seed=seed,name="SFI",mc.cores=4)
 plot(fm3,fm2)
 ```
 
+<p align="center">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure_acc_vs_lambda_SFI.png" width="390">
+</p>
+
 [Back to Outline](#Outline)
 
 -------------------------------------------------------------------------------------------
@@ -262,6 +266,18 @@ plot(fm1,fm2,fm3)
 The SFI gives for each individuals being predicted (testing set), an individualized set consisting of a reduced number of individuals (from training set) that contributes to its breeding value prediction. Function `plotNet` gives the representation of the conections between (connected by lines) that resulted with non-zero regression coefficient in the optimal
 
 ```r
+# Basic setting
+       plotNet(fm,K=G)
+       plotNet(fm,K=G,bg.col="white",line.col="gray25")
+       
+       # Passing a matrix of coeeficients
+       B=as.matrix(coef(fm,df=15))
+       plotNet(fm,B=B,K=G,curve=TRUE,group.size=c(3.5,1.5,1))
+       
+       # Using Spectral Value Decomposition and grouping
+       EVD <- eigen(G)
+       gp <- data.frame(group=kmeans(EVD$vectors[,1:2],centers=5)$cluster)
+       plotNet(fm,curve=TRUE,group=gp,U=EVD$vectors,d=EVD$values)
 ```
 
 [Back to Outline](#Outline)
