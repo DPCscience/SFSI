@@ -134,10 +134,10 @@ library(SFSI)
 nLambda <- 100
 
 # Genotypic SS
-fm1 <- SSI(Px,gencov,method="CD",nLambda=nLambda)
+fm1 <- solveEN(Px,gencov,nLambda=nLambda)
 
 # Phenotypic SS
-fm2 <- SSI(Px,phencov,method="CD",nLambda=nLambda)
+fm2 <- solveEN(Px,phencov,nLambda=nLambda)
 
 # Regression coefficients for each value of lambda
 B1 <- as.matrix(fm1$beta)
@@ -314,14 +314,14 @@ lambda <- mean(lambda0)
 x <- scale(rbind(dat$x,newdat$x))   # Use all data from trn and new dataset
 Px <- var(x)  
 covariance <- drop(cov(dat$Ux,dat$Uy))  # Must be estimated using linear models
-fm1 <- SSI(Px,covariance,lambda=lambda)
+fm1 <- solveEN(Px,covariance,lambda=lambda)
 
 yHat <- fitted(fm1,newdat$x)
 
 cor(yHat,newdat$Uy)   # Accuracy
 
 # Comparison with the canonical GSI (lambda=0)
-fm2 <- SSI(Px,covariance,lambda=0)
+fm2 <- solveEN(Px,covariance,lambda=0)
 cor(fitted(fm2,newdat$x),newdat$Uy)   # Accuracy
 ```
 
