@@ -65,9 +65,9 @@ The L1-penalized and L2-penalized indices appear as special cases of the Elastic
 
 If ![](https://latex.codecogs.com/gif.latex?%5Calpha%3E0), no closed form solution exists; however, a solution can be obtained using iterative algorithms such as Least Angle Regression (LARS) (Efron, 2004) or Coordinate Descent algorithms (Friedman, 2007).
 
-### Sparse Family and Selection Indices using the 'SFSI' R-package
+### Sparse Family and Selection Indices using the SFSI R-package
 Depending of the type of information used as predictors ***x*** (either correlated traits measured in the same candidates or measurements on the same trait collected on related individuals), the problem can be seen either as a **Selection Index** or a **Family Index**. 
-The penalized indices can be solved using the package 'SFSI' that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
+The penalized indices can be solved using the package SFSI that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
 ### Documentation
 * **[Sparse Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
@@ -75,5 +75,6 @@ The penalized indices can be solved using the package 'SFSI' that implements LAR
 
 
 ### References
-* Friedman, J., Hastie, T., Höfling, H., & Tibshirani, R. (2007). Pathwise coordinate optimization. The Annals of Applied Statistics, 1(2), 302–332.
 * Efron, B., Hastie, T., Johnstone, I., & Tibshirani, R. (2004). Least angle regression. The Annals of Statistics, 32(2), 407–499.
+* Friedman, J., Hastie, T., Höfling, H., & Tibshirani, R. (2007). Pathwise coordinate optimization. The Annals of Applied Statistics, 1(2), 302–332.
+* Lopez-Cruz, M., Olson, E., Rovere, G., Crossa, J., Dreisigacker, S., Suchismita, M., ..., de los Campos, G. (2019). Regularized selection indices for breeding value prediction using hyper-spectral image data. Preprint BioRxiv.
