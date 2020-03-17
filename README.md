@@ -75,6 +75,6 @@ The penalized indices can be solved using the package SFSI that implements LARS 
 
 
 ### References
-* Efron, B., Hastie, T., Johnstone, I., & Tibshirani, R. (2004). Least angle regression. The Annals of Statistics, 32(2), 407–499.
-* Friedman, J., Hastie, T., Höfling, H., & Tibshirani, R. (2007). Pathwise coordinate optimization. The Annals of Applied Statistics, 1(2), 302–332.
-* Lopez-Cruz, M., Olson, E., Rovere, G., Crossa, J., Dreisigacker, S., Suchismita, M., ..., de los Campos, G. (2019). Regularized selection indices for breeding value prediction using hyper-spectral image data. Preprint BioRxiv.
+* Efron, B., Hastie, T., Johnstone, I., & Tibshirani, R. **(2004)**. Least angle regression. *The Annals of Statistics*, 32(2), 407–499.
+* Friedman, J., Hastie, T., Höfling, H., & Tibshirani, R. **(2007)**. Pathwise coordinate optimization. *The Annals of Applied Statistics*, 1(2), 302–332.
+* Lopez-Cruz, M., Olson, E., Rovere, G., Crossa, J., Dreisigacker, S., Suchismita, M., ..., de los Campos, G. **(2019)**. Regularized selection indices for breeding value prediction using hyper-spectral image data. *Preprint BioRxiv*.
