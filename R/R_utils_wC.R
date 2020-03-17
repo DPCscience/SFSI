@@ -306,7 +306,7 @@ plotNet <- function(fm, B, Z = NULL, K, indexK = NULL, subsetG = NULL,
         expvarPC <- NULL
       }else{
         if(nrow(U) == length(d)){
-          expvarPC <- 100*(d^2)/sum(d^2)
+          expvarPC <- 100*d/sum(d)
         }else expvarPC <- NULL
       }
     }
