@@ -24,7 +24,7 @@ See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFS
 <div id="data" />
 
 ### Data
-Data from CIMMYT’s Global Wheat Program. Lines were evaluated for grain yield (each entry corresponds to an average of two plot records) at four different environments; phenotypes (*wheat.Y* object) were centered and standardized to a unit variance within environment. Each of the lines were genotyped for 1279 diversity array technology (DArT) markers. At each marker two homozygous genotypes were possible and these were coded as 0/1. Marker genotypes are given in the object *wheat.X*. Finally a matrix *wheat.A* provides the pedigree relationships between lines computed from the pedigree records. Data is available for download in the R-package 'BGLR' (Perez & de los Campos, 2014).
+Data from CIMMYT’s Global Wheat Program. Replicated records of 1,092 lines that were evaluated for grain yield (GY) at four different environments (E1,E2,E3,E4). Records for YLD are reported as adjusted phenotypes from which trial, replicate and sub-block effects were removed. A total of 2,334 SNPs scored on 807 genotypes was used to obtain the genomic relationship matrix acording to VanRaden (2008). Further details on the data are given in [Lopez-Cruz et al. (2019)](https://www.biorxiv.org/content/10.1101/625251v2) or in the SFSI package documentation by typing `help(Y)` and `help(G)` for the phenotypes and G matrix, respectively.
 
 **1. Download and prepare data**
 
@@ -285,7 +285,7 @@ plotNet(fm,tst=tst0,curve=TRUE,group=gp,U=EVD$vectors,d=EVD$values)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Network_plot_SFI.png" width="390">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Network_plot_SFI.png" width="420">
 </p>
 
 [Back to Outline](#Outline)
