@@ -1,6 +1,6 @@
 # SFSI
 
-The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version. This is an extended version of the SFSI that contains data used in [Lopez-Cruz et al., (2019)](https://www.biorxiv.org/content/10.1101/625251v2) for the development of penalized selection indices.
+The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version. This is an extended version of the SFSI that contains data used in [Lopez-Cruz et al. (2019)](https://www.biorxiv.org/content/10.1101/625251v2) for the development of penalized selection indices.
 
 **Package installation from Github**
 
@@ -35,7 +35,7 @@ Under standard assumptions, the solution to the above problem is
 
 where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among ***x*** and ***G***<sub>*xy*</sub> is the genetic covariances between predictors ***x*** and response *y*.
 
-## Penalized Indices
+### Penalized Indices
 The regression coefficients can be derived by impossing a penalization in the above optimization function as
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cleft%5B%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2&plus;%5Clambda%20J%28%5Cboldsymbol%7B%5Cbeta%7D_i%29%5Cright%5D">
@@ -72,3 +72,8 @@ The penalized indices can be solved using the package 'SFSI' that implements LAR
 ### Documentation
 * **[Sparse Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
 * **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/family_index.md)**
+
+
+### References
+* Friedman, J., Hastie, T., Höfling, H., & Tibshirani, R. (2007). Pathwise coordinate optimization. The Annals of Applied Statistics, 1(2), 302–332.
+* Efron, B., Hastie, T., Johnstone, I., & Tibshirani, R. (2004). Least angle regression. The Annals of Statistics, 32(2), 407–499.
