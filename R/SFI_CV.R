@@ -1,6 +1,6 @@
-
-# X = NULL; Z = NULL; K=G; indexK = NULL; h2 = NULL; trn.CV = trn; alpha = 1; lambda = NULL; nLambda = 100;
-# nCV = 2; nFolds = 5; seed = NULL; method = c("CD1","CD2")[1]; mc.cores = 4; tol = 1E-4; maxIter = 500; name = NULL; verbose = TRUE
+# X = NULL; Z = NULL; K=G2.0; indexK = NULL; b=fm0$b; h2 = h20; trn.CV = indexTRN; alpha = 1;
+# lambda = NULL; nLambda = 100; nCV = 2; nFolds = 5; seed = NULL; method = c("CD1","CD2")[1];
+# mc.cores = 4; tol = 1E-4; maxIter = 500; name = NULL; verbose = TRUE
 
 SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
                    h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
@@ -93,7 +93,7 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
         MSE <- suppressWarnings(t(apply((y[trn.CV]-uHat)^2,2,sum,na.rm=TRUE)/length(trn.CV)))
         df <- t(apply(do.call("rbind",lapply(out,function(x)x$df)),2,mean))
         lambda0 <- t(apply(do.call("rbind",lapply(out,function(x)x$lambda)),2,mean))
-        b <- t(apply(do.call("rbind",lapply(out,function(x)x$b)),2,mean))
+        b0 <- t(apply(do.call("rbind",lapply(out,function(x)x$b)),2,mean))
         h20 <- mean(unlist(lapply(out,function(x)x$h2)))
 
       }else{
@@ -101,12 +101,12 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
         MSE <- do.call("rbind",lapply(out,function(x)x$MSE))
         df <- do.call("rbind",lapply(out,function(x)x$df))
         lambda0 <- do.call("rbind",lapply(out,function(x)x$lambda))
-        b <- do.call("rbind",lapply(out,function(x)x$b))
+        b0 <- do.call("rbind",lapply(out,function(x)x$b))
         h20 <- unlist(lapply(out,function(x)x$h2))
       }
 
       res[[k]] <- list(method=method, name=name, folds=data.frame(trn.CV,fold=folds),
-                   b=b, h2=h20, accuracy=accuracy, MSE=MSE, df=df, lambda=lambda0)
+                   b=b0, h2=h20, accuracy=accuracy, MSE=MSE, df=df, lambda=lambda0)
     }
     class(res) <- "SFI_CV"
     return(res)
