@@ -1,13 +1,19 @@
-GBLUP                   GBLUP function
+G                       Genomic relationship matrix
 SFI                     Sparse Family Index
-SFI_CV                  Sparse Family Index Cross-Validation
-SSI                     Sparse Selection Index
+WL                      High-throughput phenotypic data
+Y                       Wheat phenotypic data
 collect                 collect function
-cov2dist                cov2dist function
+cov2dist                Conversion of covariance to distance matrix
+fitted.SSI              SSI methods
+getGenCov               Genetic covariances
 lars2                   Least Angle Regression to solve the LASSO-type
                         problem
-readBinary              readBinary function
-saveBinary              saveBinary function
-scale_cov         	scale_cov function
+plotNet                 Network plot
+plotPath                Coefficients path plot
+readBinary              Binary files
 solveEN                 Coordinate Descent algorithm to solve the
                         Elastic-Net-type problem
+solveMixed              solveMixed function
+summary.SFI             SFI methods
+summary.SFI_CV          SFI_CV methods
+wheat.E1                Wheat dataset
