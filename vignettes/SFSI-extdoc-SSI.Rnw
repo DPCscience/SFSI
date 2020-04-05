@@ -154,7 +154,7 @@ The ridge-regression (\textbf{L2-PSI}) and LASSO (\textbf{L1-PSI}) types are spe
 \begin{equation*}
 \hat{\boldsymbol{\beta}}^{L2} = \left(\textbf{P}_x +\lambda \textbf{I}\right)^{-1} \textbf{G}_{x,y}
 \end{equation*}
-where $\textbf{I}$ is a $p\times p$ identity matrix. For the EN-PSI ($0<\alpha\leq1$) solutions are obtained using iterative algorithms such as \textbf{least angle regression} \citep{Efron2004} or \textbf{coordinate descent} \citep{Friedman2007} for different values of the parameters $\alpha$ and $\lambda$. These combinations of the values of $\alpha$  and $\lambda$  will result in different EN-PSI from which an optimal index can be obtained such as the prediction accuracy is maximum.
+where $\textbf{I}$ is a $p\times p$ identity matrix. For the EN-PSI ($0<\alpha\leq1$) solutions are obtained using iterative algorithms such as \textbf{least angle regression} \citep[LARS,][]{Efron2004} or \textbf{coordinate descent} \citep{Friedman2007} for different values of the parameters $\alpha$ and $\lambda$. These combinations of the values of $\alpha$  and $\lambda$  will result in different EN-PSI from which an optimal index can be obtained such as the prediction accuracy is maximum.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -283,12 +283,12 @@ y <- as.vector(scale(Y[,"YLD"]))
 
 # Fit model
 Z <- model.matrix(~0+gid,data=Y)
-evdKtK <- eigen(tcrossprod(K))
-fm0 <- solveMixed(y,U=evdKtK$vectors,d=evdKtK$values,BLUP=FALSE) 
+evdZZt <- eigen(tcrossprod(Z))   # Decomposition of ZZ'
+fm0 <- solveMixed(y,U=evdZZt$vectors,d=evdZZt$values,BLUP=FALSE) 
 c(fm0$varU,fm0$varE,fm0$h2)
 
 dir.create("output", recursive=TRUE)
-save(fm0,evdKtK,file="output/varComps.RData")
+save(fm0,evdZZt,file="output/varComps.RData")
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
@@ -302,6 +302,10 @@ Code in \textbf{Box 3} below illustrates how to split data into TRN and TST sets
 \vspace{5mm}
 
 The output will be a 'list' type of length \texttt{nPart} containing indices indicating which observations are assigned to testing sets. The object will be saved in the file \texttt{partitions.RData} and will be used later for single time-point and across time-points analyses.
+
+\vspace{5mm}
+
+For demonstration purposes, only \texttt{nPart=5} will be run throughout all the analyses.
 
 \vspace{5mm}
 
@@ -379,7 +383,7 @@ Canonical, L1-penalized and PC-based SIs will be fitted using data from a single
 \subsubsection{Regression coefficients}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Code in \textbf{Box 5a} can be used to estimate regression coefficients using training data within each partition following equations \eqref{eqn:betaCSI} (for the CSI), and \eqref{eqn:betaPCSI} (with different number of PCs for the PC-SI). Coefficients for L1-PSI are estimated as in expression \eqref{eqn:PSI} whose solutions are found using the \texttt{solveEN} function from the \texttt{SFSI} R-package. This function  implements the coordinate descent algorithm for different values of parameter $\lambda$. 
+Code in \textbf{Box 5a} can be used to estimate regression coefficients using training data within each partition following equations \eqref{eqn:betaCSI} (for the CSI), and \eqref{eqn:betaPCSI} (with different number of PCs for the PC-SI). Coefficients for L1-PSI are estimated as in expression \eqref{eqn:PSI} whose solutions are found using the \texttt{lars2} function from the \texttt{SFSI} R-package. This function implements the LARS algorithm that gives solutions for an entire path of values of parameter $\lambda$. 
 
 \vspace{5mm}
 
@@ -416,7 +420,7 @@ for(k in 1:length(partitions))
     betaPCSI[[k]] <- data.frame(I(beta),df=1:nrow(beta),lambda=NA)
     
     # -- L1-PSI --
-    fm <- solveEN(VARx, gencov[,k])
+    fm <- lars2(VARx, gencov[,k])
     beta <- as.matrix(fm$beta)[-1,]
     betaL1PSI[[k]] <- data.frame(I(beta),df=fm$df[-1],lambda=fm$lambda[-1])
 }
@@ -488,7 +492,7 @@ save(accSI,file=paste0("output/timepoint_",tp,"/accuracies.RData"))
 \subsubsection{Effect of regularization on the accuracy of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The regularized selection indices were calculated for $q=1,2,...,250$ PCs for the PC-SI and for decreasing values, $\lambda_1,...,\lambda_{100}$, of the penalization for the L1-PSI. In the later case, decreasing $\lambda$ will give increasing number of active number of predictors in the index. Code in \textbf{Box 6} below can be used to create a plot depicting the evolution of accuracy (and its components) over values of regularization (number of PCs or number of active predictors). Results for the CSI corresponds to the case of a PC-SI with 250 PCs and a L1-PSI with 250 active predictors. These cases are shown at the right-most results in the plots.
+The regularized selection indices were calculated for $q=1,2,...,250$ PCs for the PC-SI and for decreasing values, $\lambda_1,...,\lambda_{250}$, of the path of the penalization for the L1-PSI. In the later case, decreasing $\lambda$ will give increasing number of active number of predictors in the index. Code in \textbf{Box 6} below can be used to create a plot depicting the evolution of accuracy (and its components) over values of regularization (number of PCs or number of active predictors). Results for the CSI corresponds to the case of a PC-SI with 250 PCs and a L1-PSI with 250 active predictors. These cases are shown at the right-most results in the plots.
 
 \vspace{5mm}
 
@@ -659,6 +663,10 @@ save(betaPCSI,betaL1PSI,file="output/multi_timepoint/coefficients.RData")
 \end{mybox}
 
 \vspace{5mm}
+
+In the above code, the \texttt{solveEN} function included in the \texttt{SFSI} R-package was used for convenience to calculate the regression coefficients. \texttt{solveEN} function will yield solutions for a given grid of values of $\lambda$ (covering all the space of possible values) rather than all the $2,250$ solutions for the entire $\lambda$ path  provided by \texttt{lars2} function.
+
+\vspace{5mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Accuracy of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -768,7 +776,7 @@ load("output/multi_timepoint/accuracies.RData")
 
 # Get genetic covariances
 x <- scale(do.call(cbind,WL))
-fm <- getGenCov(y1=Y$YLD,y2=x,U=evdKtK$vectors,d=evdKtK$values, mc.cores=5)
+fm <- getGenCov(y1=Y$YLD,y2=x,U=evdZZt$vectors,d=evdZZt$values, mc.cores=5)
 gencov <- fm$covU
 
 # Get a value of lambda across partitions
