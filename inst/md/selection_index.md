@@ -1,6 +1,6 @@
 * [Back to main page](https://github.com/MarcooLopez/SFSI/blob/master/README.md)
 
-## Penalized Selection Index (SSI)
+## Penalized Selection Index (PSI)
 
 See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SSI.pdf) for the penalized selection index.
 
@@ -9,7 +9,7 @@ See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFS
 ## Outline
   * [1. Data](#data)    
   * [2. Phenotypic vs Genotypic Selection Index](#GSI&PSI)
-  * [3. Sparse Phenotypic and Genotypic Selection Index](#Sparse)
+  * [3. Penalized Phenotypic and Genotypic Selection Index](#Penalized)
   * [4. Accuracy of the index](#SGSI&SPSIcv)
   * [5. Prediction of non-observed data](#predict)
   * [6. Genotypic covariance components patterns](#Scen)
