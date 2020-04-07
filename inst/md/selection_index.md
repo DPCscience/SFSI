@@ -87,7 +87,7 @@ Px <- var(x)
 
 An index that uses phenotypic covariances will yield predictions that are the best in predicting phenotypic values; however this approach is not a good practice when the goal is selecting the best genotypes (judged by their breeding values). In the later case, using genotypic covariances seems to be more appropiate.
 
-Code below will calculate SS that use both phenotypic (PSI) and genotypic covariances (GSI) 
+Code below will calculate SI that use both phenotypic (PSI) and genotypic covariances (GSI) 
 ```r
 # Regression coefficients for the indices
 B1 <- as.vector(solve(Px)%*%gencov)
