@@ -116,7 +116,7 @@ ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) + theme_bw() +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure1_SI.png" width="390">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure1_SI.png" width="380">
 </p>
 
 [Back to Outline](#Outline)
