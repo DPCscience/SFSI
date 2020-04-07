@@ -109,10 +109,10 @@ sum((Uy-GSI)^2)/n
 library(ggplot2)
 rg <- range(c(Uy,GSI,PSI))
 dat <- rbind(data.frame(Uy=Uy,yHat=PSI,SI="PSI"),data.frame(Uy=Uy,yHat=GSI,SI="GSI"))
-ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) +
-   labs(x="True BV",y="Predicted BV")+ 
+ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) + theme_bw() + 
    geom_abline(slope=1, intercept=0,linetype=2,size=.5,color="gray60") + 
-   geom_point(shape=21,size=0.8) + theme(legend.position=c(0.9,0.15)) 
+   geom_point(shape=21,size=0.8) + labs(x="True BV",y="Predicted BV") + 
+   theme(legend.justification=c(1,0),legend.position=c(0.99,0.01)) 
 ```
 
 <p align="center">
@@ -158,16 +158,17 @@ Again, the accuracy can be calculated using this simulated data but must be infe
 accPGSI <- as.vector(cor(Uy,PGSI))
 accPPSI <- as.vector(cor(Uy,PPSI))
 
-# Accuracy of the non-penalized SI (canonical SI)
-dat2 <- data.frame(SI=c("PGSI","PPSI"),x=12,accuracy=cor(cbind(Uy,GSI,PSI))[1,-1])
-
 dat <- rbind(
   data.frame(SI="PGSI",accuracy=accPGSI,df=fm1$df,lambda=fm1$lambda),
   data.frame(SI="PPSI",accuracy=accPPSI,df=fm2$df,lambda=fm2$lambda)
 )
 
+# Accuracy of the non-penalized SI (canonical SI)
+dat2 <- data.frame(SI=c("PGSI","PPSI"),x=min(dat$lambda),accuracy=cor(cbind(Uy,GSI,PSI))[1,-1])
+
 ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + 
-    geom_line(size=0.8) + geom_point(data=dat2,aes(x,accuracy),size=2) + xlim(0,12)
+    geom_line(size=0.8) + theme_bw() +
+    geom_point(data=dat2,aes(-log(x),accuracy),size=2) 
 ```
 [Back to Outline](#Outline)
 
