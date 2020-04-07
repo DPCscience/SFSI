@@ -359,28 +359,28 @@ h2xyL <- rbeta(p,2,10)
 h2xH <- rbeta(p,30,1) 
 h2xL <- rbeta(p,2,10) 
 
-# Funtion for relevant plots
+# Function for relevant plots
 library(ggpubr)
 makePlot <- function(h2xy,h2x,out1,out2)
 {
-  thm0 <- theme(plot.title = element_text(hjust = 0.5)) + theme_bw()
+  thm0 <- theme_bw() + theme(plot.title = element_text(size=10,hjust=0.5)) 
   
   # Histogram of h2 and genetic correlation
   dat <- rbind(data.frame(comp="h2",x=h2x),data.frame(comp="r",x=h2xy^2))
-  pp1 <- ggplot(dat, aes(x, fill = comp)) + labs(title="Heritability and \n genetic correlation") +
-     geom_histogram(alpha = 0.5, aes(y = ..density..), position = 'identity') + thm0
+  pp1 <- ggplot(dat,aes(x,fill=comp)) + labs(title="Heritability and \n genetic correlation") +
+     geom_histogram(alpha=0.5,aes(y = ..density..),position='identity') + thm0
   
   # Plot of accuracy
-  dat <- rbind( data.frame(SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
-                data.frame(SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
+  dat <- rbind( data.frame(SI="PGSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
+                data.frame(SI="PPSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
   )
 
   dat2 <- aggregate(accuracy ~ SI, dat,mean)
   rg <- range(dat$accuracy)
-  pp2 <- ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
-    geom_boxplot(width=0.5) + ylim(rg[1]*0.995,ifelse(rg[2]*1.005>1,1,rg[2]*1.005)) +
-    labs(title="Accuracy of the GSI and PSI")+theme(legend.position="none")+thm0+
-    annotate("text", x=dat2$SI, y=rg[1]*0.996, label=sprintf("%.3f", dat2$accuracy))
+  pp2 <- ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom="errorbar",width=0.2) + 
+    geom_boxplot(width=0.5) + ylim(rg[1]-0.12*diff(rg),rg[2]) + labs(title="\nAccuracy of the index") +
+    scale_fill_manual(values=c("#56B4E9","#E59F00")) + theme(legend.position="none") +
+    annotate("text",x=dat2$SI,y=rg[1]-0.1*diff(rg),label=sprintf("%.3f", dat2$accuracy)) 
 
   ggarrange(pp1,pp2)
 }
