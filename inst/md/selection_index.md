@@ -125,11 +125,11 @@ ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) +
 
 <div id="Sparse" />
 
-### 3. Sparse Phenotypic and Genotypic selection index
+### 3. Penalized Phenotypic and Genotypic selection index
 
-The sparse index is obtained by imposing a penalization in the estimation of the regression coefficients. The penalization is given by the parameter `lambda`.
+The penalized index is obtained by imposing a penalization in the estimation of the regression coefficients. The penalization is given by the parameter `lambda`.
 
-Code below will calculate sparse genotypic SI (SGSI) and sparse phenotypic SI (SPSI) for 100 values of the penalization parameter
+Code below will calculate penalized genotypic SI (PGSI) and penalized phenotypic SI (PPSI) for 100 values of the penalization parameter
 ```r
 library(SFSI)
 
@@ -146,8 +146,8 @@ B1 <- as.matrix(fm1$beta)
 B2 <- as.matrix(fm2$beta)
 
 # Fitted values (selection indices)
-SGSI <- x %*% t(B1)
-SPSI <- x %*% t(B2)
+PGSI <- x %*% t(B1)
+PPSI <- x %*% t(B2)
 ```
 
 The performance of the index is assessed by its accuracy of selection (i.e., correlation between the index and the breeding values) which  varies as the penalization parameter lambda changes
@@ -155,15 +155,15 @@ The performance of the index is assessed by its accuracy of selection (i.e., cor
 Again, the accuracy can be calculated using this simulated data but must be inferred from variance components in real data. Code below computes the accuracy of the index along the parameter lambda (logarithm scale)
 ```r
 # Accuracy of the indices
-accSGSI <- as.vector(cor(Uy,SGSI))
-accSPSI <- as.vector(cor(Uy,SPSI))
+accPGSI <- as.vector(cor(Uy,PGSI))
+accPPSI <- as.vector(cor(Uy,PPSI))
 
-# Accuracy of the non-sparse SI (canonical SI)
-dat2 <- data.frame(SI=c("SGSI","SPSI"),x=12,accuracy=cor(cbind(Uy,GSI,PSI))[1,-1])
+# Accuracy of the non-penalized SI (canonical SI)
+dat2 <- data.frame(SI=c("PGSI","PPSI"),x=12,accuracy=cor(cbind(Uy,GSI,PSI))[1,-1])
 
 dat <- rbind(
-  data.frame(SI="SGSI",accuracy=accSGSI,df=fm1$df,lambda=fm1$lambda),
-  data.frame(SI="SPSI",accuracy=accSPSI,df=fm2$df,lambda=fm2$lambda)
+  data.frame(SI="PGSI",accuracy=accPGSI,df=fm1$df,lambda=fm1$lambda),
+  data.frame(SI="PPSI",accuracy=accPPSI,df=fm2$df,lambda=fm2$lambda)
 )
 
 ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + 
@@ -175,7 +175,7 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 
 <div id="SGSI&SPSIcv" />
 
-### 4. Accuracy of the Sparse phenotypic vs Sparse genotypic SS using cross-validation
+### 4. Accuracy of the penalized phenotypic vs penalized genotypic SI using cross-validation
 
 The performance of the index is assessed by its accuracy of selection which varies according to the penalization parameter lambda.
 
