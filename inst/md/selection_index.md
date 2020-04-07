@@ -1,8 +1,8 @@
 * [Back to main page](https://github.com/MarcooLopez/SFSI/blob/master/README.md)
 
-## Sparse Selection Index (SSI)
+## Penalized Selection Index (SSI)
 
-See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SSI.pdf) for the sparse selection index.
+See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SSI.pdf) for the penalized selection index.
 
 <div id="Outline" />
 
