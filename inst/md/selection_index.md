@@ -265,13 +265,13 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 <img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="410">
 </p>
 
-An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication. The sparse index is compared with the non-sparse (canonical) SI 
+An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication. The penalized index is compared with the non-penalized (canonical) SI 
 ```r
 dat <- rbind(
   data.frame(sp="Canonical",SI="GSI",accuracy=out1$accSI[nrow(out1$accSI),]),
-  data.frame(sp="Sparse",SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
+  data.frame(sp="Penalized",SI="GSI",accuracy=apply(out1$accSI,2,max,na.rm=TRUE)),
   data.frame(sp="Canonical",SI="PSI",accuracy=out2$accSI[nrow(out2$accSI),]),
-  data.frame(sp="Sparse",SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
+  data.frame(sp="Penalized",SI="PSI",accuracy=apply(out2$accSI,2,max,na.rm=TRUE))
 )
 
 dat2 <- aggregate(accuracy~SI+sp,dat,mean)
@@ -308,7 +308,7 @@ out1 <- SI_CV(dat$x,dat$y,dat$Ux,dat$Uy,"geno",5,3,nLambda,tol=1E-4,maxIter=200)
 lambda0 <- c()
 for(j in 1:ncol(out1$lambda)) lambda0[j] <- out1$lambdaSI[which.max(out1$accSI[,j]),j]
 
-# Use the lambda obtained to calculate an sparse GSI to predict the new data
+# Use the lambda obtained to calculate an Penalized GSI to predict the new data
 lambda <- mean(lambda0)
 
 x <- scale(rbind(dat$x,newdat$x))   # Use all data from trn and new dataset
