@@ -264,7 +264,7 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure2_SI.png" width="410">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure2_SI.png" width="390">
 </p>
 
 An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication. The penalized index is compared with the non-penalized (canonical) SI 
@@ -284,7 +284,7 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom="errorbar",width=0.2) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure3_SI.png" height="325">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure3_SI.png" height="320">
 </p>
 
 [Back to Outline](#Outline)
@@ -399,7 +399,7 @@ makePlot(h2xyH,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure4_SI.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure4_SI.png" height="325">
 </p>
 
 **Scenario 2**
@@ -414,7 +414,7 @@ makePlot(h2xyH,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure5_SI.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure5_SI.png" height="325">
 </p>
 
 
@@ -430,7 +430,7 @@ makePlot(h2xyL,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure6_SI.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure6_SI.png" height="325">
 </p>
 
 
@@ -446,5 +446,5 @@ makePlot(h2xyL,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure7_SI.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure7_SI.png" height="325">
 </p>
