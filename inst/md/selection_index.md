@@ -116,7 +116,7 @@ ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) + theme_bw() +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/yVSyHat.png" width="390">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure1_SI.png" width="390">
 </p>
 
 [Back to Outline](#Outline)
@@ -264,7 +264,7 @@ ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_lambda_1.png" width="410">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure2_SI.png" width="410">
 </p>
 
 An optimal index can be obtained such as the accuracy is maximum. Code below will take the index with maximum accuracy within each fold-replication. The penalized index is compared with the non-penalized (canonical) SI 
@@ -284,7 +284,7 @@ ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom="errorbar",width=0.2) +
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_mean_1.png" height="325">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure3_SI.png" height="325">
 </p>
 
 [Back to Outline](#Outline)
@@ -363,7 +363,8 @@ h2xL <- rbeta(p,2,10)
 library(ggpubr)
 makePlot <- function(h2xy,h2x,out1,out2)
 {
-  thm0 <- theme_bw() + theme(plot.title = element_text(size=10,hjust=0.5)) 
+  thm0 <- theme_bw() + theme(plot.title = element_text(size=10,hjust=0.5),
+    axis.title.x=element_blank()) 
   
   # Histogram of h2 and genetic correlation
   dat <- rbind(data.frame(comp="h2",x=h2x),data.frame(comp="r",x=h2xy^2))
@@ -379,10 +380,10 @@ makePlot <- function(h2xy,h2x,out1,out2)
   rg <- range(dat$accuracy)
   pp2 <- ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom="errorbar",width=0.2) + 
     geom_boxplot(width=0.5) + ylim(rg[1]-0.12*diff(rg),rg[2]) + labs(title="\nAccuracy of the index") +
-    scale_fill_manual(values=c("#56B4E9","#E59F00")) + theme(legend.position="none") +
+    thm0 + scale_fill_manual(values=c("#E59F00","#56B4E9")) + theme(legend.position="none") +
     annotate("text",x=dat2$SI,y=rg[1]-0.1*diff(rg),label=sprintf("%.3f", dat2$accuracy)) 
 
-  ggarrange(pp1,pp2)
+  ggarrange(pp1,pp2,widths=c(0.54,0.46))
 }
 
 ```
@@ -398,7 +399,7 @@ makePlot(h2xyH,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_1.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure4_SI.png" height="330">
 </p>
 
 **Scenario 2**
@@ -413,7 +414,7 @@ makePlot(h2xyH,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_2.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure5_SI.png" height="330">
 </p>
 
 
@@ -429,7 +430,7 @@ makePlot(h2xyL,h2xH,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_3.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure6_SI.png" height="330">
 </p>
 
 
@@ -445,5 +446,5 @@ makePlot(h2xyL,h2xL,out1,out2)
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/CV_sce_4.png" height="330">
+<img src="https://github.com/MarcooLopez/SFSI/blob/master/inst/md/Figure7_SI.png" height="330">
 </p>
