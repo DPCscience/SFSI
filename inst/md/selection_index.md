@@ -123,7 +123,7 @@ ggplot(dat,aes(Uy,yHat,color=SI,group=SI)) + lims(x=rg,y=rg) +
 
 -------------------------------------------------------------------------------------------
 
-<div id="Sparse" />
+<div id="Penalized" />
 
 ### 3. Penalized Phenotypic and Genotypic selection index
 
@@ -135,10 +135,10 @@ library(SFSI)
 
 nLambda <- 100
 
-# Genotypic SS
+# Genotypic SI
 fm1 <- solveEN(Px,gencov,nLambda=nLambda)
 
-# Phenotypic SS
+# Phenotypic SI
 fm2 <- solveEN(Px,phencov,nLambda=nLambda)
 
 # Regression coefficients for each value of lambda
