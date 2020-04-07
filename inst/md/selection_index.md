@@ -243,23 +243,24 @@ nLambda <- 100   # Number of indices to generate
 out1 <- SI_CV(x,y,Ux,Uy,"geno",nRep,nFold,nLambda,tol=2E-4)     # GSI
 out2 <- SI_CV(x,y,Ux,Uy,"pheno",nRep,nFold,nLambda,tol=2E-4)    # PSI
 
-# Accuracy of the indices across folds
-accSGSI <- apply(out1$accSI,1,mean)
-accSPSI <- apply(out2$accSI,1,mean)
+# Average accuracy of the indices across folds
+accPGSI <- apply(out1$accSI,1,mean)
+accPPSI <- apply(out2$accSI,1,mean)
 
-dfSGSI <- apply(out1$dfSI,1,mean)
-dfSPSI <- apply(out2$dfSI,1,mean)
-lambdaSGSI <- apply(out1$lambdaSI,1,mean)
-lambdaSPSI <- apply(out2$lambdaSI,1,mean)
+dfPGSI <- apply(out1$dfSI,1,mean)
+dfPPSI <- apply(out2$dfSI,1,mean)
+lambdaPGSI <- apply(out1$lambdaSI,1,mean)
+lambdaPPSI <- apply(out2$lambdaSI,1,mean)
 
 dat <- rbind(
-  data.frame(SI="SGSI",accuracy=accSGSI,df=dfSGSI,lambda=lambdaSGSI),
-  data.frame(SI="SPSI",accuracy=accSPSI,df=dfSPSI,lambda=lambdaSPSI)
+  data.frame(SI="PGSI",accuracy=accPGSI,df=dfPGSI,lambda=lambdaPGSI),
+  data.frame(SI="PPSI",accuracy=accPPSI,df=dfPPSI,lambda=lambdaPPSI)
 )
 
 # Plot the average accuracy (in testing set) across all fold-replications
 ggplot(dat[dat$df>1,],aes(-log(lambda),accuracy,color=SI,group=SI)) + 
-   geom_line(size=0.8) + theme_bw()
+   geom_line(size=0.8) + theme_bw() +
+   theme(legend.justification=c(1,1),legend.position=c(0.99,0.99)) 
 ```
 
 <p align="center">
