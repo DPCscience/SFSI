@@ -278,8 +278,9 @@ dat <- rbind(
 
 dat2 <- aggregate(accuracy~SI+sp,dat,mean)
 rg <- range(dat$accuracy)
-ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom = "errorbar", width = 0.2) + 
-  facet_wrap(~sp,scales="free_y") + geom_boxplot(width=0.5) + theme_bw()
+ggplot(dat,aes(SI,accuracy,fill=SI)) + stat_boxplot(geom="errorbar",width=0.2) + 
+  facet_wrap(~sp,scales="free_y") + geom_boxplot(width=0.5) + 
+  theme_bw() + theme(legend.position="none")
 ```
 
 <p align="center">
