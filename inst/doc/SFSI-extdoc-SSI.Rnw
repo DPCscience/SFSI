@@ -82,10 +82,10 @@ where $\boldsymbol{\beta}=(\beta_1,...,\beta_p)'$ is a vector of regression coef
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Canonical selection index}
+\subsection{Standard selection index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In a \textbf{canonical SI} (\textbf{CSI}) the weights are derived by minimizing the expected squared deviation between the genetic merit for the selection goal and the index, that is
+In a \textbf{standard SI} the weights are derived by minimizing the expected squared deviation between the genetic merit for the selection goal and the index, that is
 
 \begin{equation*}
 \hat{\boldsymbol{\beta}} = \underset{\beta}{\text{arg min}}\frac{1}{2}\mathbb{E}\left(u_{y_i}-\boldsymbol{x}'_i\boldsymbol{\beta}\right)^2
@@ -94,13 +94,13 @@ In a \textbf{canonical SI} (\textbf{CSI}) the weights are derived by minimizing 
 Assuming that $\boldsymbol{x}_i$ follows also model \eqref{eqn:genmod} and that their environmental effects ($\boldsymbol{e}_{x_i}$) are orthogonal to $u_{y_i}$, the above problem is equivalent to
 
 \begin{equation}
-\label{eqn:CSI}
+\label{eqn:SI}
 \hat{\boldsymbol{\beta}} = \underset{\beta}{\text{arg min}}\left[-\textbf{G}'_{x,y}\boldsymbol{\beta} + \frac{1}{2}\boldsymbol{\beta}'\textbf{P}_x\boldsymbol{\beta}\right]
 \end{equation}
 
 where $\textbf{G}_{x,y}=\mathbb{E}(u_{y_i}\boldsymbol{x}_i)$ is a vector containing the genetic covariances between the selection target and each of the measured phenotypes, and $\textbf{P}_x=\mathbb{E}(\boldsymbol{x}_i\boldsymbol{x}'_i)$ is the phenotypic (co)variance matrix of $\boldsymbol{x}_i$. The solution to this optimization problem is
 \begin{equation}
-\label{eqn:betaCSI}
+\label{eqn:betaSI}
 \hat{\boldsymbol{\beta}} = \textbf{P}_x^{-1} \textbf{G}_{x,y}
 \end{equation}
 
@@ -135,7 +135,7 @@ where $\tilde{\boldsymbol{V}}$ is the matrix containing only the first $q$ right
 \subsection{Penalized selection indices}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In a penalized regression, regularization is achieved by including in the objective function a penalty on model complexity. A \textbf{penalized selection index} (\textbf{PSI}) is obtained by considering an optimization problem as in \eqref{eqn:CSI}, as follows: 
+In a penalized regression, regularization is achieved by including in the objective function a penalty on model complexity. A \textbf{penalized selection index} (\textbf{PSI}) is obtained by considering an optimization problem as in \eqref{eqn:SI}, as follows: 
 
 \begin{equation}
 \label{eqn:PSI}
@@ -146,7 +146,7 @@ where $\lambda$ is a penalty parameter and $J(\boldsymbol{\beta}_i)$ is a penalt
 \begin{equation*}
 J(\boldsymbol{\beta})=\frac{1}{2} (1-\alpha) \sum_{j=1}^n\beta_j^2 + \alpha \sum_{j=1}^n|\beta_j|
 \end{equation*}
-where $\alpha$ is a weighting factor. This penalty is used in an  \textbf{elastic-net-type} regression \citep{Zou2005} that combines the shrinkage-inducing feature of a \textbf{ridge-regression} \citep{Hoerl1970}, that uses the L2-norm alone, and the variable selection feature of a  \textbf{LASSO} regression \citep{Tibshirani1996}, that uses the L1-norm alone. With no penalization ($\lambda=0$), the solution for \eqref{eqn:PSI} is equivalent to that of the canonical SI in \eqref{eqn:betaCSI}.
+where $\alpha$ is a weighting factor. This penalty is used in an  \textbf{elastic-net-type} regression \citep{Zou2005} that combines the shrinkage-inducing feature of a \textbf{ridge-regression} \citep{Hoerl1970}, that uses the L2-norm alone, and the variable selection feature of a  \textbf{LASSO} regression \citep{Tibshirani1996}, that uses the L1-norm alone. With no penalization ($\lambda=0$), the solution for \eqref{eqn:PSI} is equivalent to that of the standard SI in \eqref{eqn:betaSI}.
 
 \vspace{5mm}
 
@@ -377,17 +377,17 @@ save(gencov,phencov,file=paste0("output/timepoint_",tp,"/covariances.RData"))
 \subsection{Single time-point selection indices}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Canonical, L1-penalized and PC-based SIs will be fitted using data from a single time-point. The regression coefficients are to be obtained from training data within each partition previously created.
+Standard, L1-penalized and PC-based SIs will be fitted using data from a single time-point. The regression coefficients are to be obtained from training data within each partition previously created.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Regression coefficients}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Code in \textbf{Box 5a} can be used to estimate regression coefficients using training data within each partition following equations \eqref{eqn:betaCSI} (for the CSI), and \eqref{eqn:betaPCSI} (with different number of PCs for the PC-SI). Coefficients for L1-PSI are estimated as in expression \eqref{eqn:PSI} whose solutions are found using the \texttt{lars2} function from the \texttt{SFSI} R-package. This function implements the LARS algorithm that gives solutions for an entire path of values of parameter $\lambda$. 
+Code in \textbf{Box 5a} can be used to estimate regression coefficients using training data within each partition following equations \eqref{eqn:betaSI} (for the standard SI), and \eqref{eqn:betaPCSI} (with $1, 2,...,250$ PCs for the PC-SI). Coefficients for L1-PSI are estimated as in expression \eqref{eqn:PSI} whose solutions are found using the \texttt{lars2} function from the \texttt{SFSI} R-package. This function implements the LARS algorithm that gives solutions for an entire path of values of parameter $\lambda$. 
 
 \vspace{5mm}
 
-Time-point can be specified through variable \texttt{tp} thus it can be changed to get results for all time-points ($1, 2,...,9$). Results are stored in matrices \texttt{betaCSI}, \texttt{betaPCSI} and \texttt{betaL1PSI}, and saved in the file \texttt{coefficients.RData}. Calculations are performed across all partitions previously created.
+Time-point can be specified through variable \texttt{tp} thus it can be changed to get results for all time-points ($1, 2,...,9$). Results are stored in matrices \texttt{betaSI}, \texttt{betaPCSI} and \texttt{betaL1PSI}, and saved in the file \texttt{coefficients.RData}. Calculations are performed across all partitions previously created.
 
 \begin{mybox}[title=\textbf{Box 5a}. Regression coefficients within time-point]
 \begin{footnotesize}
@@ -397,7 +397,7 @@ load(paste0("output/timepoint_",tp,"/covariances.RData"))
 load("output/partitions.RData")
 
 # Objects to store regression coefficients
-betaCSI <- betaPCSI <- betaL1PSI <- vector("list",length(partitions))
+betaSI <- betaPCSI <- betaL1PSI <- vector("list",length(partitions))
 
 for(k in 1:length(partitions))
 {   cat("  partition = ",k,"of",length(partitions),"\n")
@@ -409,9 +409,9 @@ for(k in 1:length(partitions))
     VARx <- var(xTRN)
     EVDx <- eigen(VARx)
     
-    # -- Canonical SI --
+    # -- Standard SI --
     VARinv <- EVDx$vectors %*% diag(1/EVDx$values) %*% t(EVDx$vectors)
-    betaCSI[[k]] <- VARinv %*%  gencov[,k]
+    betaSI[[k]] <- VARinv %*%  gencov[,k]
     
     # -- PC-SI --
     VARinv <- diag(1/EVDx$values)
@@ -424,7 +424,7 @@ for(k in 1:length(partitions))
     beta <- as.matrix(fm$beta)[-1,]
     betaL1PSI[[k]] <- data.frame(I(beta),df=fm$df[-1],lambda=fm$lambda[-1])
 }
-save(betaCSI,betaPCSI,betaL1PSI,file=paste0("output/timepoint_",tp,"/coefficients.RData"))
+save(betaSI,betaPCSI,betaL1PSI,file=paste0("output/timepoint_",tp,"/coefficients.RData"))
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
@@ -439,7 +439,7 @@ The regression coefficients above calculated can be applied to data from testing
 
 \vspace{5mm}
 
-Results for the three indices (CSI, PC-SI and L1-PSI) are stored in the object matrix \texttt{accSI} and saved in the file \texttt{accuracies.RData}. Calculations are performed across all partitions previously created.
+Results for the three indices (standard SI, PC-SI and L1-PSI) are stored in the object matrix \texttt{accSI} and saved in the file \texttt{accuracies.RData}. Calculations are performed across all partitions previously created.
 
 \vspace{5mm}
 
@@ -463,14 +463,14 @@ for(k in 1:length(partitions))
     Z <- model.matrix(~ 0 + genotype)    # Design matrix for genotypes
         
     # Calculate the indices
-    CSI <- xTST %*% betaCSI[[k]]
+    SI <- xTST %*% betaSI[[k]]
     PCSI <- tcrossprod(xTST, betaPCSI[[k]]$beta)
     L1PSI <- tcrossprod(xTST, betaL1PSI[[k]]$beta)
     
     # Fit genetic models   
     ZZt <- tcrossprod(Z)
-    SI <- as.matrix(data.frame(I(CSI),I(PCSI),I(L1PSI)))
-    fm <- getGenCov(y1=yTST,y2=SI,K=ZZt)
+    fitSI <- as.matrix(data.frame(I(SI),I(PCSI),I(L1PSI)))
+    fm <- getGenCov(y1=yTST,y2=fitSI,K=ZZt)
     
     # Retrieve accuracy components
     h <- sqrt(fm$varU2/(fm$varU2 + fm$varE2))
@@ -479,7 +479,7 @@ for(k in 1:length(partitions))
     
     df <- c(max(betaL1PSI[[k]]$df),betaPCSI[[k]]$df,betaL1PSI[[k]]$df)
     lambda <- c(min(betaL1PSI[[k]]$lambda),betaPCSI[[k]]$lambda,betaL1PSI[[k]]$lambda)
-    accSI <- rbind(accSI,data.frame(rep=k,SI=colnames(SI),h,gencor,accuracy,df,lambda))
+    accSI <- rbind(accSI,data.frame(rep=k,SI=colnames(fitSI),h,gencor,accuracy,df,lambda))
 }
 save(accSI,file=paste0("output/timepoint_",tp,"/accuracies.RData"))
 \end{verbatim}
@@ -492,7 +492,7 @@ save(accSI,file=paste0("output/timepoint_",tp,"/accuracies.RData"))
 \subsubsection{Effect of regularization on the accuracy of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The regularized selection indices were calculated for $q=1,2,...,250$ PCs for the PC-SI and for decreasing values, $\lambda_1,...,\lambda_{250}$, of the path of the penalization for the L1-PSI. In the later case, decreasing $\lambda$ will give increasing number of active number of predictors in the index. Code in \textbf{Box 6} below can be used to create a plot depicting the evolution of accuracy (and its components) over values of regularization (number of PCs or number of active predictors). Results for the CSI corresponds to the case of a PC-SI with 250 PCs and a L1-PSI with 250 active predictors. These cases are shown at the right-most results in the plots.
+The regularized selection indices were calculated for $q=1,2,...,250$ PCs for the PC-SI and for decreasing values, $\lambda_1,...,\lambda_{250}$, of the path of the penalization for the L1-PSI. In the later case, decreasing $\lambda$ will give increasing number of active number of predictors in the index. Code in \textbf{Box 6} below can be used to create a plot depicting the evolution of accuracy (and its components) over values of regularization (number of PCs or number of active predictors). Results for the standard SI corresponds to the case of a PC-SI with 250 PCs and a L1-PSI with 250 active predictors. These cases are shown at the right-most results in the plots.
 
 \vspace{5mm}
 
@@ -528,14 +528,14 @@ ggarrange(plot1,plot2,nrow=1,common.legend=TRUE,legend="right")
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.99\textwidth]{FigureSSI_1}
-  \caption{\small{Accuracy of selection (average across 10 TRN-TST partitions) and its components of the index versus the number of principal components entering in the PC-SI (left) and the number of active predictors in the L1-PSI (right). Timepoint 9. Environment E1}}
+  \caption{\small{Accuracy of selection (average across 5 TRN-TST partitions) and its components of the index versus the number of principal components entering in the PC-SI (left) and the number of active predictors in the L1-PSI (right). Time-point 9. Environment E1}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Optimal regularized vs canonical selection indices}
+\subsubsection{Optimal regularized vs standard selection indices}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An optimal regularized selection index can be chosen by selecting an optimal regularization (number of PCs or value of $\lambda$) such that the accuracy of selection of the resulting index in the testing set is maximum. Code in \textbf{Box 7} below can be used to select the optimal PC-SI and L1-PSI, and to compare the accuracy of selection with that of the CSI (non-regularized). Results are reported as an average across all partitions along with a $95\%$ confidence interval. 
+An optimal regularized selection index can be chosen by selecting an optimal regularization (number of PCs or value of $\lambda$) such that the accuracy of selection of the resulting index in the testing set is maximum. Code in \textbf{Box 7} below can be used to select the optimal PC-SI and L1-PSI, and to compare the accuracy of selection with that of the standard SI (non-regularized). Results are reported as an average across all partitions along with a $95\%$ confidence interval. 
 
 \vspace{5mm}
 
@@ -564,7 +564,7 @@ ggplot(dat,aes(SI,accuracy,ymin=accuracy-se,ymax=accuracy+se)) + theme_bw() +
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.6\textwidth]{FigureSSI_2}
-  \caption{\small{Accuracy of selection (average across 10 TRN-TST partitions) of the CSI, and the optimal PC-SI and L1-PSI. Timepoint 9. Environment E1}}
+  \caption{\small{Accuracy of selection (average across 5 TRN-TST partitions) of the standard SI, and the optimal PC-SI and L1-PSI. Time-point 9. Environment E1}}
 \end{figure}
 
 
@@ -572,7 +572,7 @@ ggplot(dat,aes(SI,accuracy,ymin=accuracy-se,ymax=accuracy+se)) + theme_bw() +
 \subsubsection{Comparison of the indices across time-points}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The accuracy of indirect selection for the optimal (i.e., the one with the highest accuracy of indirect selection) L1-PSI and PC-SI can be assessed across time-points and compared with a canonical SI. Code in \textbf{Box 8} below can be used to calculate the optimal PC-SI and L1-PSI, and to compare their accuracy of selection with that of the CSI across all time-points. 
+The accuracy of indirect selection for the optimal (i.e., the one with the highest accuracy of indirect selection) L1-PSI and PC-SI can be assessed across time-points and compared with a standard SI. Code in \textbf{Box 8} below can be used to calculate the optimal PC-SI and L1-PSI, and to compare their accuracy of selection with that of the standard SI across all time-points. 
 
 \vspace{5mm}
 To this end, all the within time-point analyses in \textbf{Box 4b}, \textbf{Box 5a} and \textbf{Box 5b} must be previously performed for all the 9 time-points. This can be achieved using, for instance, a loop as: \texttt{for(tp in 1:9)\{  \}}.
@@ -607,7 +607,7 @@ ggplot(dat,aes(Timepoint,accuracy,color=SI,group=SI,ymin=accuracy-se,ymax=accura
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.8\textwidth]{FigureSSI_3}
-  \caption{\small{Accuracy of selection (average across 10 TRN-TST partitions) of the CSI, and the optimal PC-SI and L1-PSI. Timepoint 9. Environment E1}}
+  \caption{\small{Accuracy of selection (average across 5 TRN-TST partitions) of the standard SI, and the optimal PC-SI and L1-PSI. Time-point 9. Environment E1}}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -620,6 +620,10 @@ Selection indices can be calculated to include reflectance data from multiple ti
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Code in \textbf{Box 9a} shows how to calculate coefficients for the PC-SI and L1-PSI using data from all 9 time-points. To this end, the genetic covariances of all $2,250$ traits with grain yield are needed, thus, all the within time-point genetic covariances must be previously calculated for all the 9 time-points using code in \textbf{Box 4b}.  Results are saved in file \texttt{coefficients.RData} in folder \texttt{output/multi\_timepoint}.
+
+\vspace{5mm}
+
+PC-SIs will be calculated including $1,2, ...,500$ PCs only (the maximum possible is $2,250$ PCs). The \texttt{solveEN} function (included in the \texttt{SFSI} R-package ) will be used for convenience to calculate the regression coefficients for the L1-PSI. \texttt{solveEN} function will yield solutions for a given grid of values of $\lambda$ (covering all the space of possible values) rather than all the $2,250$ solutions for the entire $\lambda$ path provided by \texttt{lars2} function.
 
 \vspace{5mm}
 
@@ -663,10 +667,6 @@ save(betaPCSI,betaL1PSI,file="output/multi_timepoint/coefficients.RData")
 \end{mybox}
 
 \vspace{5mm}
-
-In the above code, the \texttt{solveEN} function included in the \texttt{SFSI} R-package was used for convenience to calculate the regression coefficients. \texttt{solveEN} function will yield solutions for a given grid of values of $\lambda$ (covering all the space of possible values) rather than all the $2,250$ solutions for the entire $\lambda$ path  provided by \texttt{lars2} function.
-
-\vspace{5mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Accuracy of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -701,8 +701,8 @@ for(k in 1:length(partitions))
     
     # Fit genetic models
     ZZt <- tcrossprod(Z)
-    SI <- as.matrix(data.frame(I(PCSI_multi),I(L1PSI_multi)))
-    fm <- getGenCov(y1=yTST,y2=SI,K=ZZt)
+    fitSI <- as.matrix(data.frame(I(PCSI_multi),I(L1PSI_multi)))
+    fm <- getGenCov(y1=yTST,y2=fitSI,K=ZZt)
    
     # Retrieve accuracy components
     h <- sqrt(fm$varU2/(fm$varU2 + fm$varE2))
@@ -711,7 +711,7 @@ for(k in 1:length(partitions))
     
     df <- c(betaPCSI[[k]]$df,betaL1PSI[[k]]$df)
     lambda <- c(betaPCSI[[k]]$lambda,betaL1PSI[[k]]$lambda)
-    AccSI <- rbind(AccSI,data.frame(rep=k,SI=colnames(SI),h,gencor,accuracy,df,lambda))
+    AccSI <- rbind(AccSI,data.frame(rep=k,SI=colnames(fitSI),h,gencor,accuracy,df,lambda))
 }
 save(AccSI,file="output/multi_timepoint/accuracies.RData")
 \end{verbatim}
@@ -724,7 +724,7 @@ save(AccSI,file="output/multi_timepoint/accuracies.RData")
 \subsubsection{Optimal multi vs single time-point selection indices}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-As for the single time-point case, one can obtain an optimal regularized selection index such that the accuracy of selection in the testing set is maximum. Code in \textbf{Box 10} below can be used to select the optimal PC-SI and L1-PSI, and to compare the accuracy of selection with that of the single time-point CSI, PC-SI and L1-PSI. Results are reported as an average across all partitions along with a $95\%$ confidence interval.
+As for the single time-point case, one can obtain an optimal regularized selection index such that the accuracy of selection in the testing set is maximum. Code in \textbf{Box 10} below can be used to select the optimal PC-SI and L1-PSI, and to compare the accuracy of selection with that of the single time-point standard SI, PC-SI and L1-PSI. Results are reported as an average across all partitions along with a $95\%$ confidence interval.
 
 \begin{mybox}[title=\textbf{Box 10}. Optimal selection index]
 \begin{footnotesize}
@@ -754,7 +754,7 @@ ggplot(dat,aes(SI,accuracy,ymin=accuracy-se,ymax=accuracy+se)) + theme_bw() +
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.65\textwidth]{FigureSSI_4}
-  \caption{\small{Accuracy of selection (average across 10 TRN-TST partitions) of the CSI, and the optimal PC-SI and L1-PSI for the time-point 9 and multi time-point. Environment E1}}
+  \caption{\small{Accuracy of selection (average across 5 TRN-TST partitions) of the standard SI, and the optimal PC-SI and L1-PSI for the time-point 9 and multi time-point. Environment E1}}
 \end{figure}
 
 
@@ -765,13 +765,14 @@ ggplot(dat,aes(SI,accuracy,ymin=accuracy-se,ymax=accuracy+se)) + theme_bw() +
 The value of $\lambda$ in \eqref{eqn:PSI} for the L1-PSI define the number of predictors with non-zero coefficient in the index. Code in \textbf{Box 11} below can be used to estimate the regression coefficients for a multi time-point L1-PSI for the whole dataset. To achieve this, the genetic covariances will be calculated for the $2,250$ wavelengths using whole data by means of the \texttt{getGenCov} function. The coefficients are then obtained using the \texttt{solveEN} with a value of $\lambda$ obtained from the partitions.
 
 \vspace{5mm}
+
 A heatmap of the coefficients will be generated to show the sparsity and regions of the electromagnetic spectrum that were selected by the method.
 \vspace{5mm}
 
 \begin{mybox}[title=\textbf{Box 11}. Sparsity of the optimal index]
 \begin{footnotesize}
 \begin{verbatim}
-load("output/varComps.RData")
+load("output/varComps.RData")    # Load the SVD of ZZ' to speed computation
 load("output/multi_timepoint/accuracies.RData")
 
 # Get genetic covariances
