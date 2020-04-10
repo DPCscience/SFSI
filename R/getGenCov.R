@@ -10,7 +10,7 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
     y1 <- as.vector(y1/sdy1)
     y2 <- scale(y2,FALSE,sdy2)
   }else{
-    if(any(abs(sdy1 -sdy2) > .Machine$double.eps))
+    if(any(abs(sdy1 -sdy2) > sqrt(.Machine$double.eps)))
       warning("Variances of y1 and y2 are not equal",immediate.=TRUE)
   }
 
