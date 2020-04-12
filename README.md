@@ -8,7 +8,7 @@ Installation of SFSI package requires a R-version greater than 3.5.0
 ```r
   install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
   library(devtools)                                                     #2. load the library
-  install_git('https://github.com/MarcooLopez/SFSI_data')               #3. install SFSI from GitHub
+  install_git('https://github.com/MarcooLopez/SFSI')                    #3. install SFSI from GitHub
 ```
 
 ### Family and Selection Indices
