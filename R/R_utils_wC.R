@@ -574,7 +574,7 @@ plotPath <- function(fm, Z=NULL, K=NULL, indexK = NULL, tst=NULL, title=NULL, ma
   |    ._____| | | |       ._____| | .__| |__.  Marco Lopez-Cruz       |
   |    |_______| |_|       |_______| |_______|  Gustavo de los Campos  |
   |                                                                    |
-  |  Sparse Family and Selection Index. Version 0.2.0 (Mar 16-2020)    |
+  |  Sparse Family and Selection Index. Version 0.2.0 (Apr 12-2020)    |
   |====================================================================|
   ")
 }
