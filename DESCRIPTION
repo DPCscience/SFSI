@@ -2,7 +2,7 @@ Package: SFSI
 Type: Package
 Title: Sparse Family and Selection Index
 Version: 0.2.0
-Date: 2020-03-16
+Date: 2020-04-12
 Author: Marco Lopez-Cruz, Gustavo de los Campos
 Maintainer: Marco Lopez-Cruz <lopezcru@msu.edu>
 Description: Sparse Family and Selection Index.
@@ -10,7 +10,5 @@ LazyLoad: true
 Depends: R (>= 3.5), stats, ggplot2  
 License: GPL-3
 NeedsCompilation: yes
-RoxygenNote: 6.1.1
 Imports: Matrix, reshape, Rdpack, viridis, RColorBrewer, RSpectra, parallel
-RdMacros: Rdpack
 Encoding: UTF-8
