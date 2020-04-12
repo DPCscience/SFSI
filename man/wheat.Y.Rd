@@ -16,7 +16,6 @@ The number of unique genotypes and number of total records in each environment i
 \item Environment 3 (Bed-5IR):         1092 genotypes, 3274 records
 \item Environment 4 (Bed-EHeat):       1013 genotypes, 2858 records
 }
-
 }
 
 \source{

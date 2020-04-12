@@ -104,12 +104,13 @@ is the \ifelse{html}{\out{j<sup>th</sup>}}{\eqn{j^{th}}{j^th}} column of the mat
   fm = lars2(XtX,Xty,method="LAR-LASSO")  
 }
 \references{
-\itemize{
-\item \insertRef{Efron2004}{SFSI}
-\item \insertRef{Friedman2010}{SFSI}
-\item \insertRef{Hastie2013}{SFSI}
-\item \insertRef{Tibshirani1996}{SFSI}
-}
+Efron B, Hastie T, Johnstone I, Tibshirani R (2004). Least angle regression. \emph{The Annals of Statistics}, \bold{32}(2), 407–499.
+
+Friedman J, Hastie T, Tibshirani R(2010). Regularization paths for generalized linear models via coordinate descent. \emph{Journal of Statistical Software}, \bold{33}(1), 1–22.
+
+Hastie T, Efron B (2013). lars: least angle regression, Lasso and forward stagewise. \url{https://cran.r-project.org/package=lars}.
+
+Tibshirani R (1996). Regression shrinkage and selection via the LASSO. \emph{Journal of the Royal Statistical Society B}, \bold{58}(1), 267–288.
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos. Adapted from 'lars' package (Hastie & Efron, 2013)

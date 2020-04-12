@@ -121,12 +121,13 @@ by "soft-thresholding" their OLS estimate until convergence as fully described i
   fm = solveEN(XtX,Xty,alpha=0.5) 
 }
 \references{
-\itemize{
-\item \insertRef{Friedman2007}{SFSI}
-\item \insertRef{Hoerl1970}{SFSI}
-\item \insertRef{Tibshirani1996}{SFSI}
-\item \insertRef{Zou2005}{SFSI}
-}
+Friedman J, Hastie T, Höfling H, Tibshirani R (2007). Pathwise coordinate optimization. \emph{The Annals of Applied Statistics}, \bold{1}(2), 302–332.
+
+Hoerl AE, Kennard RW (1970). Ridge Regression: Biased estimation for nonorthogonal problems. \emph{Technometrics}, \bold{12}(1), 55–67.
+
+Tibshirani R (1996). Regression shrinkage and selection via the LASSO. \emph{Journal of the Royal Statistical Society B}, \bold{58}(1), 267–288.
+
+Zou H, Hastie T (2005). Regularization and variable selection via the elastic net. \emph{Journal of the Royal Statistical Society B}, \bold{67}(2), 301–320.
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos

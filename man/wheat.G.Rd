@@ -15,8 +15,6 @@ A total of 2,334 SNPs scored on 807 individuals was used to obtain the genomic r
 }
 
 \references{
-\itemize{
-\item \insertRef{VanRaden2008}{SFSI}
-}
+VanRaden PM (2008). Efficient methods to compute genomic predictions. \emph{Journal of Dairy Science}, \bold{91}(11), 4414–4423.
 }
 \keyword{datasets}

@@ -37,8 +37,6 @@ Whitin each dataset, matrix Y contains the phenotypic data for grain yield (YLD)
 }
 
 \references{
-\itemize{
-\item \insertRef{Lopez-Cruz2019}{SFSI}
-}
+Lopez-Cruz M, Olson E, Rovere G, Crossa J, Dreisigacker S, Suchismita M, Singh R, de los Campos G (2019). Regularized selection indices for breeding value prediction using hyper-spectral image data. \emph{preprint bioRxiv}.
 }
 \keyword{datasets}

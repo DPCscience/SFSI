@@ -197,15 +197,19 @@ For cross-validation, data specified in \code{trn.CV} is divided into \eqn{k}{k}
   }
 }
 \references{
-\itemize{
-\item \insertRef{Efron2004}{SFSI}
-\item \insertRef{Friedman2007}{SFSI}
-\item \insertRef{Hoerl1970}{SFSI}
-\item \insertRef{Lush1947}{SFSI}
-\item \insertRef{Tibshirani1996}{SFSI}
-\item \insertRef{VanRaden2008}{SFSI}
-\item \insertRef{Zou2005}{SFSI}
-}
+Efron B, Hastie T, Johnstone I, Tibshirani R (2004). Least angle regression. \emph{The Annals of Statistics}, \bold{32}(2), 407–499.
+
+Friedman J, Hastie T, Höfling H, Tibshirani R (2007). Pathwise coordinate optimization. \emph{The Annals of Applied Statistics}, \bold{1}(2), 302–332.
+
+Hoerl AE, Kennard RW (1970). Ridge regression: biased estimation for nonorthogonal problems. \emph{Technometrics}, \bold{12}(1), 55–67.
+
+Lush JL (1947). Family merit an individual merit as bases for selection. Part I. \emph{The American Naturalist}, \bold{81}(799), 241–261.
+
+Tibshirani R (1996). Regression shrinkage and selection via the LASSO. \emph{Journal of the Royal Statistical Society B}, \bold{58}(1), 267–288.
+
+VanRaden PM (2008). Efficient methods to compute genomic predictions. \emph{Journal of Dairy Science}, \bold{91}(11), 4414–4423.
+
+Zou H, Hastie T (2005). Regularization and variable selection via the elastic net. \emph{Journal of the Royal Statistical Society B}, \bold{67}(2), 301–320
 }
 \author{
 Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos

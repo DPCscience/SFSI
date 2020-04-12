@@ -100,9 +100,9 @@ is the sub-matrix corresponding to the training set, and \ifelse{html}{\out{&lam
   fm$h2                       # Heritability
 }
 \references{
-\itemize{
-\item \insertRef{VanRaden2008}{SFSI}
-}
+VanRaden PM (2008). Efficient methods to compute genomic predictions. \emph{Journal of Dairy Science}, \bold{91}(11), 4414–4423.
+
+Zhou X, Stephens M (2012). Genome-wide efficient mixed-model analysis for association studies. \emph{Nature Genetics}, \bold{44}(7), 821-824
 }
 \author{
 Paulino Perez, Marco Lopez-Cruz (\email{lopezcru@msu.edu}) and Gustavo de los Campos
