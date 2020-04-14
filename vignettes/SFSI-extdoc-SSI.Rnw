@@ -86,18 +86,15 @@ where $\boldsymbol{\beta}=(\beta_1,...,\beta_p)'$ is a vector of regression coef
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In a \textbf{standard SI} the weights are derived by minimizing the expected squared deviation between the genetic merit for the selection goal and the index, that is
-
 \begin{equation*}
 \hat{\boldsymbol{\beta}} = \underset{\beta}{\text{arg min}}\frac{1}{2}\mathbb{E}\left(u_{y_i}-\boldsymbol{x}'_i\boldsymbol{\beta}\right)^2
 \end{equation*}
 
 Assuming that $\boldsymbol{x}_i$ follows also model \eqref{eqn:genmod} and that their environmental effects ($\boldsymbol{e}_{x_i}$) are orthogonal to $u_{y_i}$, the above problem is equivalent to
-
 \begin{equation}
 \label{eqn:SI}
 \hat{\boldsymbol{\beta}} = \underset{\beta}{\text{arg min}}\left[-\textbf{G}'_{x,y}\boldsymbol{\beta} + \frac{1}{2}\boldsymbol{\beta}'\textbf{P}_x\boldsymbol{\beta}\right]
 \end{equation}
-
 where $\textbf{G}_{x,y}=\mathbb{E}(u_{y_i}\boldsymbol{x}_i)$ is a vector containing the genetic covariances between the selection target and each of the measured phenotypes, and $\textbf{P}_x=\mathbb{E}(\boldsymbol{x}_i\boldsymbol{x}'_i)$ is the phenotypic (co)variance matrix of $\boldsymbol{x}_i$. The solution to this optimization problem is
 \begin{equation}
 \label{eqn:betaSI}
@@ -115,19 +112,15 @@ The SI is by construction the \textbf{best linear predictor} (BLP) of the geneti
 \subsection{Principal components-based selection indices}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Principal components (PC) can be obtained from the singular value decomposition of the real-valued matrix, $\textbf{X}=[\boldsymbol{x}_1,\boldsymbol{x}_2,...,\boldsymbol{x}_n]'$ (the matrix containing all measured traits) which takes the form $\textbf{X}=\textbf{U}\textbf{D}\textbf{V}'$. Matrix $\textbf{U}=[\boldsymbol{u}_1,...,\boldsymbol{u}_p]$ contains the left-singular vectors, $\textbf{V}=[\boldsymbol{v}_1,...,\boldsymbol{v}_p]$ is the matrix with the right-singular vectors, and $\textbf{D}=\text{diag}(d_1,…,d_p)$ is a diagonal matrix with positive or zero elements. The PCs $\textbf{W}=\textbf{X}\textbf{V}=\textbf{U}\textbf{D}$ are then linear combinations of the measured phenotypes. A \textbf{principal components-based SI} (\textbf{PC-SI}) uses the first $q$ PCs ($\tilde{\textbf{W}}=[\boldsymbol{w}_1,...,\boldsymbol{w}_q]$, $q\leq p$) as 'measured phenotypes' in the SI, as
-
+Principal components (PC) can be obtained from the singular value decomposition of the real-valued matrix, $\textbf{X}=[\boldsymbol{x}_1,\boldsymbol{x}_2,...,\boldsymbol{x}_n]'$ (the matrix containing all measured traits) which takes the form $\textbf{X}=\textbf{U}\textbf{D}\textbf{V}'$. Matrix $\textbf{U}=[\boldsymbol{u}_1,...,\boldsymbol{u}_p]$ contains the left-singular vectors, $\textbf{V}=[\boldsymbol{v}_1,...,\boldsymbol{v}_p]$ is the matrix with the right-singular vectors, and $\textbf{D}=\text{diag}(d_1,…,d_p)$ is a diagonal matrix with positive or zero elements. The PCs $\textbf{W}=\textbf{X}\textbf{V}=\textbf{U}\textbf{D}$ are then linear combinations of the measured phenotypes. A \textbf{principal components-based SI} (\textbf{PC-SI}) uses the first $q$ PCs ($\tilde{\textbf{W}}=[\boldsymbol{w}_1,...,\boldsymbol{w}_q]$, $q\leq p$) as "measured phenotypes" in the SI, as
 \begin{equation*}
 \mathcal{I}_i=\tilde{\boldsymbol{w}}'_i\boldsymbol{\gamma}^{(q)}
 \end{equation*}
-
 where $\tilde{\boldsymbol{w}}'_i$ is a vector containing the scores for the $i^{th}$ observation on the first $q$ PCs and $\boldsymbol{\gamma}^{(q)}$ are their corresponding regression coefficients. The solution to the optimization problem takes the form $\hat{\boldsymbol{\gamma}}^{(q)}=(n-1)(\tilde{\textbf{D}}^2)^{-1}\textbf{G}_{\tilde{w},y}$, where $\tilde{\textbf{D}}$ contains only the first $q$ elements of $\textbf{D}$, and  $\textbf{G}_{\tilde{w},y}$ is a vector containing the genetic covariances between each of the top $q$ PCs and the selection objective. This solution can be mapped to coefficients for the measured traits, as in expression \eqref{eqn:predSI}, using
-
 \begin{equation}
 \label{eqn:betaPCSI}
 \hat{\boldsymbol{\beta}}^{(q)}=(n-1)\tilde{\textbf{V}}(\tilde{\textbf{D}}^2)^{-1}\textbf{G}_{\tilde{w},y}
 \end{equation}
-
 where $\tilde{\boldsymbol{V}}$ is the matrix containing only the first $q$ right-singular vectors.
 
 
@@ -136,12 +129,10 @@ where $\tilde{\boldsymbol{V}}$ is the matrix containing only the first $q$ right
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In a penalized regression, regularization is achieved by including in the objective function a penalty on model complexity. A \textbf{penalized selection index} (\textbf{PSI}) is obtained by considering an optimization problem as in \eqref{eqn:SI}, as follows: 
-
 \begin{equation}
 \label{eqn:PSI}
 \hat{\boldsymbol{\beta}} = \underset{\beta}{\text{arg min}}\left[-\textbf{G}'_{x,y}\boldsymbol{\beta} + \frac{1}{2}\boldsymbol{\beta}'\textbf{P}_x\boldsymbol{\beta} + \lambda\cdot J(\boldsymbol{\beta})\right]
 \end{equation}
-
 where $\lambda$ is a penalty parameter and $J(\boldsymbol{\beta}_i)$ is a penalty function. Commonly used penalties include the L2 ($||\boldsymbol{\beta}_i||^2_2=\sum_{j=1}^n\beta_{ij}^2$) and L1 ($||\boldsymbol{\beta}_i||_1=\sum_{j=1}^n|\beta_{ij}|$) norms \citep{Fu1998a} either alone or in a combination of both. We considered a penalty function as 
 \begin{equation*}
 J(\boldsymbol{\beta})=\frac{1}{2} (1-\alpha) \sum_{j=1}^n\beta_j^2 + \alpha \sum_{j=1}^n|\beta_j|
@@ -190,7 +181,6 @@ The efficiency of indirect selection relative to mass phenotypic selection ($RE$
 \begin{equation*}
 RE=\frac{h_\mathcal{I}}{h_y}\text{cor}(u_{\mathcal{I}_i},u_{y_i})
 \end{equation*}
-
 where $h_y$ is the square root of the heritability of the selection goal ($y$), calculated as
 \begin{equation*}
 h_y^2=\frac{\sigma^2_{u_y}}{\sigma^2_{u_y} +\sigma^2_{e_y}}
@@ -212,13 +202,21 @@ The data set consists of 1,092 inbred wheat lines grouped into 39 trials and gro
 Mexico. Each trial consisted of 28 breeding lines that were arranged in an alpha-lattice design with
 three replicates and six sub-blocks. The trials were grown in four different environments:
 
-\begin{itemize}
-\item E1: \textit{Flat-Drought}. (1092 genotypes, 3274 records) Sowing in flat with irrigation of 180 mm through drip system
-\item E2: \textit{Bed-2IR}. (1090 genotypes, 3267 records) Sowing in bed with 2 irrigations approximately 250 mm)
-\item E3: \textit{Bed-5IR}. (1092 genotypes, 3274 records) Bed sowing with 5 normal irrigations
-\item E4: \textit{Bed-EHeat}. (1013 genotypes, 2858 records) Bed sowing 30 days before optimal planting date with 5 normal irrigations of approximately 500 mm)
-\end{itemize}
-Records of grain yield (YLD) were collected as the total plot yield after maturity. Measurements for days to heading (DTH), days to maturity (DTM), and plant height (PH) were recorded only in the first replicate at each trial. Reflectance phenotypic data were
+  \begin{center}
+  \begin{tabular}{ccccccc}
+  \hline
+& &   \multicolumn{2}{c}{\textbf{Planting conditions}} & \textbf{Number of} & \textbf{N genotypes}  & \textbf{Average} \\
+\textbf{Env} & \textbf{Name} & \textbf{Date}  & \textbf{System} & \textbf{irrigations} & \textbf{(records)} & \textbf{(SD) YLD} \\  
+  \hline
+E1 & Flat-Drought  & Optimum & Flat   & Minimal drip  &  1,092 (3,274) & 2.06 (0.58) \\
+E2 & Bed-2IR         & Optimum & Bed   &      2              &  1,090 (3,267) & 3.67 (0.43) \\
+E3 & Bed-5IR         & Optimum & Bed   &      5              &  1,092 (3,274) & 6.11 (0.61) \\
+E4 & Bed-EHeat     & Early       & Bed   &      5              &  1,013 (2,858) & 6.43 (0.73) \\
+ \hline
+  \end{tabular}
+  \end{center}
+
+Records of grain yield (YLD, \textit{ton ha}$^{-1}$) were collected as the total plot yield after maturity. Measurements for days to heading (DTH), days to maturity (DTM), and plant height (PH, \textit{cm}) were recorded only in the first replicate at each trial. Reflectance phenotypic data were
 collected from the fields using both infrared (A600 series Infrared camera, FLIR, Wilsonville, OR) and hyper-spectral
 (A-series, Micro-Hyperspec, VNIR Headwall
 Photonics, Fitchburg, MA) cameras mounted on a Piper PA-16 Clipper aircraft on 9 different dates
@@ -235,14 +233,14 @@ Grain yield and image data were pre-adjusted using mixed-effects model that acco
 \section{Implementation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The above described data will be used to generate selection indices for grain yield (as selection target) using all the wavelengths collected from cameras (measured phenotypes). Analyses will be implemented in \texttt{R} software using the \texttt{SFSI} R-package.
+The above described data will be used to generate selection indices for grain yield (as selection target) using all the wavelengths (as measured phenotypes). Analyses will be implemented in \texttt{R} software  \citep{RCore2019} using the \texttt{SFSI} R-package. The package can be installed from the \texttt{GitHub} (development version) repository at \url{https://github.com/MarcooLopez/SFSI}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Data downloading}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Both phenotypic and reflectance data can be downloaded from from the \texttt{github} version of the \texttt{SFSI} R-package at \url{https://github.com/MarcooLopez/SFSI_data/tree/master/data}. Each \texttt{.RData} file corresponds to one environment and contains objects \texttt{Y}, \texttt{WL}, and \texttt{VI}. Matrix \texttt{Y} contains pre-adjusted observations for YLD, DTH, DTM, and PH. Object \texttt{WL} is a list type containing the hyper-spectral image data for all 9 time-points. Element \texttt{WL[[j]]},  $j=1,...9$, is a matrix with 250 columns (wavelengths) and rows matched with those of matrix \texttt{Y}. Likewise, the object \texttt{VI} is a list with 9 elements being two-columns matrices containing green and
-red NDVI. \textbf{Box 1} below shows how to prepare data for a single environment which will be used in later analyses.
+Both phenotypic and reflectance data are available through the \texttt{SFSI} R-package in its \texttt{GitHub} version. Each file corresponds to one environment and contains objects \texttt{Y}, \texttt{WL}, and \texttt{VI}. Matrix \texttt{Y} contains pre-adjusted observations for YLD, DTH, DTM, and PH. Object \texttt{WL} is a list type containing the hyper-spectral image data for all 9 time-points. Element \texttt{WL[[j]]},  $j=1,...,9$, is a matrix with 250 columns (wavelengths) and rows matched with those of matrix \texttt{Y}. Likewise, the object \texttt{VI} is a list with 9 elements being two-columns matrices containing green and
+red NDVI. \textbf{Box 1} shows how to prepare data for a single environment which will be used in later analyses.
 
 \vspace{5mm}
 
@@ -251,13 +249,12 @@ red NDVI. \textbf{Box 1} below shows how to prepare data for a single environmen
 \begin{verbatim}
 rm(list = ls())
 setwd("/Users/epidemiology/Dropbox/MSU/PBGB/projects/PSI/pipeline")
-site <-  "https://github.com/MarcooLopez/SFSI_data/blob/master/data" 
+site <-  "https://github.com/MarcooLopez/SFSI/blob/master/data" 
 filename <- "wheat.E1.RData"
 
-# Download files
+# Download file
 dir.create("data", recursive=TRUE)
-url <- paste0(site,"/",filename,"?raw=true")
-download.file(url, destfile= paste0("./data/",filename), mode = "wb")
+download.file(paste0(site,"/",filename,"?raw=true"),paste0("data/",filename),mode="wb")
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
@@ -301,11 +298,7 @@ save(fm0,evdZZt,file="output/varComps.RData")
 Code in \textbf{Box 3} below illustrates how to split data into TRN and TST sets. In this example, $\frac{2}{3}$ of the 29 trials (26 trials, $n_{TRN}\approx 2,184$ observations) will be randomly assigned to the training set and the remaining $\frac{1}{3}$ (13 trials, $n_{TST}\approx 1,092$) to the testing set.
 \vspace{5mm}
 
-The output will be a 'list' type of length \texttt{nPart} containing indices indicating which observations are assigned to testing sets. The object will be saved in the file \texttt{partitions.RData} and will be used later for single time-point and across time-points analyses.
-
-\vspace{5mm}
-
-For demonstration purposes, only \texttt{nPart=5} will be run throughout all the analyses.
+The output will be a 'list' type of length \texttt{nPart} containing indices indicating which observations are assigned to testing sets. The object will be saved in the file \texttt{partitions.RData} and will be used later for single time-point and across time-points analyses. For demonstration purposes, only \texttt{nPart=5} will be run throughout all the analyses.
 
 \vspace{5mm}
 
@@ -331,7 +324,7 @@ save(partitions,file="output/partitions.RData")
 \end{footnotesize}
 \end{mybox}
 
-\vspace{12mm}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Genetic covariances estimation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -389,6 +382,8 @@ Code in \textbf{Box 5a} can be used to estimate regression coefficients using tr
 
 Time-point can be specified through variable \texttt{tp} thus it can be changed to get results for all time-points ($1, 2,...,9$). Results are stored in matrices \texttt{betaSI}, \texttt{betaPCSI} and \texttt{betaL1PSI}, and saved in the file \texttt{coefficients.RData}. Calculations are performed across all partitions previously created.
 
+\vspace{5mm}
+
 \begin{mybox}[title=\textbf{Box 5a}. Regression coefficients within time-point]
 \begin{footnotesize}
 \begin{verbatim}
@@ -429,7 +424,6 @@ save(betaSI,betaPCSI,betaL1PSI,file=paste0("output/timepoint_",tp,"/coefficients
 \end{footnotesize}
 \end{mybox}
 
-\vspace{5mm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Accuracy of the index}
@@ -486,7 +480,6 @@ save(accSI,file=paste0("output/timepoint_",tp,"/accuracies.RData"))
 \end{footnotesize}
 \end{mybox}
 
-\vspace{5mm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Effect of regularization on the accuracy of the index}
@@ -523,7 +516,6 @@ ggarrange(plot1,plot2,nrow=1,common.legend=TRUE,legend="right")
 \end{footnotesize}
 \end{mybox}
 
-\vspace{5mm}
 
 \begin{figure}[htb]
   \centering
@@ -606,7 +598,7 @@ ggplot(dat,aes(Timepoint,accuracy,color=SI,group=SI,ymin=accuracy-se,ymax=accura
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.8\textwidth]{FigureSSI_3}
+  \includegraphics[width=0.82\textwidth]{FigureSSI_3}
   \caption{\small{Accuracy of selection (average across 5 TRN-TST partitions) of the standard SI, and the optimal PC-SI and L1-PSI. Time-point 9. Environment E1}}
 \end{figure}
 
@@ -666,7 +658,6 @@ save(betaPCSI,betaL1PSI,file="output/multi_timepoint/coefficients.RData")
 \end{footnotesize}
 \end{mybox}
 
-\vspace{5mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Accuracy of the index}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -676,6 +667,8 @@ As for the single time-point, the regression coefficients are applied to data fr
 \vspace{5mm}
 
 Results for the two indices (PC-SI and L1-PSI) are stored in the object matrix \texttt{AccSI} and saved in the file \texttt{accuracies.RData} in  folder \texttt{output/multi\_timepoint}. Calculations are performed across all partitions previously created.
+
+\vspace{5mm}
 
 \begin{mybox}[title=\textbf{Box 9b}. Accuracy of selection multi time-points]
 \begin{footnotesize}
@@ -718,7 +711,6 @@ save(AccSI,file="output/multi_timepoint/accuracies.RData")
 \end{footnotesize}
 \end{mybox}
 
-\vspace{5mm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Optimal multi vs single time-point selection indices}
@@ -734,7 +726,6 @@ load(paste0("output/timepoint_",tp,"/accuracies.RData"))
 load("output/multi_timepoint/accuracies.RData")
 
 AccSI <- rbind(accSI,AccSI)
-
 AccSI$SI <- unlist(lapply(strsplit(as.character(AccSI$SI),"\\."),function(x)x[1]))
 AccSI <- split(AccSI,paste(AccSI$rep,"_",AccSI$SI))
 AccSI <- do.call(rbind,lapply(AccSI,function(x)x[which.max(x$accuracy),]))
@@ -753,7 +744,7 @@ ggplot(dat,aes(SI,accuracy,ymin=accuracy-se,ymax=accuracy+se)) + theme_bw() +
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.65\textwidth]{FigureSSI_4}
+  \includegraphics[width=0.69\textwidth]{FigureSSI_4}
   \caption{\small{Accuracy of selection (average across 5 TRN-TST partitions) of the standard SI, and the optimal PC-SI and L1-PSI for the time-point 9 and multi time-point. Environment E1}}
 \end{figure}
 
@@ -767,6 +758,7 @@ The value of $\lambda$ in \eqref{eqn:PSI} for the L1-PSI define the number of pr
 \vspace{5mm}
 
 A heatmap of the coefficients will be generated to show the sparsity and regions of the electromagnetic spectrum that were selected by the method.
+
 \vspace{5mm}
 
 \begin{mybox}[title=\textbf{Box 11}. Sparsity of the optimal index]
@@ -802,13 +794,14 @@ ggplot(dat, aes(x=wl,y=Timepoint,fill = abs(beta))) + geom_tile(height=0.8) +
 \end{verbatim}
 \end{footnotesize}
 \end{mybox}
+
+
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.89\textwidth]{FigureSSI_5}
+  \includegraphics[width=0.91\textwidth]{FigureSSI_5}
   \caption{\small{Heatmap of regression coefficients for L1-penalized SI using multi time-point data}}
 \end{figure}
 
-\vspace{5mm}
 %At the end, the bibliography
 \bibliography{references.bib}
 
