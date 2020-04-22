@@ -10,5 +10,5 @@ LazyLoad: true
 Depends: R (>= 3.5), stats, ggplot2  
 License: GPL-3
 NeedsCompilation: yes
-Imports: Matrix, reshape, Rdpack, viridis, RColorBrewer, RSpectra, parallel
+Imports: Matrix, reshape, viridis, RColorBrewer, RSpectra, parallel
 Encoding: UTF-8
