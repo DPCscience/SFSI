@@ -4,8 +4,8 @@
 
 SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
          h2 = NULL, trn = seq_along(y), tst = seq_along(y), subset = NULL,
-         alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
-         tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
+         alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2","LAR"),
+         tol = 1E-4, maxIter = 500, maxDF = 100, saveAt = NULL, name = NULL,
          mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
 {
   method <- match.arg(method)
@@ -66,14 +66,16 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   scale_cov(K,void=TRUE)   # Equal to K=cov2cor(K) but faster
   RHS <- apply(RHS,2,function(x)x/sdx)
 
-  if(is.null(lambda)){
-    if(method == "CD1"){
-        Cmax <- ifelse(alpha > .Machine$double.eps,max(abs(RHS)/alpha),5)
-        lambda <- exp(seq(log(Cmax),log(.Machine$double.eps^0.5),length=nLambda))
-    }
-  }else{
-    if(is.matrix(lambda)){
-        if(nrow(lambda) != nTST) stop("Object 'lambda' must be a vector or a matrix with nTST rows")
+  if(method %in% c("CD1","CD2")){
+    if(is.null(lambda)){
+      if(method == "CD1"){
+          Cmax <- ifelse(alpha > .Machine$double.eps,max(abs(RHS)/alpha),5)
+          lambda <- exp(seq(log(Cmax),log(.Machine$double.eps^0.5),length=nLambda))
+      }
+    }else{
+      if(is.matrix(lambda)){
+          if(nrow(lambda) != nTST) stop("Object 'lambda' must be a vector or a matrix with nTST rows")
+      }
     }
   }
 
@@ -96,12 +98,20 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   compApply <- function(chunk)
   {
     rhs <- drop(RHS[,chunk])
-    if(is.matrix(lambda)){
-      lambda0 <- lambda[chunk,]
-    }else lambda0 <- lambda
 
-    fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
-                  alpha=alpha,tol=tol,maxIter=maxIter)
+    if(method == "LAR"){
+      fm <- lars2(K,rhs,method="LAR",maxDF=maxDF,scale=FALSE)
+      fm$beta <- fm$beta[-1,]
+      fm$df <- fm$df[-1]
+      fm$lambda <- fm$lambda[-length(fm$lambda)]  
+    }else{
+      if(is.matrix(lambda)){
+        lambda0 <- lambda[chunk,]
+      }else lambda0 <- lambda
+
+      fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
+                    alpha=alpha,tol=tol,maxIter=maxIter)
+    }
 
     # Return betas to the original scale by dividing by sdx
     B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)
@@ -130,11 +140,12 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
     stop("Some sub-processes failed. Something went wrong during the analysis.")
   }
 
+  pMin <- min(unlist(lapply(out,function(x)length(x$lambda))))
   out <- list(method=method, name=name, y=y, Xb=Xb, b=b, varU=varU,
               varE=varE, h2=h2, trn=trn, tst=tst, alpha=alpha,
-              df = do.call("rbind",lapply(out,function(x)x$df)),
-              lambda = do.call("rbind",lapply(out,function(x)x$lambda)),
-              BETA = lapply(out,function(x) x$B))
+              df = do.call("rbind",lapply(out,function(x)x$df[1:pMin])),
+              lambda = do.call("rbind",lapply(out,function(x)x$lambda[1:pMin])),
+              BETA = lapply(out,function(x) x$B[1:pMin,]))
   class(out) <- "SFI"
 
   # Save outputs if 'saveAt' is not NULL
