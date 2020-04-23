@@ -19,7 +19,7 @@ Prediction of **breeding values** (<img src="https://render.githubusercontent.co
 
 The second case is also refered to as **Family Index** since the borrowing of information is taken from genetic relateness among individuals. In the selection index all the available observation contribute to the prediction of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\mathcal{I}_i=x_{i1}\beta_{i1} %2B x_{i2}\beta_{i2} %2B ... %2B x_{ip}\beta_{ip}">
+<img src="https://render.githubusercontent.com/render/math?math=I_i=x_{i1}\beta_{i1} %2B x_{i2}\beta_{i2} %2B ... %2B x_{ip}\beta_{ip}">
 </p>
 or (in matrix notation)
 <p align="center">
