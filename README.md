@@ -47,7 +47,7 @@ Under standard assumptions, the solution to the above problem is
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\textbf{P}_x^{-1}\textbf{G}_{xy}">
 </p>
 
-where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among ***x*** and ***G***<sub>*xy*</sub> is the genetic covariances between predictors ***x*** and response *y*.
+where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i">,  and <img src="https://render.githubusercontent.com/render/math?math=\textbf{G}_{xy}"> is the genetic covariances between predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i"> and response <img src="https://render.githubusercontent.com/render/math?math=y_i">.
 
 ### Penalized Indices
 The regression coefficients can be derived by impossing a penalization in the above optimization function as
