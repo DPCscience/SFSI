@@ -19,8 +19,10 @@ Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usua
 
 The first case corresponds to what is called a **Selection Index** while the second yield a **Family Index**.
 All the available observation contribute to the predicted breeding value (*u*<sub>*i*</sub>) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form:
-![](https://latex.codecogs.com/gif.latex?u_i%3D%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i),
-where the predictors ***x*** can be either some correlated traits measured in the same candidate, 
+![](https://render.githubusercontent.com/render/math?math=u_i=\textbf{x}_i'\boldsymbol{\beta}_i) 
+, where the predictors 
+![](https://render.githubusercontent.com/render/math?math=textbf{x}_i)
+can be either some correlated traits measured in the same candidate, 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})"> 
 , or measurements on the same trait collected on related individuals,
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)">
