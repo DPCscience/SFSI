@@ -50,15 +50,16 @@ where <img src="https://render.githubusercontent.com/render/math?math=\textbf{P}
 
 ### Penalized Indices
 The regression coefficients can be derived by impossing a penalization in the above optimization function as
+<p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\begin{equation*}\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda J(\boldsymbol{\beta}_i)\right]\end{equation*}">
-
+</p>
 where 
 <img src="https://render.githubusercontent.com/render/math?math=\lambda">
 is a penalty parameter (![](https://render.githubusercontent.com/render/math?math=\lambda=0)  yields the coefficients for the un-penalized index) and 
 <img src="https://render.githubusercontent.com/render/math?math=J(\boldsymbol{\beta}_i)">
 is a penalty function on the regression coefficients. Commonly used penalty functions are based on the L1 and L2 norms, 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{|\beta_{ij}}| \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2}">
+<img src="https://render.githubusercontent.com/render/math?math=\begin{equation*} L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{|\beta_{ij}}| \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2} \end{equation*}">
 </p>
 
 ### Elastic-Net Penalized Index
