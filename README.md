@@ -69,7 +69,7 @@ An elastic-net penalized index considers a penalization being a weighted sum of 
 <img src="https://render.githubusercontent.com/render/math?math=J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{|\beta_{ij}|} %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
 
-where <img src="https://render.githubusercontent.com/render/math?math=\lambda"> is a weighting parameter. Therefore the optimization problem becomes
+where <img src="https://render.githubusercontent.com/render/math?math=\alpha"> is a weighting parameter. Therefore the optimization problem becomes
 
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{|\beta_{ij}}| %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]">
