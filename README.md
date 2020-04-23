@@ -24,7 +24,7 @@ where the predictors ***x*** can be either some correlated traits measured in th
 ![](https://latex.codecogs.com/gif.latex?%5Ctextbf%7Bx%7D_i%3D%28x_%7Bi1%7D%2C...%2Cx_%7Bip%7D%29),
 or measurements on the same trait collected on related individuals,
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)">
-![](https://latex.codecogs.com/gif.latex?%5Ctextbf%7By%7D%3D%28y_1%2C...%2Cy_p%29). 
+![](https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)). 
 
 The weights ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cbeta%7D_i%3D%28%5Cbeta_%7Bi1%7D%2C...%2C%5Cbeta_%7Bip%7D%29) are derived by minimizing the optimization problem:
 
