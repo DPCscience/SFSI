@@ -48,8 +48,8 @@ The regression coefficients can be derived by impossing a penalization in the ab
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda J(\boldsymbol{\beta}_i)\right]">
 </p>
 
-where
-![](https://render.githubusercontent.com/render/math?math=\lambda) 
+where 
+<img src="https://render.githubusercontent.com/render/math?math=\lambda">
 is a penalty parameter (![](https://render.githubusercontent.com/render/math?math=\lambda=0)  yields the coefficients for the un-penalized index) and 
 ![](https://render.githubusercontent.com/render/math?math=J(\boldsymbol{\beta}_i)) 
 is a penalty function on the regression coefficients. Commonly used penalty functions are based on the L1 and L2 norms, 
