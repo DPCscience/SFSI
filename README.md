@@ -28,15 +28,15 @@ or (in matrix notation)
 </p>
 
 where the predictors 
-![](https://render.githubusercontent.com/render/math?math=\textbf{x}_i)
+<img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i">
 can be either some correlated traits measured in the same candidate, 
-![formula](https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})^t)
+<img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})^t">
 , or measurements on the same trait collected on related individuals, 
-![](https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)^t)
+<img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)^t">
 . 
 
 The weights 
-![formula](https://render.githubusercontent.com/render/math?math=\boldsymbol{\beta}_i=(\beta_{i1},...,\beta_{ip})^t)
+![](https://render.githubusercontent.com/render/math?math=\boldsymbol{\beta}_i=(\beta_{i1},...,\beta_{ip})^t)
 are derived by minimizing the optimization problem:
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2">
