@@ -13,14 +13,13 @@ Installation of SFSI package requires a R-version greater than 3.5.0
 
 ### Family and Selection Indices
 
-Prediction of **breeding values** for a target trait (<img src="https://render.githubusercontent.com/render/math?math=y_i">) is usually done using a **Selection Index** (SI). The prediction is done through indirect information:
+Prediction of **breeding values** (<img src="https://render.githubusercontent.com/render/math?math=u_i">) for a target trait (<img src="https://render.githubusercontent.com/render/math?math=y_i">) is usually done using a **Selection Index** (SI). The prediction is done through indirect information:
 1. Correlated traits measured in the same candidates
 2. Measurements on the same trait of interest collected on related individuals
 
-The second case is also refered to as **Family Index** since the borrowing of information is taken from genetic relateness.
-In the selection index all the available observation contribute to the predicted breeding value (<img src="https://render.githubusercontent.com/render/math?math=u_i">) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
+The second case is also refered to as **Family Index** since the borrowing of information is taken from genetic relateness among individuals. In the selection index all the available observation contribute to the prediction of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=u_i=x_{i1}\beta_{i1} %2B x_{i2}\beta_{i2} %2B ... %2B x_{ip}\beta_{ip}">
+<img src="https://render.githubusercontent.com/render/math?math=\mathcal{I}_i=x_{i1}\beta_{i1} %2B x_{i2}\beta_{i2} %2B ... %2B x_{ip}\beta_{ip}">
 </p>
 or (in matrix notation)
 <p align="center">
