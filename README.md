@@ -13,12 +13,12 @@ Installation of SFSI package requires a R-version greater than 3.5.0
 
 ### Family and Selection Indices
 
-Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usually done using indirect information:
+Prediction of **breeding values** for a target trait (<img src="https://render.githubusercontent.com/render/math?math=y_i">) is usually done using indirect information:
 1. Correlated traits measured in the same candidates
 2. Measurements on the same trait of interest collected on related individuals
 
 The first case corresponds to what is called a **Selection Index** while the second yield a **Family Index**.
-All the available observation contribute to the predicted breeding value (*u*<sub>*i*</sub>) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
+All the available observation contribute to the predicted breeding value (<img src="https://render.githubusercontent.com/render/math?math=u_i">) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=u_i=x_{i1}\beta_{i1} %2B x_{i2}\beta_{i2} %2B ... %2B x_{ip}\beta_{ip}">
 </p>
