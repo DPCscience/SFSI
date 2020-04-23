@@ -26,10 +26,8 @@ or (in matrix notation)
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=u_i=\textbf{x}_i^t\boldsymbol{\beta}_i">
 </p>
-where the predictors 
-![](https://render.githubusercontent.com/render/math?math=\textbf{x}_i)
-can be either some correlated traits measured in the same candidate, 
-<img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})^t"> 
+where the predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i">
+can be either some correlated traits measured in the same candidate, <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})^t"> 
 , or measurements on the same trait collected on related individuals, 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)^t">. 
 
