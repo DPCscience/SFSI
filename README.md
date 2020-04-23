@@ -34,7 +34,7 @@ can be either some correlated traits measured in the same candidate,
 . 
 
 The weights 
-![](https://render.githubusercontent.com/render/math?math=\boldsymbol{\beta}_i=(\beta_{i1},...,\beta_{ip})^t)
+![formula](https://render.githubusercontent.com/render/math?math=\boldsymbol{\beta}_i=(\beta_{i1},...,\beta_{ip})^t)
 are derived by minimizing the optimization problem:
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2">
