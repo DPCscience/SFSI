@@ -54,7 +54,7 @@ is a penalty parameter (![](https://render.githubusercontent.com/render/math?mat
 ![](https://render.githubusercontent.com/render/math?math=J(\boldsymbol{\beta}_i)) 
 is a penalty function on the regression coefficients. Commonly used penalty functions are based on the L1 and L2 norms, 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{\vert\beta_{ij}}\vert \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2}">
+<img src="https://render.githubusercontent.com/render/math?math=\large L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{\mid\beta_{ij}}\mid \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
 
 ### Elastic-Net Penalized Index
