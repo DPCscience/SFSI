@@ -60,19 +60,19 @@ is a penalty parameter (![](https://render.githubusercontent.com/render/math?mat
 <img src="https://render.githubusercontent.com/render/math?math=J(\boldsymbol{\beta}_i)">
 is a penalty function on the regression coefficients. Commonly used penalty functions are based on the L1 and L2 norms, 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\begin{equation*} L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{\abs{\beta_{ij}}} \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2} \end{equation*}">
+<img src="https://render.githubusercontent.com/render/math?math=\begin{equation*} L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{|\beta_{ij}|} \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2} \end{equation*}">
 </p>
 
 ### Elastic-Net Penalized Index
 An elastic-net penalized index considers a penalization being a weighted sum of both norms,
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{|\beta_{ij}}| %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
+<img src="https://render.githubusercontent.com/render/math?math=\large J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{|\beta_{ij}|} %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
 
 where <img src="https://render.githubusercontent.com/render/math?math=\lambda"> is a weighting parameter. Therefore the optimization problem becomes
 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{|\beta_{ij}}| %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]">
+<img src="https://render.githubusercontent.com/render/math?math=\begin{equation*}\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{|\beta_{ij}}| %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]\end{equation*}">
 </p>
 
 The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when
