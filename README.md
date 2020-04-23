@@ -23,7 +23,7 @@ The second case is also refered to as **Family Index** since the borrowing of in
 </p>
 or (in matrix notation)
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=u_i=\textbf{x}_i^t\boldsymbol{\beta}_i">
+<img src="https://render.githubusercontent.com/render/math?math=I_i=\textbf{x}_i^t\boldsymbol{\beta}_i">
 </p>
 
 where the predictors 
