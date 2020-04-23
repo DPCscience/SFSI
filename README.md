@@ -70,17 +70,24 @@ is a weighting parameter. Therefore the optimization problem becomes,
 </p>
 .
 
-The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D1) and ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D0), respectively. When ![](https://latex.codecogs.com/gif.latex?%5Calpha%3D0), the solution has closed form:
+The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when
+<img src="https://render.githubusercontent.com/render/math?math=\alpha=1">
+ and
+<img src="https://render.githubusercontent.com/render/math?math=\alpha=0">
+ , respectively. When <img src="https://render.githubusercontent.com/render/math?math=\alpha=0">, the solution has closed form:
 
 <p align="center">
-<img src="https://latex.codecogs.com/gif.latex?%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D_i%3D%5Cleft%28%5Ctextbf%7BP%7D_x&plus;%5Clambda%5Ctextbf%7BI%7D%20%5Cright%20%29%5E%7B-1%7D%5Ctextbf%7BG%7D_%7Bxy%7D">
+<img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\left(\textbf{P}_x%2B\lambda\textbf{I}\right)^{-1}\textbf{G}_{xy}">
 </p>
 
-If ![](https://latex.codecogs.com/gif.latex?%5Calpha%3E0), no closed form solution exists; however, a solution can be obtained using iterative algorithms such as Least Angle Regression (LARS) (Efron, 2004) or Coordinate Descent algorithms (Friedman, 2007).
+If <img src="https://render.githubusercontent.com/render/math?math=\alpha >0">
+, no closed form solution exists; however, a solution can be obtained using iterative algorithms such as Least Angle Regression (LARS) (Efron, 2004) or Coordinate Descent algorithms (Friedman, 2007).
 
 ### Sparse Family and Selection Indices using the SFSI R-package
 Depending of the type of information used as predictors ***x*** (either correlated traits measured in the same candidates or measurements on the same trait collected on related individuals), the problem can be seen either as a **Selection Index** or a **Family Index**. 
-The penalized indices can be solved using the package SFSI that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of ![](https://latex.codecogs.com/gif.latex?%5Clambda) for a given value of the parameter ![](https://latex.codecogs.com/gif.latex?%5Calpha). Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
+The penalized indices can be solved using the package SFSI that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of <img src="https://render.githubusercontent.com/render/math?math=\lambda"> for a given value of the parameter
+<img src="https://render.githubusercontent.com/render/math?math=\alpha">
+. Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
 ### Documentation
 * **[Penalized Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
