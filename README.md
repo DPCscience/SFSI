@@ -18,13 +18,13 @@ Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usua
 2. Measurements on the same trait of interest collected on related individuals
 
 The first case corresponds to what is called a **Selection Index** while the second yield a **Family Index**.
-All the available observation contribute to the predicted breeding value (*u*<sub>*i*</sub>) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form:
+All the available observation contribute to the predicted breeding value (*u*<sub>*i*</sub>) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
 <img src="https://render.githubusercontent.com/render/math?math=u_i=\textbf{x}_i'\boldsymbol{\beta}_i">
 , where the predictors 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i"> 
 can be either some correlated traits measured in the same candidate, 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})"> 
-, or measurements on the same trait collected on related individuals,
+, or measurements on the same trait collected on related individuals, 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)">
 . 
 
@@ -35,9 +35,8 @@ The weights ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cbeta%7D_
 </p>
 
 Under standard assumptions, the solution to the above problem is 
-<img src="https://render.githubusercontent.com/render/math?math=e^{i \pi} = -1">
 <p align="center">
-<img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctextbf%7BP%7D%5E%7B-1%7D_x%5Ctextbf%7BG%7D_%7Bxy%7D">
+<img src="https://render.githubusercontent.com/render/math?math=\hat{\boldsymbol{\beta}}_i=\textbf{P}_x^{-1}\textbf{G}_{xy}">
 </p>
 
 where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among ***x*** and ***G***<sub>*xy*</sub> is the genetic covariances between predictors ***x*** and response *y*.
