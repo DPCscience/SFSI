@@ -23,14 +23,14 @@ All the available observation contribute to the predicted breeding value (*u*<su
 , where the predictors 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i"> 
 can be either some correlated traits measured in the same candidate, 
-<img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})"> 
+<img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i=(x_{i1},...,x_{ip})^t"> 
 , or measurements on the same trait collected on related individuals, 
-<img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)">
+<img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)^t">
 . 
 
 The weights ![](https://render.githubusercontent.com/render/math?math=\boldsymbol{\beta}_i=(\beta_{i1},...,\beta_{ip})) are derived by minimizing the optimization problem:
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\hat{\boldsymbol{\beta}}_i=\text{arg min}\frac{1}{2}E\left(u_i-\textbf{x}_i'\boldsymbol{\beta}_i\right)^2">
+<img src="https://render.githubusercontent.com/render/math?math=\hat{\boldsymbol{\beta}}_i=\text{arg min}\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2">
 </p>
 
 Under standard assumptions, the solution to the above problem is 
@@ -42,6 +42,9 @@ where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among *
 
 ### Penalized Indices
 The regression coefficients can be derived by impossing a penalization in the above optimization function as
+<p align="center">
+<img src="https://render.githubusercontent.com/render/math?math=\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 + \lambda J(\boldsymbol{\beta}_i)\right]">
+</p>
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cleft%5B%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2&plus;%5Clambda%20J%28%5Cboldsymbol%7B%5Cbeta%7D_i%29%5Cright%5D">
 </p>
