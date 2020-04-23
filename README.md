@@ -28,10 +28,9 @@ can be either some correlated traits measured in the same candidate,
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{y}=(y_1,...,y_p)">
 . 
 
-The weights ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cbeta%7D_i%3D%28%5Cbeta_%7Bi1%7D%2C...%2C%5Cbeta_%7Bip%7D%29) are derived by minimizing the optimization problem:
-
+The weights ![](https://render.githubusercontent.com/render/math?math=\boldsymbol{\beta}_i=(\beta_{i1},...,\beta_{ip})) are derived by minimizing the optimization problem:
 <p align="center">
-<img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctext%7Barg%20min%7D%5Cfrac%7B1%7D%7B2%7DE%5Cleft%28u_i-%5Ctextbf%7Bx%7D%27%5Cboldsymbol%7B%5Cbeta%7D_i%5Cright%29%5E2">
+<img src="https://render.githubusercontent.com/render/math?math=\hat{\boldsymbol{\beta}}_i=\text{arg min}\frac{1}{2}E\left(u_i-\textbf{x}_i'\boldsymbol{\beta}_i\right)^2">
 </p>
 
 Under standard assumptions, the solution to the above problem is 
