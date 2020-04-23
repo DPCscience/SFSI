@@ -50,9 +50,7 @@ where <img src="https://render.githubusercontent.com/render/math?math=\textbf{P}
 
 ### Penalized Indices
 The regression coefficients can be derived by impossing a penalization in the above optimization function as
-<p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\begin{equation*}\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda J(\boldsymbol{\beta}_i)\right]\end{equation*}">
-</p>
 
 where 
 <img src="https://render.githubusercontent.com/render/math?math=\lambda">
