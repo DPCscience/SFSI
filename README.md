@@ -29,6 +29,7 @@ The weights ![](https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Cbeta%7D_
 </p>
 
 Under standard assumptions, the solution to the above problem is 
+<img src="https://render.githubusercontent.com/render/math?math=e^{i \pi} = -1">
 <p align="center">
 <img src="https://latex.codecogs.com/gif.latex?%5Cboldsymbol%7B%5Chat%7B%5Cbeta%7D%7D_i%3D%5Ctextbf%7BP%7D%5E%7B-1%7D_x%5Ctextbf%7BG%7D_%7Bxy%7D">
 </p>
