@@ -19,9 +19,12 @@ Prediction of **breeding values** for a target trait (*y*<sub>*i*</sub>) is usua
 
 The first case corresponds to what is called a **Selection Index** while the second yield a **Family Index**.
 All the available observation contribute to the predicted breeding value (*u*<sub>*i*</sub>) of the *i*<sup>th</sup> candidate of selection as a linear combination of the form: 
+
 <img src="https://render.githubusercontent.com/render/math?math=u_i=x_{i1}\beta_{i1} %2B x_{i2}\beta_{i2} %2B ... %2B x_{ip}\beta_{ip}">
 or (in matrix notation)
+
 <img src="https://render.githubusercontent.com/render/math?math=u_i=\textbf{x}_i^t\boldsymbol{\beta}_i">
+
 , where the predictors 
 <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i"> 
 can be either some correlated traits measured in the same candidate, 
@@ -64,7 +67,7 @@ An elastic-net penalized index considers a penalization being a weighted sum of 
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\large J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{\mid\beta_{ij}}\mid %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
-, where <img src="https://render.githubusercontent.com/render/math?math=\alpha"> is a weighting parameter. Therefore the optimization problem becomes,
+where <img src="https://render.githubusercontent.com/render/math?math=\lambda"> is a weighting parameter. Therefore the optimization problem becomes,
 
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{\mid\beta_{ij}}\mid %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]">
