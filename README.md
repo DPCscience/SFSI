@@ -62,13 +62,11 @@ An elastic-net penalized index considers a penalization being a weighted sum of 
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\large J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{\mid\beta_{ij}}\mid %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
-, where 
-<img src="https://render.githubusercontent.com/render/math?math=\alpha">
-is a weighting parameter. Therefore the optimization problem becomes,
+, where <img src="https://render.githubusercontent.com/render/math?math=\alpha"> is a weighting parameter. Therefore the optimization problem becomes,
+
 <p align="center">
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{\mid\beta_{ij}}\mid %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]">
 </p>
-.
 
 The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when
 <img src="https://render.githubusercontent.com/render/math?math=\alpha=1">
@@ -80,7 +78,7 @@ The L1-penalized and L2-penalized indices appear as special cases of the Elastic
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\left(\textbf{P}_x%2B\lambda\textbf{I}\right)^{-1}\textbf{G}_{xy}">
 </p>
 
-If <img src="https://render.githubusercontent.com/render/math?math=\alpha >0">
+If <img src="https://render.githubusercontent.com/render/math?math=\alpha \g 0">
 , no closed form solution exists; however, a solution can be obtained using iterative algorithms such as Least Angle Regression (LARS) (Efron, 2004) or Coordinate Descent algorithms (Friedman, 2007).
 
 ### Sparse Family and Selection Indices using the SFSI R-package
