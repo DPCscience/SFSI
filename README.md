@@ -47,7 +47,7 @@ Under standard assumptions, the solution to the above problem is
 <img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\textbf{P}_x^{-1}\textbf{G}_{xy}">
 </p>
 
-where ***P***<sub>*x*</sub> is the phenotypic variance-covariance matrix among predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i">,  and <img src="https://render.githubusercontent.com/render/math?math=\textbf{G}_{xy}"> is the genetic covariances between predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i"> and response <img src="https://render.githubusercontent.com/render/math?math=y_i">.
+where <img src="https://render.githubusercontent.com/render/math?math=\textbf{P}_x"> is the phenotypic variance-covariance matrix among predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i">,  and <img src="https://render.githubusercontent.com/render/math?math=\textbf{G}_{xy}"> is the genetic covariances between predictors <img src="https://render.githubusercontent.com/render/math?math=\textbf{x}_i"> and response <img src="https://render.githubusercontent.com/render/math?math=y_i">.
 
 ### Penalized Indices
 The regression coefficients can be derived by impossing a penalization in the above optimization function as
@@ -61,19 +61,19 @@ is a penalty parameter (![](https://render.githubusercontent.com/render/math?mat
 <img src="https://render.githubusercontent.com/render/math?math=J(\boldsymbol{\beta}_i)">
 is a penalty function on the regression coefficients. Commonly used penalty functions are based on the L1 and L2 norms, 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{\mid\beta_{ij}}\mid \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2}">
+<img src="https://render.githubusercontent.com/render/math?math=\large L1:J(\boldsymbol{\beta}_i)=\sum_{j=1}^p{|\beta_{ij}}| \quad\quad L2:J(\boldsymbol{\beta}_i)=\frac{1}{2}\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
 
 ### Elastic-Net Penalized Index
 An elastic-net penalized index considers a penalization being a weighted sum of both norms,
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{\mid\beta_{ij}}\mid %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
+<img src="https://render.githubusercontent.com/render/math?math=\large J(\boldsymbol{\beta}_i)=\alpha\sum_{j=1}^p{|\beta_{ij}}| %20%2B%20\frac{1}{2}(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}">
 </p>
 
 where <img src="https://render.githubusercontent.com/render/math?math=\lambda"> is a weighting parameter. Therefore the optimization problem becomes
 
 <p align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{\mid\beta_{ij}}\mid %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]">
+<img src="https://render.githubusercontent.com/render/math?math=\large\hat{\boldsymbol{\beta}}_i=\text{arg min}\left[\frac{1}{2}E\left(u_i-\textbf{x}_i^t\boldsymbol{\beta}_i\right)^2 %2B \lambda \alpha\sum_{j=1}^p{|\beta_{ij}}| %20%2B%20\frac{1}{2}\lambda(1-\alpha)\sum_{j=1}^p{\beta_{ij}^2}\right]">
 </p>
 
 The L1-penalized and L2-penalized indices appear as special cases of the Elastic-Net-penalized index when
@@ -91,7 +91,7 @@ If <img src="https://render.githubusercontent.com/render/math?math=\alpha \gt 0"
 
 ### Sparse Family and Selection Indices using the SFSI R-package
 Depending of the type of information used as predictors ***x*** (either correlated traits measured in the same candidates or measurements on the same trait collected on related individuals), the problem can be seen either as a **Selection Index** or a **Family Index**. 
-The penalized indices can be solved using the package SFSI that implements LARS and Coordinate Descent algorithms using as inputs ***P***<sub>*x*</sub> and ***G***<sub>*xy*</sub>. The coefficients of the index are calculated for different values of <img src="https://render.githubusercontent.com/render/math?math=\lambda"> for a given value of the parameter
+The penalized indices can be solved using the package SFSI that implements LARS and Coordinate Descent algorithms using as inputs <img src="https://render.githubusercontent.com/render/math?math=\textbf{P}_x"> and <img src="https://render.githubusercontent.com/render/math?math=\textbf{G}_{xy}">. The coefficients of the index are calculated for different values of <img src="https://render.githubusercontent.com/render/math?math=\lambda"> for a given value of the parameter
 <img src="https://render.githubusercontent.com/render/math?math=\alpha">
 . Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
