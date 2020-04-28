@@ -1,15 +1,6 @@
 # SFSI: An R-package to estimate sparse family and selection indices
 
-The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version. This is an extended version of the SFSI that contains data used in [Lopez-Cruz et al. (2019)](https://www.biorxiv.org/content/10.1101/625251v2) for the development of penalized selection indices.
-
-**Package installation from Github**
-
-Installation of SFSI package requires a R-version greater than 3.5.0
-```r
-  install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
-  library(devtools)                                                     #2. load the library
-  install_git('https://github.com/MarcooLopez/SFSI')                    #3. install SFSI from GitHub
-```
+The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version. This is an extended version of the SFSI that contains data used in [Lopez-Cruz et al. (2020)](https://www.biorxiv.org/content/10.1101/625251v2) for the development of penalized selection indices.
 
 ### Family and Selection Indices
 
@@ -98,8 +89,19 @@ The penalized indices can be solved using the package SFSI that implements LARS 
 * **[Penalized Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
 * **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/family_index.md)**
 
+**Package installation from Github**
+
+Installation of SFSI package requires a R-version greater than 3.5.0
+```r
+  install.packages('devtools',repos='https://cran.r-project.org/')      #1. install devtools
+  library(devtools)                                                     #2. load the library
+  install_git('https://github.com/MarcooLopez/SFSI')                    #3. install SFSI from GitHub
+```
+
+**How to cite SFSI R-package:**
+* Lopez-Cruz M, Olson E, Rovere G, Crossa J, Dreisigacker S, Suchismita M, Ravi S & de los Campos G **(2020)**. Regularized selection indices for breeding value prediction using hyper-spectral image data. *Preprint BioRxiv*.
+
 
 ### References
-* Efron, B., Hastie, T., Johnstone, I., & Tibshirani, R. **(2004)**. Least angle regression. *The Annals of Statistics*, 32(2), 407–499.
-* Friedman, J., Hastie, T., Höfling, H., & Tibshirani, R. **(2007)**. Pathwise coordinate optimization. *The Annals of Applied Statistics*, 1(2), 302–332.
-* Lopez-Cruz, M., Olson, E., Rovere, G., Crossa, J., Dreisigacker, S., Suchismita, M., ..., de los Campos, G. **(2019)**. Regularized selection indices for breeding value prediction using hyper-spectral image data. *Preprint BioRxiv*.
+* Efron B, Hastie T, Johnstone I & Tibshirani R **(2004)**. Least angle regression. *The Annals of Statistics*, 32(2), 407–499.
+* Friedman J, Hastie T, Höfling H & Tibshirani R **(2007)**. Pathwise coordinate optimization. *The Annals of Applied Statistics*, 1(2), 302–332.
