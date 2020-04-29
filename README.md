@@ -99,7 +99,7 @@ Installation of SFSI package requires a R-version greater than 3.5.0
 ```
 
 **How to cite SFSI R-package:**
-* Lopez-Cruz M, Olson E, Rovere G, Crossa J, Dreisigacker S, Suchismita M, Ravi S & de los Campos G **(2020)**. Regularized selection indices for breeding value prediction using hyper-spectral image data. *Preprint BioRxiv*.
+* Lopez-Cruz M, Olson E, Rovere G, Crossa J, Dreisigacker S, Suchismita M, Ravi S & de los Campos G **(2020)**. Regularized selection indices for breeding value prediction using hyper-spectral image data. *Scientific Reports (in press)*.
 
 
 ### References
