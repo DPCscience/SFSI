@@ -145,7 +145,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
               varE=varE, h2=h2, trn=trn, tst=tst, alpha=alpha,
               df = do.call("rbind",lapply(out,function(x)x$df[1:pMin])),
               lambda = do.call("rbind",lapply(out,function(x)x$lambda[1:pMin])),
-              BETA = lapply(out,function(x) x$B[1:pMin,]))
+              BETA = lapply(out,function(x) x$B[1:pMin, ,drop=FALSE]))
   class(out) <- "SFI"
 
   # Save outputs if 'saveAt' is not NULL
