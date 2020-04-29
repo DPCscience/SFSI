@@ -1,5 +1,5 @@
 
-# X=Z=K=indexK=h2=NULL; BLUP=TRUE;
+# X = Z = indexK = U = d = h2=NULL; BLUP=TRUE; K=G
 # method="ML";  return.Hinv = FALSE; tol=1E-5; maxIter=1000; interval=c(1E-9,1E9)
 solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
                         indexK = NULL, h2 = NULL, BLUP = TRUE, method = "ML",
@@ -7,6 +7,7 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
                         interval = c(1E-9,1E9))
 {
   method <- match.arg(method)
+  eps <- .Machine$double.eps
 
   if(is.character(K)){
     K <- readBinary(K,indexRow=indexK,indexCol=indexK)
@@ -61,6 +62,7 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
 
   Uty <- drop(crossprod(U,y))
   UtX <- crossprod(U,X)
+  #UtX <- t(U) %*% X
 
   convergence <- lambda0 <- NULL
   if(is.null(h2))
@@ -75,25 +77,38 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
     if(is.null(convergence))
     {
       # Expand the seeking interval
-      bb <- exp(seq(log(.Machine$double.eps/10),log(interval[2]^1.7),length=100))
+      bb <- exp(seq(log(eps/10),log(interval[2]^1.7),length=100))
       flag <- TRUE; i <- 1
       while(flag)
-      { i <- i + 1
+      {
+        i <- i + 1
         tmp <- try(uniroot(f=dloglik,interval=c(bb[i-1],bb[i]),n=n,Uty=Uty,
-                           UtX=UtX,d=d,tol=tol,maxiter=maxIter,trace=2),
+                           UtX=UtX,d=d,tol=tol,maxiter=maxIter,trace=4),
                    silent = TRUE)
         if(class(tmp) == "list")
         {
-          convergence <- tmp$iter <= maxIter
-          if(tmp$root <= interval[1]){
-            lambda0 <- interval[1]
-          }else{
-            if(tmp$root >= interval[2]){
-              lambda0 <- interval[2]
-            }else lambda0 <-  tmp$root
+          # If the root is near to zero
+          if(abs(tmp$f.root) <= tol*100)
+          {
+            # If PRECISION == 2*EPS*abs(root) + tol/2
+            dd <- abs(tmp$estim.prec - (2*eps*abs(tmp$root) + tol/2 ))
+            if(dd < eps^0.5)
+            {
+              convergence <- tmp$iter <= maxIter
+              if(tmp$root <= interval[1]){
+                lambda0 <- interval[1]
+              }else{
+                if(tmp$root >= interval[2]){
+                  lambda0 <- interval[2]
+                }else lambda0 <-  tmp$root
+              }
+            }
           }
         }
-        #cat("Seeking interval [",bb[i-1],",",bb[i],"]: sol=",lambda0,"\n")
+        #a1 <- ifelse(class(tmp) == "list",tmp$root,NA)
+        #a2 <- ifelse(class(tmp) == "list",tmp$f.root,NA)
+        #a3 <- ifelse(class(tmp) == "list",tmp$estim.prec,NA)
+        #cat("Seeking interval ",i,"[",bb[i-1],",",bb[i],"]: root=",a1," f.root=",a2," prec=",a3,"\n")
         if(i == length(bb) | !is.null(convergence)) flag <- FALSE
       }
 
