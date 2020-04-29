@@ -147,9 +147,9 @@ where \ifelse{html}{\out{0 &le; &alpha; &le; 1}}{\eqn{0\leq\alpha\leq 1}{0 <= al
 \ifelse{html}{\out{||<b>&beta;</b><sub>i</sub>||<sub>1</sub> = &sum;|&beta;<sub>ij</sub>|}}{\eqn{||\boldsymbol{\beta}_i||_1=\sum|\beta_{ij}|}{||beta_i||_1 = sum(|beta_ij|)}} and
 \ifelse{html}{\out{||<b>&beta;</b><sub>i</sub>||<sub>2</sub><sup>2</sup> = &sum;&beta;<sub>ij</sub><sup>2</sup>}}{\eqn{||\boldsymbol{\beta}_i||_2^2=\sum\beta_{ij}^2}{||beta_i||_2^2 = sum(beta_ij^2)}} are the L1 and (squared) L2-norms, respectively.
 
-Each individual solution is found using the 'solveEN' function (see \code{help(solveEN)}) by setting the parameter \code{XtX} equal to
+Each individual solution is found using the 'solveEN' function (see \code{help(solveEN)}) by setting the parameter \code{P} equal to
 \ifelse{html}{\out{<b>G</b><sub>trn,trn</sub> + &lambda;<sub>0</sub><b>I</b>}}{\eqn{\textbf{G}_{trn,trn}+\lambda_0\textbf{I}}{G[trn,trn] + lambda_0 I}}
-and \code{Xty} equal to
+and \code{cov} equal to
 \ifelse{html}{\out{<b>G</b><sub>trn,tst(i)</sub>}}{\eqn{\textbf{G}_{trn,tst(i)}}{G[trn,tst(i)]}}.
 
 For cross-validation, data specified in \code{trn.CV} is divided into \eqn{k}{k} folds and the SFI is sequentially calculated for (all individuals in) one fold (testing set) using information from the remaining folds (training set).
