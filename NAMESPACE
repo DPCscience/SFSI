@@ -1,5 +1,5 @@
 
-useDynLib(SFSI)
+useDynLib(SFSI, .registration=TRUE)
 
 S3method(coef,SFI)
 S3method(fitted,SFI)
