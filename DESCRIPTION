@@ -2,7 +2,7 @@ Package: SFSI
 Type: Package
 Title: Sparse Family and Selection Index
 Version: 0.2.0
-Date: 2020-04-12
+Date: 2020-04-30
 Author: Marco Lopez-Cruz, Gustavo de los Campos
 Maintainer: Marco Lopez-Cruz <lopezcru@msu.edu>
 Description: Sparse Family and Selection Index.
