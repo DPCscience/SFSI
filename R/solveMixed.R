@@ -1,6 +1,6 @@
 
-# X = Z = indexK = U = d = h2=NULL; BLUP=TRUE; K=G
-# method="ML";  return.Hinv = FALSE; tol=1E-5; maxIter=1000; interval=c(1E-9,1E9)
+# X = Z = indexK = U = d = h2=NULL; BLUP=TRUE; K=NULL; method="ML"
+# return.Hinv = FALSE; tol=1E-5; maxIter=1000; interval=c(1E-9,1E9)
 solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
                         indexK = NULL, h2 = NULL, BLUP = TRUE, method = "ML",
                         return.Hinv = FALSE, tol = 1E-5, maxIter = 1000,
@@ -13,8 +13,9 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
     K <- readBinary(K,indexRow=indexK,indexCol=indexK)
   }
   y <- as.vector(y)
+  indexNA <- which(is.na(y))
   indexOK <- which(!is.na(y))
-  anyNA <- any(is.na(y))
+  n <- length(indexOK)
 
   if(is.null(X))
   {
@@ -27,20 +28,28 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
   }
   stopifnot(nrow(X) == length(y))
 
-  K12 <- NULL
   if(is.null(U) & is.null(d))
   {
-    if(!is.null(Z))
+    if(is.null(Z))
     {
-      if(!is.matrix(Z)) stop("Object 'Z' must be a matrix with nrow(Z)=n and ncol(Z)=nrow(K)\n")
-      K <- Z%*%K%*%t(Z)
+      Z <- diag(length(y))
+      if(is.null(K)){
+          K <- diag(length(y))
+      }
+      G <- K
+    }else{
+      if(!is.matrix(Z)) stop("Object 'Z' must be a matrix")
+      if(is.null(K)){
+        K <- diag(ncol(Z))
+        G <- tcrossprod(Z)  # K = ZIZ'
+      }else{
+        G <- Z%*%K%*%t(Z)
+      }
     }
-    stopifnot(nrow(K) == length(y))
-    stopifnot(ncol(K) == length(y))
+    stopifnot(nrow(G) == length(y))
+    stopifnot(ncol(G) == length(y))
 
-    if(anyNA) K12 <- K[indexOK,-indexOK,drop=FALSE]
-
-    out <- eigen(K[indexOK,indexOK])
+    out <- eigen(G[indexOK,indexOK])
     d <- out$values
     U <- out$vectors
 
@@ -50,19 +59,11 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
     if(anyNA) stop("No 'NA' values are allowed when passing parameters 'U' and 'd'")
   }
 
-  uHat <- rep(NA,length(y))
-  if(anyNA){
-    X <- X[indexOK, ,drop=FALSE]
-    y <- y[indexOK]
-  }
-  n <- length(y)
-
-  stopifnot(nrow(U) == length(y))
+  stopifnot(nrow(U) == n)
   stopifnot(ncol(U) == length(d))
 
-  Uty <- drop(crossprod(U,y))
-  UtX <- crossprod(U,X)
-  #UtX <- t(U) %*% X
+  Uty <- drop(crossprod(U,y[indexOK]))
+  UtX <- crossprod(U,X[indexOK, ,drop=FALSE])
 
   convergence <- lambda0 <- NULL
   if(is.null(h2))
@@ -128,31 +129,34 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
   bHat <- drop(qq2%*%t(qq1))
 
   # Compute BLUP: uHat = KZ' V^{-1} (y-X*b)
+  uHat <- yHat <- Hinv <- NULL
   if(BLUP)
   {
-    H <- tcrossprod(sweep(U,2L,d*lambda0*dbar,FUN="*"),U)
-    yStar <- y - X%*%bHat
-    uHat[indexOK] <- drop(H%*%yStar)
-    if(return.Hinv | anyNA)
-    { Hinv <- tcrossprod(sweep(U,2L,lambda0*dbar,FUN="*"),U) # V^{-1}
-      if(anyNA){
-        uHat[-indexOK] <- drop(crossprod(K12,Hinv)%*%yStar)
-      }
-    }else Hinv <- NULL
+    yStar <- y[indexOK] - X[indexOK ,,drop=FALSE]%*%bHat
+    Hinv <- tcrossprod(sweep(U,2L,lambda0*dbar,FUN="*"),U) # Vinv
+    #H <- tcrossprod(sweep(U,2L,d*lambda0*dbar,FUN="*"),U)
+    KZt <- tcrossprod(K,Z[indexOK,,drop=FALSE])
+
+    uHat <- drop(KZt%*%Hinv%*%yStar)   # u = K Z' Vinv y*
+    yHat[indexOK] <- drop(X[indexOK, ,drop=FALSE]%*%bHat + Z[indexOK, ,drop=FALSE]%*%uHat)
+    if(length(indexNA)>0){
+      yHat[indexNA] <- drop(X[indexNA,,drop=FALSE]%*%bHat + Z[indexNA, ,drop=FALSE]%*%uHat)
+    }
+
+    if(!return.Hinv) Hinv <- NULL
 
     if(!is.null(convergence))
     { if(!convergence){
         warning("Convergence was not reached in the 'EMMA' algorithm",immediate.=TRUE)
-        varE <- varU <- h2 <- uHat <- NULL
       }
     }
-  }else uHat <- Hinv <- H <- NULL
+  }
 
   varE <- ytPy/n
   varU <- lambda0*varE
   h2 <- varU/(varU + varE)
 
-  out <- list(varE = varE, varU = varU, h2 = h2, b = bHat, u = uHat,
+  out <- list(varE = varE, varU = varU, h2 = h2, yHat=yHat, b = bHat, u = uHat,
               Hinv = Hinv, convergence = convergence, method = method)
   return(out)
 }
