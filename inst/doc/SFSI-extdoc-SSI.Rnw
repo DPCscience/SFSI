@@ -133,7 +133,7 @@ In a penalized regression, regularization is achieved by including in the object
 \label{eqn:PSI}
 \hat{\boldsymbol{\beta}} = \underset{\beta}{\text{arg min}}\left[-\textbf{G}'_{x,y}\boldsymbol{\beta} + \frac{1}{2}\boldsymbol{\beta}'\textbf{P}_x\boldsymbol{\beta} + \lambda\cdot J(\boldsymbol{\beta})\right]
 \end{equation}
-where $\lambda$ is a penalty parameter and $J(\boldsymbol{\beta}_i)$ is a penalty function. Commonly used penalties include the L2 ($||\boldsymbol{\beta}_i||^2_2=\sum_{j=1}^n\beta_{ij}^2$) and L1 ($||\boldsymbol{\beta}_i||_1=\sum_{j=1}^n|\beta_{ij}|$) norms \citep{Fu1998a} either alone or in a combination of both. We considered a penalty function as 
+where $\lambda$ is a penalty parameter and $J(\boldsymbol{\beta})$ is a penalty function. Commonly used penalties include the L2 ($||\boldsymbol{\beta}||^2_2=\sum_{j=1}^n\beta_{j}^2$) and L1 ($||\boldsymbol{\beta}||_1=\sum_{j=1}^n|\beta_{j}|$) norms \citep{Fu1998a} either alone or in a combination of both. We considered a penalty function as 
 \begin{equation*}
 J(\boldsymbol{\beta})=\frac{1}{2} (1-\alpha) \sum_{j=1}^n\beta_j^2 + \alpha \sum_{j=1}^n|\beta_j|
 \end{equation*}
@@ -160,10 +160,10 @@ where $\bar{\boldsymbol{x}}$ is the vector containing the sample mean of of the 
 
 \vspace{5mm}
 
-The genetic covariance ($\textbf{G}_{y,x_j}$) between the target trait and the $j^\text{th}$ measured trait ($j=1,...,p$) is estimated using a sequence of uni-variate genetic models as in equation \eqref{eqn:genmod}. First, the model is fitted for the target trait as response, then for each of the measured traits, and then for the sum of the target trait and each of the measured traits. The genetic covariances between the target trait and the measured traits are then estimated using 
+The genetic covariance ($\textbf{G}_{x_j,y}$) between the target trait and the $j^\text{th}$ measured trait ($j=1,...,p$) is estimated using a sequence of uni-variate genetic models as in equation \eqref{eqn:genmod}. First, the model is fitted for the target trait as response, then for each of the measured traits, and then for the sum of the target trait and each of the measured traits. The genetic covariances between the target trait and the measured traits are then estimated using 
 \begin{equation}
 \label{eqn:gencov}
-\hat{\textbf{G}}_{y,x_j}=\frac{1}{2}\left(\hat{\sigma}^2_{u_{y+xj}}-\hat{\sigma}^2_{u_y}-\hat{\sigma}^2_{u_{xj}}\right)
+\hat{\textbf{G}}_{x_j,y}=\frac{1}{2}\left(\hat{\sigma}^2_{u_{y+xj}}-\hat{\sigma}^2_{u_y}-\hat{\sigma}^2_{u_{xj}}\right)
 \end{equation}
 where $\hat{\sigma}^2_{u_y}$, $\hat{\sigma}^2_{u_{xj}}$ and $\hat{\sigma}^2_{u_{y+xj}}$ are the estimated genetic variances for the target trait, the $j^\text{th}$ measured trait, and the sum of the target trait and the $j^\text{th}$ measured trait, respectively.
 
