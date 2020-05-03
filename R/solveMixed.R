@@ -1,5 +1,5 @@
 
-# X = Z = indexK = U = d = h2=NULL; BLUP=TRUE; K=NULL; method="ML"
+# X = Z = indexK = h2=U=d=NULL; BLUP=TRUE; K=G0; method="ML"
 # return.Hinv = FALSE; tol=1E-5; maxIter=1000; interval=c(1E-9,1E9)
 solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
                         indexK = NULL, h2 = NULL, BLUP = TRUE, method = "ML",
@@ -56,7 +56,7 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
   }else{
     if(is.null(U)) stop("You are providing the eigenvalues, but not the eigenvectors")
     if(is.null(d)) stop("You are providing the eigenvectors, but not the eigenvalues")
-    if(anyNA) stop("No 'NA' values are allowed when passing parameters 'U' and 'd'")
+    if(length(indexNA)>0) stop("No 'NA' values are allowed when passing parameters 'U' and 'd'")
   }
 
   stopifnot(nrow(U) == n)
@@ -71,9 +71,12 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
     tmp <- try(uniroot(f=dloglik,interval=interval,n=n,Uty=Uty,UtX=UtX,
                        d=d,tol=tol,maxiter=maxIter,trace=2),
                silent = TRUE)
-    if(class(tmp) == "list"){
-      convergence <- tmp$iter <= maxIter
-      lambda0 <- tmp$root
+    if(class(tmp) == "list")
+    {
+      if(abs(tmp$f.root) <= tol*100){
+        convergence <- tmp$iter <= maxIter
+        lambda0 <- tmp$root
+      }
     }
     if(is.null(convergence))
     {
@@ -91,25 +94,19 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
           # If the root is near to zero
           if(abs(tmp$f.root) <= tol*100)
           {
-            # If PRECISION == 2*EPS*abs(root) + tol/2
-            dd <- abs(tmp$estim.prec - (2*eps*abs(tmp$root) + tol/2 ))
-            if(dd < eps^0.5)
-            {
-              convergence <- tmp$iter <= maxIter
-              if(tmp$root <= interval[1]){
-                lambda0 <- interval[1]
-              }else{
-                if(tmp$root >= interval[2]){
-                  lambda0 <- interval[2]
-                }else lambda0 <-  tmp$root
-              }
+            convergence <- tmp$iter <= maxIter
+            if(tmp$root <= interval[1]){
+              lambda0 <- interval[1]
+            }else{
+              if(tmp$root >= interval[2]){
+                lambda0 <- interval[2]
+              }else lambda0 <-  tmp$root
             }
           }
         }
-        #a1 <- ifelse(class(tmp) == "list",tmp$root,NA)
-        #a2 <- ifelse(class(tmp) == "list",tmp$f.root,NA)
-        #a3 <- ifelse(class(tmp) == "list",tmp$estim.prec,NA)
-        #cat("Seeking interval ",i,"[",bb[i-1],",",bb[i],"]: root=",a1," f.root=",a2," prec=",a3,"\n")
+        #aa <- rep(NA,3)
+        #if(class(tmp) == "list") aa=c(tmp$root,tmp$f.root,tmp$estim.prec)
+        #cat("Interval ",i,"[",bb[i-1],",",bb[i],"]: root=",aa[1]," f.root=",aa[2]," prec=",aa[3],"\n")
         if(i == length(bb) | !is.null(convergence)) flag <- FALSE
       }
 

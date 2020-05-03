@@ -1,3 +1,4 @@
+# y1=yTRN; y2=xTRN; X=Z=U=d=NULL; K=ZZt; mc.cores=5; scale=FALSE
 getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
            d = NULL, scale = TRUE, mc.cores=getOption("mc.cores", 2L), ...)
 {
@@ -18,13 +19,25 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
     stop("The number of elements in 'y1' must be equal to the number of rows in 'y2'")
 
   if(is.null(U) & is.null(d))
-  { if(!is.null(Z))
-    { if(!is.matrix(Z)) stop("Object 'Z' must be a matrix with nrow(Z)=n and ncol(Z)=nrow(K)\n")
-      K <- Z%*%K%*%t(Z)
+  {
+    if(is.null(Z))
+    {
+      if(is.null(K)){
+          K <- diag(length(y))
+      }
+      G <- K
+    }else{
+      if(!is.matrix(Z)) stop("Object 'Z' must be a matrix")
+      if(is.null(K)){
+        G <- tcrossprod(Z)  # K = ZIZ'
+      }else{
+        G <- Z%*%K%*%t(Z)
+      }
     }
-    stopifnot(nrow(K) == length(y1))
-    stopifnot(ncol(K) == length(y1))
-    out <- eigen(K)
+
+    stopifnot(nrow(G) == length(y1))
+    stopifnot(ncol(G) == length(y1))
+    out <- eigen(G)
     d <- out$values
     U <- out$vectors
   }else{
@@ -35,7 +48,8 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
   fm1 <- solveMixed(y1,BLUP=FALSE,X=X,U=U,d=d, ...)   # Model for variable 1
 
   compApply <- function(j)
-  {  fm2 <- solveMixed(y2[,j],BLUP=FALSE,X=X,U=U,d=d, ...)      # Model for variable 2
+  {
+     fm2 <- solveMixed(y2[,j],BLUP=FALSE,X=X,U=U,d=d, ...)      # Model for variable 2
      fm3 <- solveMixed(y1 + y2[,j],BLUP=FALSE,X=X,U=U,d=d, ...)  # Model for variable 3
 
      cat(1, file = con, append = TRUE)
@@ -49,7 +63,8 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
   if(mc.cores == 1L){
     out = lapply(X=1:ncol(y2), FUN=compApply)
   }else{
-    out = parallel::mclapply(X=1:ncol(y2), FUN=compApply, mc.cores=mc.cores)
+    out = parallel::mclapply(X=1:ncol(y2), FUN=compApply, mc.cores=mc.cores,
+       mc.allow.recursive=TRUE)
   }
   close(pb)
   unlink(con)
