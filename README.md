@@ -1,6 +1,6 @@
 # SFSI: An R-package to estimate sparse selection indices
 
-The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest version beta version. This is an extended version of the SFSI that contains data used in [Lopez-Cruz et al. (2020)](https://www.biorxiv.org/content/10.1101/625251v2) for the development of penalized selection indices.
+The SFSI Package implements shrinkage and variable selection regression procedures into the Selection Indices framework. In this repository we maintain the latest beta version. This is an extended version containing data used in [Lopez-Cruz et al. (2020)](https://www.biorxiv.org/content/10.1101/625251v2) for the development of penalized selection indices.
 
 ### Family and Selection Indices
 
