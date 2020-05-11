@@ -2,7 +2,7 @@
 
 ## Penalized Selection Index (PSI)
 
-See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SSI.pdf) for the penalized selection index.
+See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFSI-extdoc-SSI.pdf) for the penalized selection index (Lopez-Cruz et al., 2020).
 
 <div id="Outline" />
 
