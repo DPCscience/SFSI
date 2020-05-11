@@ -86,7 +86,7 @@ The penalized indices can be solved using the package SFSI that implements LARS 
 . Optimal indices can be obtained by choosing the values of these parameters that maximize the accuracy.
 
 ### Documentation
-* **[Penalized Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
+* **[Penalized Selection Index (Lopez-Cruz et al. (2020))](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md)**
 * **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/family_index.md)**
 
 **Package installation from Github**
