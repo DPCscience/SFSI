@@ -6,7 +6,8 @@ See [documentation](https://github.com/MarcooLopez/SFSI/blob/master/inst/doc/SFS
 
 <div id="Outline" />
 
-## Outline
+## Extra documentation
+### Outline
   * [1. Data](#data)    
   * [2. Phenotypic vs Genotypic Selection Index](#GSI&PSI)
   * [3. Penalized Phenotypic and Genotypic Selection Index](#Penalized)
