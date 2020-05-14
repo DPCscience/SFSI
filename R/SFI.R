@@ -95,9 +95,9 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   if(verbose)
     cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",nTRN," individuals\n",sep="")
 
-  compApply <- function(chunk)
+  compApply <- function(i)
   {
-    rhs <- drop(RHS[,chunk])
+    rhs <- drop(RHS[,i])
 
     if(method == "LAR"){
       fm <- lars2(K,rhs,method="LAR",maxDF=maxDF,scale=FALSE)
@@ -106,7 +106,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
       fm$lambda <- fm$lambda[-length(fm$lambda)]  
     }else{
       if(is.matrix(lambda)){
-        lambda0 <- lambda[chunk,]
+        lambda0 <- lambda[i,]
       }else lambda0 <- lambda
 
       fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
@@ -120,7 +120,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
       cat(1,file=con,append=TRUE)
       utils::setTxtProgressBar(pb, nchar(scan(con,what="character",quiet=TRUE))/length(tst))
     }
-    return(list(B=B,lambda=fm$lambda,tst=tst[chunk],df=fm$df))
+    return(list(B=B,lambda=fm$lambda,tst=tst[i],df=fm$df))
   }
 
   if(verbose){
@@ -130,9 +130,9 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   if(mc.cores == 1L) {
     out = lapply(X=seq_along(tst),FUN=compApply)
   }else{
-    #out = mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
-    registerDoParallel(cores=mc.cores)
-    out = foreach(chunk=seq_along(tst),.options.snow=list(preschedule=TRUE)) %dopar% compApply(chunk)
+    out = mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
+    #registerDoParallel(cores=mc.cores)
+    #out = foreach(i=seq_along(tst),.options.snow=list(preschedule=TRUE)) %dopar% compApply(i)
   }
   if(verbose) {
     close(pb); unlink(con)
