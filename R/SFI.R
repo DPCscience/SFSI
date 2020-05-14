@@ -6,7 +6,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
          h2 = NULL, trn = seq_along(y), tst = seq_along(y), subset = NULL,
          alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2","LAR"),
          tol = 1E-4, maxIter = 500, maxDF = 100, saveAt = NULL, name = NULL,
-         mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
+         mc.cores = 1, verbose = TRUE)
 {
   method <- match.arg(method)
 
@@ -130,7 +130,9 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   if(mc.cores == 1L) {
     out = lapply(X=seq_along(tst),FUN=compApply)
   }else{
-    out = mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
+    #out = mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
+    registerDoParallel(cores=mc.cores)
+    out = foreach(chunk=seq_along(tst),.options.snow=list(preschedule=TRUE)) %dopar% compApply(chunk)
   }
   if(verbose) {
     close(pb); unlink(con)
