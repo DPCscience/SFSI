@@ -7,8 +7,8 @@ Author: Marco Lopez-Cruz, Gustavo de los Campos
 Maintainer: Marco Lopez-Cruz <lopezcru@msu.edu>
 Description: Sparse Family and Selection Index.
 LazyLoad: true
-Depends: R (>= 3.5), stats, ggplot2  
+Depends: R (>= 3.5), stats, ggplot2, doParallel  
 License: GPL-3
 NeedsCompilation: yes
-Imports: Matrix, reshape, viridis, RColorBrewer, RSpectra, parallel
+Imports: Matrix, reshape, viridis, RColorBrewer, RSpectra
 Encoding: UTF-8
