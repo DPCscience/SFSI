@@ -80,8 +80,9 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
     }
     if(is.null(convergence))
     {
-      # Expand the seeking interval
-      bb <- exp(seq(log(eps/10),log(interval[2]^1.7),length=100))
+      # Divide seeking interval into smaller intervals
+      #bb <- exp(seq(log(eps/10),log(interval[2]^1.7),length=100))
+      bb <- exp(seq(log(eps),log(interval[2]),length=100))
       flag <- TRUE; i <- 1
       while(flag)
       {
