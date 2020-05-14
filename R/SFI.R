@@ -130,7 +130,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   if(mc.cores == 1L) {
     out = lapply(X=seq_along(tst),FUN=compApply)
   }else{
-    out = parallel::mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
+    out = mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
   }
   if(verbose) {
     close(pb); unlink(con)
