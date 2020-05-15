@@ -1,11 +1,11 @@
-# X = Z = indexK = h2 = subset = lambda = saveAt = name = NULL
-# trn =  tst = seq_along(y); alpha = 1; nLambda = 100, method = "CD1"
+# X = Z = indexK = h2 = subset = saveAt = name = NULL; lambda=0.0008
+# alpha = 1; nLambda = 100; method = "CD1"
 # mc.cores = 5; tol = 1E-4; maxIter = 500; verbose = TRUE
 
 SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
          h2 = NULL, trn = seq_along(y), tst = seq_along(y), subset = NULL,
-         alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2","LAR"),
-         tol = 1E-4, maxIter = 500, maxDF = 100, saveAt = NULL, name = NULL,
+         alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
+         tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
          mc.cores = 1, verbose = TRUE)
 {
   method <- match.arg(method)
@@ -66,16 +66,14 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   scale_cov(K,void=TRUE)   # Equal to K=cov2cor(K) but faster
   RHS <- apply(RHS,2,function(x)x/sdx)
 
-  if(method %in% c("CD1","CD2")){
-    if(is.null(lambda)){
-      if(method == "CD1"){
-          Cmax <- ifelse(alpha > .Machine$double.eps,max(abs(RHS)/alpha),5)
-          lambda <- exp(seq(log(Cmax),log(.Machine$double.eps^0.5),length=nLambda))
-      }
-    }else{
-      if(is.matrix(lambda)){
-          if(nrow(lambda) != nTST) stop("Object 'lambda' must be a vector or a matrix with nTST rows")
-      }
+  if(is.null(lambda)){
+    if(method == "CD1"){
+        Cmax <- ifelse(alpha > .Machine$double.eps,max(abs(RHS)/alpha),5)
+        lambda <- exp(seq(log(Cmax),log(.Machine$double.eps^0.5),length=nLambda))
+    }
+  }else{
+    if(is.matrix(lambda)){
+        if(nrow(lambda) != nTST) stop("Object 'lambda' must be a vector or a matrix with nTST rows")
     }
   }
 
@@ -95,23 +93,15 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
   if(verbose)
     cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",nTRN," individuals\n",sep="")
 
-  compApply <- function(i)
+  compApply <- function(ind)
   {
-    rhs <- drop(RHS[,i])
+    rhs <- drop(RHS[,ind])
+    if(is.matrix(lambda)){
+      lambda0 <- lambda[ind,]
+    }else lambda0 <- lambda
 
-    if(method == "LAR"){
-      fm <- lars2(K,rhs,method="LAR",maxDF=maxDF,scale=FALSE)
-      fm$beta <- fm$beta[-1,]
-      fm$df <- fm$df[-1]
-      fm$lambda <- fm$lambda[-length(fm$lambda)]  
-    }else{
-      if(is.matrix(lambda)){
-        lambda0 <- lambda[i,]
-      }else lambda0 <- lambda
-
-      fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
-                    alpha=alpha,tol=tol,maxIter=maxIter)
-    }
+    fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
+                  alpha=alpha,tol=tol,maxIter=maxIter)
 
     # Return betas to the original scale by dividing by sdx
     B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)
@@ -120,7 +110,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
       cat(1,file=con,append=TRUE)
       utils::setTxtProgressBar(pb, nchar(scan(con,what="character",quiet=TRUE))/length(tst))
     }
-    return(list(B=B,lambda=fm$lambda,tst=tst[i],df=fm$df))
+    return(list(B=B,lambda=fm$lambda,tst=tst[ind],df=fm$df))
   }
 
   if(verbose){
@@ -131,8 +121,8 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
     out = lapply(X=seq_along(tst),FUN=compApply)
   }else{
     out = mclapply(X=seq_along(tst),FUN=compApply,mc.cores=mc.cores)
-    #registerDoParallel(cores=mc.cores)
-    #out = foreach(i=seq_along(tst),.options.snow=list(preschedule=TRUE)) %dopar% compApply(i)
+    # registerDoParallel(cores=mc.cores)
+    # out = foreach(ind=seq_along(tst),.options.snow=list(preschedule=TRUE)) %dopar% compApply(ind)
   }
   if(verbose) {
     close(pb); unlink(con)
@@ -142,12 +132,11 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
     stop("Some sub-processes failed. Something went wrong during the analysis.")
   }
 
-  pMin <- min(unlist(lapply(out,function(x)length(x$lambda))))
   out <- list(method=method, name=name, y=y, Xb=Xb, b=b, varU=varU,
               varE=varE, h2=h2, trn=trn, tst=tst, alpha=alpha,
-              df = do.call("rbind",lapply(out,function(x)x$df[1:pMin])),
-              lambda = do.call("rbind",lapply(out,function(x)x$lambda[1:pMin])),
-              BETA = lapply(out,function(x) x$B[1:pMin, ,drop=FALSE]))
+              df = do.call("rbind",lapply(out,function(x)x$df)),
+              lambda = do.call("rbind",lapply(out,function(x)x$lambda)),
+              BETA = lapply(out,function(x) x$B))
   class(out) <- "SFI"
 
   # Save outputs if 'saveAt' is not NULL
