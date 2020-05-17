@@ -4,8 +4,8 @@
 \alias{solveEN}
 \title{Coordinate Descent algorithm to solve the Elastic-Net-type problem}
 \usage{
-solveEN(P, cov, alpha = 1, lambda = NULL, nLambda = 100, 
-  scale = TRUE, tol = 1e-05, maxIter = 1000, verbose = FALSE)
+solveEN(P, cov, alpha = 1, lambda = NULL, nLambda = 100, scale = TRUE,
+   tol = 1e-05, maxIter = 1000, lowerTri = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{P}{Variance-covariance matrix among predictors}
@@ -27,6 +27,8 @@ taken from the diagonal of \code{P}}
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
 \item{maxIter}{Maximum number of iterations to run at each lambda step before convergence is reached}
+
+\item{lowerTri}{If \code{TRUE} only the lower triangular part of \code{P} is considered given that is symmetric}
 
 \item{verbose}{\code{TRUE} or \code{FALSE} to whether printing each CD step}
 }
