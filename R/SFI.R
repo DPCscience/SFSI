@@ -1,12 +1,12 @@
-# X = Z = indexK = h2 = subset = saveAt = name = NULL; lambda=0.0008
-# alpha = 1; nLambda = 100; method = "CD1"
-# mc.cores = 5; tol = 1E-4; maxIter = 500; verbose = TRUE
+# X = Z = indexK = subset = saveAt = name = NULL; lambda=lambda0
+# alpha = 1; nLambda = 100; method = "CD1"; K=G; b=mu;
+# mc.cores = 1; tol = 1E-4; maxIter = 300; verbose = TRUE; lowerTri=TRUE
 
 SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
          h2 = NULL, trn = seq_along(y), tst = seq_along(y), subset = NULL,
          alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
          tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
-         lowertri = FALSE, mc.cores = 1, verbose = TRUE)
+         lowerTri = FALSE, mc.cores = 1, verbose = TRUE)
 {
   method <- match.arg(method)
 
@@ -90,9 +90,12 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
      RHS <- RHS[,index,drop=FALSE]
   }else tmp <- ""
 
-  if(lowertri){
-    K2 <- K[,1]
-    for(j in 2:nTRN) K2 <- c(K2,K[j:nTRN,j])
+  if(lowerTri){    # Stack columns with only elements after the diagonal
+    K2 <- rep(NA,nTRN*(nTRN+1)/2)
+    for(j in 1:nTRN){
+      a1 <- nTRN*(j-1) - (j-2)*(j-1)/2 + 1
+      K2[a1:(a1+nTRN-j)] <- K[j:nTRN,j]
+    }
     K <- K2
   }
 
@@ -107,7 +110,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
     }else lambda0 <- lambda
 
     fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
-                  lowertri=lowertri,alpha=alpha,tol=tol,maxIter=maxIter)
+                  lowerTri=lowerTri,alpha=alpha,tol=tol,maxIter=maxIter)
 
     # Return betas to the original scale by dividing by sdx
     B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)

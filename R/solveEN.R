@@ -1,20 +1,20 @@
 
-# P=tt2; cov=Xty; alpha = 1; lambda = NULL; nLambda = 100; scale = TRUE
-# tol = 1E-5; maxIter = 1000; verbose = FALSE; lowertri=FASLSE
+# P=XtX; cov=Xty; alpha = 1; lambda = NULL; nLambda = 100; scale = TRUE
+# tol = 1E-5; maxIter = 1000; verbose = FALSE; lowerTri=FALSE
 
 solveEN <- function(P, cov, alpha = 1, lambda = NULL,
        nLambda = 100, scale = TRUE, tol = 1E-5, maxIter = 1000,
-       verbose = FALSE, lowertri=FALSE)
+       lowerTri=FALSE, verbose = FALSE)
 {
     p <- length(cov)
     if(length(P) != p^2){
-      if(lowertri){
+      if(lowerTri){
         if(length(P) != p*(p+1)/2)
-          stop("'P' must be of length p*(p+1)/2 when 'lowertri=TRUE'")
+          stop("'P' must be of length p*(p+1)/2 when 'lowerTri=TRUE'")
       }else stop("'P' must be of length p*p where p=length(cov)")
     }
 
-    isVectorized <- (length(P) == p*(p+1)/2) & lowertri
+    isVectorized <- (length(P) == p*(p+1)/2) & lowerTri
 
     if(alpha<0 | alpha>1) stop("Parameter 'alpha' must be a number between 0 and 1")
 
@@ -41,11 +41,14 @@ solveEN <- function(P, cov, alpha = 1, lambda = NULL,
     }
     nLambda <- length(lambda)
 
-    if(lowertri)
+    if(lowerTri)
     {
       if(!isVectorized){
-        P2 <- P[,1]
-        for(j in 2:p) P2 <- c(P2, P[j:p,j])
+        P2 <- rep(NA,p*(p+1)/2)
+        for(j in 1:p){
+          a1 <- p*(j-1) - (j-2)*(j-1)/2 + 1
+          P2[a1:(a1+p-j)] <- P[j:p,j]
+        }
         P <- P2
       }
       beta <- .Call('updatebeta_lowertri',as.integer(p),P,as.vector(cov),
