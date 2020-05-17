@@ -110,6 +110,100 @@ SEXP updatebeta(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, SEXP ma
 }
 
 // ----------------------------------------------------------
+// Update betas until convergence, i.e., the difference
+// between two consecutive solutions is smaller than a threshold
+// for a set of decreasing lambda: l0>l1>...>lk
+// using a lower triangular matrix XtX passed as vector
+// ----------------------------------------------------------
+SEXP updatebeta_lowertri(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, SEXP maxtole, SEXP maxsteps, SEXP echo)
+{
+    double *pXtX, *pB, *pXty, *plambda, *b0, *b;
+    double bOLS;
+    double L1, L2, alpha, currfit, maxTol,maxdiff;
+    int i, j, k, np, nj, maxIter,iter,nlambda,verbose;
+    int inc=1;
+    SEXP list;
+
+    np=INTEGER_VALUE(n);
+    nlambda=INTEGER_VALUE(q);
+    maxIter=INTEGER_VALUE(maxsteps);
+    verbose=asLogical(echo);
+    alpha=NUMERIC_VALUE(a);
+    maxTol=NUMERIC_VALUE(maxtole);
+
+    PROTECT(XtX=AS_NUMERIC(XtX));
+    pXtX=NUMERIC_POINTER(XtX);
+
+    PROTECT(Xty=AS_NUMERIC(Xty));
+    pXty=NUMERIC_POINTER(Xty);
+
+    PROTECT(lambda=AS_NUMERIC(lambda));
+    plambda=NUMERIC_POINTER(lambda);
+
+    SEXP B = PROTECT(allocMatrix(REALSXP, nlambda, np));
+    pB=NUMERIC_POINTER(B);
+
+    b=(double *) R_alloc(np, sizeof(double));
+    b0=(double *) R_alloc(np, sizeof(double));
+
+    memset(b,0, sizeof(double)*np);  // Initialize all coefficients to zero
+
+    for(k=0; k<nlambda; k++)
+    {
+        L1=alpha*plambda[k];
+        L2=(1-alpha)*plambda[k];
+        iter=0;
+        maxdiff=INFINITY;
+        while(iter<maxIter && maxdiff>maxTol)
+        {
+            iter++;
+            memcpy(b0, b, sizeof(double)*np);
+            maxdiff=-INFINITY;
+            for(j=0; j<np; j++)
+            {
+                //cjj=pXtX[np*j - ((j-1)*j)/2];
+                nj=np-j;
+                currfit=F77_NAME(ddot)(&nj,pXtX+(j*np)-((j-1)*j)/2,&inc,b+j,&inc);
+                if(j>0){
+                  for(i=0; i<j; i++){
+                    currfit+=pXtX[np*i - ((i-1)*i)/2 + j-i]*b[i];
+                  }
+                }
+                currfit-=b[j]; //currfit-=cjj*b[j];
+                //bOLS=(pXty[j]-currfit)/cjj;
+                bOLS=pXty[j]-currfit;
+                if(fabs(bOLS)>L1){
+                    b[j]=sign(bOLS)*(fabs(bOLS)-L1)/(1+L2);
+                }else{
+                    b[j]=0;
+                }
+
+                if(fabs(b[j] - b0[j])>maxdiff){
+                    maxdiff=fabs(b[j] - b0[j]);
+                }
+            }
+        }
+        if(verbose){
+            Rprintf(" lambda[%d]=\t%11.9f.  nIters=%7d.  maxError=%11.9f\n",k+1,plambda[k],iter,maxdiff);
+            if(maxdiff>maxTol){
+              Rprintf("    Warning: The process did not converge after %d iterations for lambda[%d]=%11.9f\n",maxIter,k+1,plambda[k]);
+            }
+        }
+        // memcpy(pB + np*k, b, sizeof(double)*np);
+        F77_NAME(dcopy)(&np, b, &inc, pB+k, &nlambda);
+    }
+
+    // Creating a list with 1 vector elements:
+    PROTECT(list = allocVector(VECSXP, 1));
+    // attaching outputs to list:
+    SET_VECTOR_ELT(list, 0, B);
+
+    UNPROTECT(5);
+
+    return(list);
+}
+
+// ----------------------------------------------------------
 // ----------------------------------------------------------
 SEXP gaussian_kernel(SEXP n, SEXP XtX, SEXP h)
 {
