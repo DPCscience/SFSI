@@ -1,12 +1,20 @@
 
-solveEN <- function(P, cov, alpha = 1, lambda = NULL, nLambda = 100,
-        scale = TRUE, tol = 1E-5, maxIter = 1000, verbose = FALSE)
+# P=tt2; cov=Xty; alpha = 1; lambda = NULL; nLambda = 100; scale = TRUE
+# tol = 1E-5; maxIter = 1000; verbose = FALSE; lowertri=FASLSE
+
+solveEN <- function(P, cov, alpha = 1, lambda = NULL,
+       nLambda = 100, scale = TRUE, tol = 1E-5, maxIter = 1000,
+       verbose = FALSE, lowertri=FALSE)
 {
     p <- length(cov)
-    if(length(P) != p^2)
-      stop("Incompatible dimensions between 'P' and 'cov'")
-    if((sum(dim(P))/2)^2 != length(P))
-      stop("Object 'P' must be a squared matrix. The algorithm can not be implemented")
+    if(length(P) != p^2){
+      if(lowertri){
+        if(length(P) != p*(p+1)/2)
+          stop("'P' must be of length p*(p+1)/2 when 'lowertri=TRUE'")
+      }else stop("'P' must be of length p*p where p=length(cov)")
+    }
+
+    isVectorized <- (length(P) == p*(p+1)/2) & lowertri
 
     if(alpha<0 | alpha>1) stop("Parameter 'alpha' must be a number between 0 and 1")
 
@@ -15,9 +23,14 @@ solveEN <- function(P, cov, alpha = 1, lambda = NULL, nLambda = 100,
 
     if(scale)
     {
-      sdx <- sqrt(diag(P))
-      P <- scale_cov(P)  # Equal to P=cov2cor(P) but faster
-      cov <- cov/sdx
+      if(!isVectorized){
+        sdx <- sqrt(diag(P))
+        P <- scale_cov(P)  # Equal to P=cov2cor(P) but faster
+        cov <- cov/sdx
+      }else{
+        warning("scaling is not implemented when 'P' is provided vectorized")
+        sdx <- rep(1,p)
+      }
     }else{
       sdx <- rep(1,p)
     }
@@ -28,9 +41,22 @@ solveEN <- function(P, cov, alpha = 1, lambda = NULL, nLambda = 100,
     }
     nLambda <- length(lambda)
 
-    beta <- .Call('updatebeta',as.integer(p),P,as.vector(cov),
+    if(lowertri)
+    {
+      if(!isVectorized){
+        P2 <- P[,1]
+        for(j in 2:p) P2 <- c(P2, P[j:p,j])
+        P <- P2
+      }
+      beta <- .Call('updatebeta_lowertri',as.integer(p),P,as.vector(cov),
                as.integer(nLambda),as.numeric(lambda),as.numeric(alpha),
                as.numeric(tol),as.integer(maxIter),verbose)[[1]]
+
+    }else{
+      beta <- .Call('updatebeta',as.integer(p),P,as.vector(cov),
+               as.integer(nLambda),as.numeric(lambda),as.numeric(alpha),
+               as.numeric(tol),as.integer(maxIter),verbose)[[1]]
+    }
 
     if(scale) beta <- scale(beta,FALSE,sdx)
     df <- apply(beta,1,function(x)sum(abs(x)>0))

@@ -6,7 +6,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
          h2 = NULL, trn = seq_along(y), tst = seq_along(y), subset = NULL,
          alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
          tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
-         mc.cores = 1, verbose = TRUE)
+         lowertri = FALSE, mc.cores = 1, verbose = TRUE)
 {
   method <- match.arg(method)
 
@@ -90,6 +90,12 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
      RHS <- RHS[,index,drop=FALSE]
   }else tmp <- ""
 
+  if(lowertri){
+    K2 <- K[,1]
+    for(j in 2:nTRN) K2 <- c(K2,K[j:nTRN,j])
+    K <- K2
+  }
+
   if(verbose)
     cat(" Fitting SFI model for nTST=",length(tst),tmp," and nTRN=",nTRN," individuals\n",sep="")
 
@@ -101,7 +107,7 @@ SFI <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
     }else lambda0 <- lambda
 
     fm <- solveEN(K,rhs,scale=FALSE,lambda=lambda0,nLambda=nLambda,
-                  alpha=alpha,tol=tol,maxIter=maxIter)
+                  lowertri=lowertri,alpha=alpha,tol=tol,maxIter=maxIter)
 
     # Return betas to the original scale by dividing by sdx
     B <- Matrix::Matrix(scale(fm$beta,FALSE,sdx), sparse=TRUE)

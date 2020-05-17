@@ -4,9 +4,9 @@
 
 SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
                    h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
-                   nLambda = 100, nCV = 1, nFolds = 5, seed = NULL, name = NULL,
-                   method = c("CD1","CD2","LAR"), tol = 1E-4, maxIter = 500,
-                   maxDF = NULL, mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
+                   nLambda = 100, nCV = 1, nFolds = 5, seed = NULL,
+                   method = c("CD1","CD2"), tol = 1E-4, maxIter = 500, name = NULL,
+                   lowertri = FALSE, mc.cores = 1, verbose = TRUE)
 {
     nFolds <- match.arg(as.character(nFolds),choices=c(2,3,4,5,10,'n'))
     method <- match.arg(method)
@@ -35,9 +35,10 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
       trn <- trn.CV[folds != chunk]
       tst <- trn.CV[folds == chunk]
 
-      fm <- SFI(y, X=X, b=b, K=K, h2=h2, trn=trn, tst=tst, alpha=alpha,
-                method=method, lambda=lambda, nLambda=nLambda, tol=tol,
-                maxIter=maxIter, maxDF=maxDF, mc.cores=mc.cores2, verbose=FALSE)
+      fm <- SFI(y, X=X, b=b, K=K, h2=h2, trn=trn, tst=tst,
+              alpha=alpha, method=method, lambda=lambda,
+              nLambda=nLambda, tol=tol, maxIter=maxIter,
+              mc.cores=mc.cores2, lowertri=lowertri, verbose=FALSE)
       fv <- summary(fm)
 
       if(isLOOCV){
@@ -87,21 +88,20 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
       }
 
       # Calculate accuracy
-      pMin <- min(unlist(lapply(out,function(x)length(x$lambda))))
       if(isLOOCV){
-        uHat <- do.call(rbind,lapply(out,function(x)x$u[1:pMin]))
+        uHat <- do.call(rbind,lapply(out,function(x)x$u))
         accuracy <- suppressWarnings(stats::cor(y[trn.CV],uHat,use="pairwise.complete.obs"))
         MSE <- suppressWarnings(t(apply((y[trn.CV]-uHat)^2,2,sum,na.rm=TRUE)/length(trn.CV)))
-        df <- t(apply(do.call("rbind",lapply(out,function(x)x$df[1:pMin])),2,mean))
-        lambda0 <- t(apply(do.call("rbind",lapply(out,function(x)x$lambda[1:pMin])),2,mean))
+        df <- t(apply(do.call("rbind",lapply(out,function(x)x$df)),2,mean))
+        lambda0 <- t(apply(do.call("rbind",lapply(out,function(x)x$lambda)),2,mean))
         b0 <- t(apply(do.call("rbind",lapply(out,function(x)x$b)),2,mean))
         h20 <- mean(unlist(lapply(out,function(x)x$h2)))
 
       }else{
-        accuracy <- do.call("rbind",lapply(out,function(x)x$accuracy[1:pMin]))
-        MSE <- do.call("rbind",lapply(out,function(x)x$MSE[1:pMin]))
-        df <- do.call("rbind",lapply(out,function(x)x$df[1:pMin]))
-        lambda0 <- do.call("rbind",lapply(out,function(x)x$lambda[1:pMin]))
+        accuracy <- do.call("rbind",lapply(out,function(x)x$accuracy))
+        MSE <- do.call("rbind",lapply(out,function(x)x$MSE))
+        df <- do.call("rbind",lapply(out,function(x)x$df))
+        lambda0 <- do.call("rbind",lapply(out,function(x)x$lambda))
         b0 <- do.call("rbind",lapply(out,function(x)x$b))
         h20 <- unlist(lapply(out,function(x)x$h2))
       }
