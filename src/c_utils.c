@@ -117,7 +117,7 @@ SEXP updatebeta(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, SEXP ma
 // ----------------------------------------------------------
 SEXP updatebeta_lowertri(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a, SEXP maxtole, SEXP maxsteps, SEXP echo)
 {
-    double *pXtX, *pB, *pXty, *plambda, *b0, *b;
+    double *pXtX, *pXtX2, *pB, *pXty, *plambda, *b0, *b;
     double bOLS;
     double L1, L2, alpha, currfit, maxTol,maxdiff;
     int i, j, k, np, nj, maxIter,iter,nlambda,verbose;
@@ -145,8 +145,17 @@ SEXP updatebeta_lowertri(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a
 
     b=(double *) R_alloc(np, sizeof(double));
     b0=(double *) R_alloc(np, sizeof(double));
+    pXtX2=(double *) R_alloc(np*(np-1)/2, sizeof(double));
 
     memset(b,0, sizeof(double)*np);  // Initialize all coefficients to zero
+
+    // retrieve upper triangular matrix of XtX
+    for(j=1; j<np; j++)
+    {
+      for(i=0; i<j; i++){
+        pXtX2[(j-1)*j/2 +i] = pXtX[np*i - ((i-1)*i)/2 + j-i];
+      }
+    }
 
     for(k=0; k<nlambda; k++)
     {
@@ -163,11 +172,9 @@ SEXP updatebeta_lowertri(SEXP n, SEXP XtX, SEXP Xty, SEXP q, SEXP lambda, SEXP a
             {
                 //cjj=pXtX[np*j - ((j-1)*j)/2];
                 nj=np-j;
-                currfit=F77_NAME(ddot)(&nj,pXtX+(j*np)-((j-1)*j)/2,&inc,b+j,&inc);
+                currfit=F77_NAME(ddot)(&nj,pXtX + j*np - (j-1)*j/2,&inc,b+j,&inc);
                 if(j>0){
-                  for(i=0; i<j; i++){
-                    currfit+=pXtX[np*i - ((i-1)*i)/2 + j-i]*b[i];
-                  }
+                  currfit+=F77_NAME(ddot)(&j,pXtX2 + (j-1)*j/2,&inc,b,&inc);
                 }
                 currfit-=b[j]; //currfit-=cjj*b[j];
                 //bOLS=(pXty[j]-currfit)/cjj;
