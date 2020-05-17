@@ -8,13 +8,13 @@ SFI(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL, h2 = NULL,
     trn = seq_along(y), tst = seq_along(y), subset = NULL, 
     alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
     tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
-    mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
+    lowertri = FALSE, mc.cores = 1, verbose = TRUE)
     
 SFI_CV(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL, 
       h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
       nLambda = 100, nCV = 1, nFolds = 5, seed = NULL,
       method = c("CD1","CD2"), tol = 1E-4, maxIter = 500, name = NULL,
-      mc.cores = getOption("mc.cores", 2L), verbose = TRUE)
+      lowertri = FALSE, mc.cores = 1, verbose = TRUE)
 }
 \arguments{
 \item{y}{Response variable}
