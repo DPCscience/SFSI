@@ -3,10 +3,10 @@
 # mc.cores = 4; tol = 1E-4; maxIter = 500; name = NULL; verbose = TRUE
 
 SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
-                   h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
-                   nLambda = 100, nCV = 1, nFolds = 5, seed = NULL,
-                   method = c("CD1","CD2"), tol = 1E-4, maxIter = 500, name = NULL,
-                   lowerTri = FALSE, mc.cores = 1, verbose = TRUE)
+              h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
+              nLambda = 100, nCV = 1, nFolds = 5, seed = NULL,
+              method = c("CD1","CD2"), tol = 1E-4, maxIter = 500,
+              name = NULL, mc.cores = 1, verbose = TRUE)
 {
     nFolds <- match.arg(as.character(nFolds),choices=c(2,3,4,5,10,'n'))
     method <- match.arg(method)
@@ -38,7 +38,7 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
       fm <- SFI(y, X=X, b=b, K=K, h2=h2, trn=trn, tst=tst,
               alpha=alpha, method=method, lambda=lambda,
               nLambda=nLambda, tol=tol, maxIter=maxIter,
-              mc.cores=mc.cores2, lowerTri=lowerTri, verbose=FALSE)
+              mc.cores=mc.cores2, verbose=FALSE)
       fv <- summary(fm)
 
       if(isLOOCV){
