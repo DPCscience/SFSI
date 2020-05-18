@@ -8,7 +8,7 @@ solveEN(P, cov, alpha = 1, lambda = NULL, nLambda = 100, scale = TRUE,
    tol = 1e-05, maxIter = 1000, lowerTri = FALSE, verbose = FALSE)
 }
 \arguments{
-\item{P}{Variance-covariance matrix among predictors}
+\item{P}{Variance-covariance matrix among predictors. It can be a lower triangular matrix provided \code{lowerTri=TRUE}}
 
 \item{cov}{Covariance vector between response variable and predictors}
 

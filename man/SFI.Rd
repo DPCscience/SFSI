@@ -4,17 +4,17 @@
 \alias{SFI_CV}
 \title{Sparse Family Index}
 \usage{
-SFI(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL, h2 = NULL,
-    trn = seq_along(y), tst = seq_along(y), subset = NULL, 
-    alpha = 1, lambda = NULL, nLambda = 100, method = c("CD1","CD2"),
-    tol = 1E-4, maxIter = 500, saveAt = NULL, name = NULL,
-    lowerTri = FALSE, mc.cores = 1, verbose = TRUE)
+SFI(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
+    h2 = NULL, trn = seq_along(y), tst = seq_along(y), 
+    subset = NULL, alpha = 1, lambda = NULL, nLambda = 100,
+    method = c("CD1","CD2"), tol = 1E-4, maxIter = 500, 
+    saveAt = NULL, name = NULL, mc.cores = 1, verbose = TRUE)
     
 SFI_CV(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL, 
-      h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
-      nLambda = 100, nCV = 1, nFolds = 5, seed = NULL,
-      method = c("CD1","CD2"), tol = 1E-4, maxIter = 500, name = NULL,
-      lowerTri = FALSE, mc.cores = 1, verbose = TRUE)
+      h2 = NULL, trn.CV = seq_along(y), alpha = 1, 
+      lambda = NULL, nLambda = 100, nCV = 1, nFolds = 5, 
+      seed = NULL, method = c("CD1","CD2"), tol = 1E-4,
+      maxIter = 500, name = NULL, mc.cores = 1, verbose = TRUE)
 }
 \arguments{
 \item{y}{Response variable}
@@ -64,13 +64,11 @@ to a minimum equal to zero. If \code{alpha=0} the grid is generated starting fro
 }
 Default is \code{method='CD1'}}
 
-\item{mc.cores}{Number of cores used to run the analysis in parallel. Default is \code{mc.cores=2}}
+\item{mc.cores}{Number of cores used. The analysis is run in parallel when \code{mc.cores} is greater than 1. Default is \code{mc.cores=1}}
 
 \item{tol}{Maximum error between two consecutive solutions of the iterative algorithm to declare convergence}
 
 \item{maxIter}{Maximum number of iterations to run at each lambda step before convergence is reached}
-
-\item{lowerTri}{If \code{TRUE} only the lower triangular part of \code{G[trn,trn]} is considered given that is symmetric}
 
 \item{saveAt}{Prefix name that will be added to the output files name to be saved, this may include a path. Regression coefficients
 are saved as binary file as a single-precision (32 bits, 7 significant digits) variable. Default \code{saveAt=NULL} will no save any output}
