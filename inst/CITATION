@@ -15,10 +15,11 @@ citEntry(
     ),
     journal = "Scientific Reports",
     year = "2020",
-    volume = "(in press)",
+    volume = "10",
+    pages = "8195",
     textVersion = paste(
         "Lopez-Cruz M, Olson E, Rovere G, Crossa J, Dreisigacker S, Mondal S, Singh R & de los Campos G, 2020. ",
         "Regularized selection indices for breeding value prediction using hyper-spectral image data. ",
-        "Scientific Reports (in press)"
+        "Scientific Reports, 10: 8195"
     )
 )
