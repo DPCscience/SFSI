@@ -87,7 +87,6 @@ The penalized indices can be solved using the package SFSI that implements LARS 
 
 ### Documentation
 * **[Penalized Selection Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/selection_index.md) (Lopez-Cruz et al., 2020)**
-* **[Sparse Family Index](https://github.com/MarcooLopez/PFSI/blob/master/inst/md/family_index.md)**
 
 **Package installation from Github**
 
