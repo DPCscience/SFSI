@@ -1,6 +1,6 @@
-# y1=yTRN; y2=xTRN; X=Z=U=d=NULL; K=ZZt; mc.cores=5; scale=FALSE
+# y1=y; y2=x; X=Z=U=d=NULL; K=G; mc.cores=5; scale=TRUE
 getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
-           d = NULL, scale = TRUE, mc.cores=getOption("mc.cores", 2L), ...)
+           d = NULL, scale = TRUE, mc.cores = 1, ...)
 {
   if(!is.matrix(y2))
     stop("Object 'y2' must be a matrix with 'nrow(y2)' equal to the number of elements in 'y1'")
@@ -10,6 +10,8 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
   if(scale){
     y1 <- as.vector(y1/sdy1)
     y2 <- scale(y2,FALSE,sdy2)
+    #y1 <- as.vector(scale(y1))
+    #y2 <- scale(y2)
   }else{
     if(any(abs(sdy1 -sdy2) > sqrt(.Machine$double.eps)))
       warning("Variances of y1 and y2 are not equal",immediate.=TRUE)
@@ -49,8 +51,8 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
 
   compApply <- function(j)
   {
-     fm2 <- solveMixed(y2[,j],BLUP=FALSE,X=X,U=U,d=d, ...)      # Model for variable 2
-     fm3 <- solveMixed(y1 + y2[,j],BLUP=FALSE,X=X,U=U,d=d, ...)  # Model for variable 3
+     fm2 <- solveMixed(y2[,j],BLUP=FALSE,X=X,U=U,d=d,...)       # Model for variable 2
+     fm3 <- solveMixed(y1 + y2[,j],BLUP=FALSE,X=X,U=U,d=d,...)  # Model for variable 3
 
      cat(1, file = con, append = TRUE)
      utils::setTxtProgressBar(pb,nchar(scan(con,what="character",quiet=TRUE))/ncol(y2))
@@ -63,8 +65,7 @@ getGenCov <- function(y1, y2, X = NULL, Z = NULL, K = NULL, U = NULL,
   if(mc.cores == 1L){
     out = lapply(X=1:ncol(y2), FUN=compApply)
   }else{
-    out = parallel::mclapply(X=1:ncol(y2), FUN=compApply, mc.cores=mc.cores,
-       mc.allow.recursive=TRUE)
+    out = mclapply(X=1:ncol(y2), FUN=compApply, mc.cores=mc.cores)
   }
   close(pb)
   unlink(con)

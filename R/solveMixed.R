@@ -1,5 +1,5 @@
 
-# X = Z = indexK = h2=U=d=NULL; BLUP=TRUE; K=G0; method="ML"
+# Z = indexK = h2 = NULL; BLUP=FALSE; K=NULL; method="ML"
 # return.Hinv = FALSE; tol=1E-5; maxIter=1000; interval=c(1E-9,1E9)
 solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
                         indexK = NULL, h2 = NULL, BLUP = TRUE, method = "ML",
@@ -73,7 +73,7 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
                silent = TRUE)
     if(class(tmp) == "list")
     {
-      if(abs(tmp$f.root) <= tol*100){
+      if(abs(tmp$f.root) <= 0.01){
         convergence <- tmp$iter <= maxIter
         lambda0 <- tmp$root
       }
@@ -81,7 +81,7 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
     if(is.null(convergence))
     {
       # Divide seeking interval into smaller intervals
-      #bb <- exp(seq(log(eps/10),log(interval[2]^1.7),length=100))
+      # bb <- exp(seq(log(eps/10),log(interval[2]^1.7),length=100))
       bb <- exp(seq(log(eps),log(interval[2]),length=100))
       flag <- TRUE; i <- 1
       while(flag)
@@ -93,7 +93,7 @@ solveMixed <- function(y, X = NULL, Z = NULL, K = NULL, U = NULL, d = NULL,
         if(class(tmp) == "list")
         {
           # If the root is near to zero
-          if(abs(tmp$f.root) <= tol*100)
+          if(abs(tmp$f.root) <= 0.01)
           {
             convergence <- tmp$iter <= maxIter
             if(tmp$root <= interval[1]){
