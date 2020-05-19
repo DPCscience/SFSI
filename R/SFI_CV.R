@@ -1,6 +1,6 @@
-# X = NULL; Z = NULL; K=G2.0; indexK = NULL; b=fm0$b; h2 = h20; trn.CV = indexTRN; alpha = 1;
-# lambda = NULL; nLambda = 100; nCV = 2; nFolds = 5; seed = NULL; method = c("CD1","CD2")[1];
-# mc.cores = 4; tol = 1E-4; maxIter = 500; name = NULL; verbose = TRUE
+#y=dat$y; X = NULL; Z = NULL; K=G0; indexK = NULL; b=fm0$b; h2 = h20; trn.CV = indexTRN; alpha = 1;
+#lambda = NULL; nLambda = 100; nCV = 2; nFolds = "n"; seed = NULL; method = c("CD1","CD2")[1];
+#mc.cores = 5; tol = 1E-4; maxIter = 500; name = NULL; verbose = TRUE
 
 SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
               h2 = NULL, trn.CV = seq_along(y), alpha = 1, lambda = NULL,
@@ -30,30 +30,29 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
     nFolds <- ifelse(isLOOCV,nTRN,as.numeric(nFolds))
     mc.cores2 <- ifelse(isLOOCV,1,mc.cores)
 
-    compApply <- function(chunk)
+    compApply <- function(ind)
     {
-      trn <- trn.CV[folds != chunk]
-      tst <- trn.CV[folds == chunk]
+      trn <- trn.CV[folds != ind]
+      tst <- trn.CV[folds == ind]
 
       fm <- SFI(y, X=X, b=b, K=K, h2=h2, trn=trn, tst=tst,
               alpha=alpha, method=method, lambda=lambda,
               nLambda=nLambda, tol=tol, maxIter=maxIter,
               mc.cores=mc.cores2, verbose=FALSE)
-      fv <- summary(fm)
 
       if(isLOOCV){
-          out <- list(u=as.vector(fitted.SFI(fm)), h2=fm$h2, b=fm$b, tst=tst,
+          rr <- list(u=as.vector(fitted.SFI(fm)), h2=fm$h2, b=fm$b, tst=tst,
                       df=fm$df, lambda=fm$lambda)
       }else{
-          fv <- summary(fm)
-          out <- list(h2=fm$h2, b=fm$b, tst=tst ,df=fv$df, lambda=fv$lambda,
+          fv <- summary.SFI(fm)
+          rr <- list(h2=fm$h2, b=fm$b, tst=tst ,df=fv$df, lambda=fv$lambda,
                       accuracy=fv$accuracy, MSE=fv$MSE)
       }
 
       if(verbose){
-        cat("Cross-validation:",ifelse(isLOOCV,"LOO",k),". Fold ",chunk," of ",nFolds,"\n",sep="")
+        message("Cross-validation:",ifelse(isLOOCV,"LOO",k),". Fold ",ind," of ",nFolds)
       }
-      out
+      rr
     }
 
     if(is.null(seed)){   # Seeds for randomization
@@ -79,7 +78,9 @@ SFI_CV <- function(y, X = NULL, b = NULL, Z = NULL, K, indexK = NULL,
         out = lapply(X=seq(nFolds),FUN=compApply)
       }
       if(mc.cores > 1L & isLOOCV){
-        out = parallel::mclapply(X=seq(nFolds),FUN=compApply,mc.cores=mc.cores)
+        out = mclapply(X=seq(nFolds),FUN=compApply,mc.cores=mc.cores)
+        # registerDoParallel(cores=mc.cores)
+        # out = foreach(ind=seq(nFolds),.options.snow=list(preschedule=TRUE)) %dopar% compApply(ind)
       }
 
       tmp <- do.call(rbind,split(data.frame(trn.CV,folds),folds))[,1]
